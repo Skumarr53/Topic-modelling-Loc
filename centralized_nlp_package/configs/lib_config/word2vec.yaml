@@ -1,0 +1,11 @@
+# configs/embedding/word2vec.yaml
+
+word2vec:
+  vector_size: 300
+  window: 5
+  min_count: 10
+  workers: 16
+  epochs: 15
+  gen_bigram: false
+  bigram_threshold: 2
+  model_save_path: "path/to/save/model/{min_year}_{min_month}_{max_year}_{max_month}_v1.model"

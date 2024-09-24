@@ -1,0 +1,30 @@
+snowflake:
+  user: "your_username"
+  password: "your_password"
+  account: "your_account"
+  warehouse: "your_warehouse"
+  database: "your_database"
+  schema: "your_schema"
+
+
+# snowflake: Update snowflake.yaml to reference environment variables:
+# snowflake:
+#   user: ${env:SFLK_USER}
+#   password: ${env:SFLK_PASSWORD}
+#   account: ${env:SFLK_ACCOUNT}
+#   warehouse: ${env:SFLK_WAREHOUSE}
+#   database: ${env:SFLK_DATABASE}
+#   schema: ${env:SFLK_SCHEMA}
+
+
+# Before running your pipeline, set the necessary environment variables in your shell or through a .env file managed by tools like dotenv.
+
+# export SFLK_USER="your_username"
+# export SFLK_PASSWORD="your_password"
+# export SFLK_ACCOUNT="your_account"
+# export SFLK_WAREHOUSE="your_warehouse"
+# export SFLK_DATABASE="your_database"
+# export SFLK_SCHEMA="your_schema"
+
+# non-default environment
+#python -m centralized_nlp_package.pipelines.input_preparation_pipeline1 dask.n_workers=16 word2vec.gen_bigram=true

@@ -1,0 +1,9 @@
+# configs/preprocessing/preprocessing.yaml
+
+preprocessing:
+  spacy_model: "en_core_web_sm"
+  additional_stop_words:
+    - "bottom"
+    - "top"
+    - "call"
+  max_length: 1000000000
