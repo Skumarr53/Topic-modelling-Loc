@@ -3,3 +3,5 @@ defaults:
   - dask
   - word2vec
   - preprocessing
+  - blob_conf
+  - paths

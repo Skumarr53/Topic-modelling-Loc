@@ -5,6 +5,23 @@ from typing import Any, Dict, List
 import hydra
 from omegaconf import OmegaConf, MISSING
 
+
+@dataclass(frozen=True)
+class PathsConfig:
+    model_artifacts_path: str
+
+@dataclass(frozen=True)
+class BlobFilenameConfig:
+    litigious_flnm: str
+    complex_flnm: str
+    uncertianity_flnm: str
+    syllable_flnm: str
+    vocab_pos_flnm: str
+    vocab_neg_flnm: str
+    contraction_flnm: str
+    stop_words_flnm: str
+    negate_words_flnm: str
+
 @dataclass
 class SnowflakeConfig:
     user: str = MISSING
@@ -41,6 +58,8 @@ class Config:
     dask: DaskConfig = DaskConfig()
     word2vec: Word2VecConfig = Word2VecConfig()
     preprocessing: PreprocessingConfig = PreprocessingConfig()
+    blob_filenames: BlobFilenameConfig = BlobFilenameConfig()
+    paths: PathsConfig = PathsConfig()
 
 def get_config(config_path: str = "../configs", config_name: str = "config") -> Config:
     """
