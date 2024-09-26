@@ -14,7 +14,7 @@ from ..utils.config import Config, get_config
 from ..utils.logging_setup import setup_logging
 from ..utils.helpers import format_date, construct_model_save_path
 from ..data_access.snowflake_utils import read_from_snowflake
-from ..preprocessing.text_processing import initialize_spacy_model, word_tokenize
+from ..preprocessing.text_preprocessing import initialize_spacy_model, word_tokenize
 from ..embedding.word2vec_model import train_word2vec, save_model
 
 def run_pipeline1(config: Config) -> None:

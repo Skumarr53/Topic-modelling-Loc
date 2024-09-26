@@ -48,9 +48,13 @@ class Word2VecConfig:
 
 @dataclass
 class PreprocessingConfig:
-    spacy_model: str = "en_core_web_sm"
-    additional_stop_words: List[str] = field(default_factory=lambda: ["bottom", "top", "call"])
+    spacy_model: str
+    additional_stop_words: List[str]
     max_length: int = 1000000000
+
+@dataclass
+class PsycholinguisticsConfig:
+    filt_sections: List[str] = field(default_factory=list)
 
 @dataclass
 class Config:

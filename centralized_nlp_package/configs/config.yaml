@@ -5,3 +5,4 @@ defaults:
   - preprocessing
   - blob_conf
   - paths
+  - psycholinguistics

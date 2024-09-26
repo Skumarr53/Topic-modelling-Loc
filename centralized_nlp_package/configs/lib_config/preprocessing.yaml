@@ -7,3 +7,23 @@ preprocessing:
     - "top"
     - "call"
   max_length: 1000000000
+  cleanup_phrases:
+  - "Thank you"
+  - "thank you"
+  - "thanks"
+  - "Thanks"
+  - "earnings call"
+  - "earnings release"
+  - "earnings conference"
+  min_word_length: 5
+  greeting_phrases: ["good morning", "good afternoon", "good evening"]
+
+psycholinguistics:
+  filt_sections:
+  - FILT_MD
+  - FILT_QA
+  - FILT_CEO_MD
+  - FILT_CEO_QA
+  - FILT_EXEC_MD
+  - FILT_EXEC_QA
+  - FILT_ANL_QA

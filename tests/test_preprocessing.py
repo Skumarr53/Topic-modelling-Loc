@@ -1,7 +1,7 @@
 # centralized_nlp_package/tests/test_preprocessing.py
 
 import pytest
-from centralized_nlp_package.preprocessing.text_processing import initialize_spacy_model, word_tokenize
+from centralized_nlp_package.preprocessing.text_preprocessing import initialize_spacy_model, word_tokenize
 from centralized_nlp_package.utils.config import Config, PreprocessingConfig
 import spacy
 
