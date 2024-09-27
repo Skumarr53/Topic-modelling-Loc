@@ -10,7 +10,7 @@ import numpy as np
 from centralized_nlp_package.preprocessing.text_preprocessing import (
     initialize_spacy,
     find_ngrams,
-    tokenize_text,
+    tokenize_and_lemmatize_text,
     tokenize_matched_words
 )
 

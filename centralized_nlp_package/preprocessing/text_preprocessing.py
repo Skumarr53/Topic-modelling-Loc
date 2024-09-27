@@ -37,37 +37,35 @@ def find_ngrams(input_list: List[str], n: int) -> List[Tuple[str, ...]]:
     """
     return list(zip(*[input_list[i:] for i in range(n)]))
 
-# def clean_text(sentence: str) -> Optional[str]:
-#     """
-#     Cleans the input sentence by removing unwanted phrases and characters.
+def remove_unwanted_phrases_and_validate(sentence: str) -> Optional[str]:
+    """
+    Cleans the input sentence by removing unwanted phrases.
 
-#     Args:
-#         sentence (str): The input sentence to clean.
-#         config (Config): Configuration object containing cleanup phrases and thresholds.
+    Args:
+        sentence (str): The input sentence to process.
 
-#     Returns:
-#         Optional[str]: Cleaned sentence or None if it doesn't meet criteria.
-#     """
-#     logger.debug("Cleaning sentence.")
-#     # Remove specified phrases
-#     for phrase in Config.preprocessing.preprocessing.cleanup_phrases:
-#         sentence = sentence.replace(phrase, "")
-#     # Check word count
-#     if len(sentence.split()) < Config.preprocessing.preprocessing.min_word_length:
-#         logger.debug("Sentence below minimum word length. Skipping.")
-#         return None
-#     # Remove greetings
-#     low = sentence.lower()
-#     if any(greet in low for greet in Config.preprocessing.preprocessing.greeting_phrases):
-#         logger.debug("Greeting phrase detected. Skipping.")
-#         return None
-#     # Remove unwanted characters and normalize spaces
-#     sentence = re.sub(r'[^a-zA-Z\s]', '', sentence)
-#     sentence = re.sub(r'\s+', ' ', sentence).strip().lower()
-#     logger.debug(f"Cleaned sentence: {sentence}")
-#     return sentence if sentence else None
+    Returns:
+        Optional[str]: Cleaned sentence or None if it doesn't meet criteria.
+    """
+    logger.debug("Cleaning sentence.")
+    # Remove specified phrases
+    for phrase in Config.preprocessing.preprocessing.cleanup_phrases:
+        sentence = sentence.replace(phrase, "")
+    # Check word count
+    if len(sentence.split()) < Config.preprocessing.preprocessing.min_word_length:
+        logger.debug("Sentence below minimum word length. Skipping.")
+        return None
+    
+    # Remove greetings
+    if any(greet in sentence.lower() for greet in Config.preprocessing.preprocessing.greeting_phrases):
+        logger.debug("Greeting phrase detected. Skipping.")
+        return None
 
-def tokenize_text(doc: str, nlp: spacy.Language) -> List[str]:
+    logger.debug(f"Cleaned sentence: {sentence}")
+    return sentence if sentence else None
+
+
+def tokenize_and_lemmatize_text(doc: str, nlp: spacy.Language) -> List[str]:
     """
     Tokenizes and lemmatizes the document text.
 
