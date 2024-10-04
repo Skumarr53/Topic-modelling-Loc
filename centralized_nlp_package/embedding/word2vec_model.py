@@ -5,7 +5,8 @@ from typing import List, Dict, Any
 from loguru import logger
 from pathlib import Path
 
-def train_word2vec(feed: List[List[str]], gen_bigram: bool, model_params: Dict[str, Any]) -> Word2Vec:
+## TODO: Topic modelling 
+def train_word2vec_ngrams(feed: List[List[str]], gen_bigram: bool, model_params: Dict[str, Any]) -> Word2Vec:
     """
     Trains a Word2Vec model on the provided corpus.
 

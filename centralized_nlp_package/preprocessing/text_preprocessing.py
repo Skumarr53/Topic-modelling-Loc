@@ -4,7 +4,8 @@ import re
 from typing import List, Tuple, Optional, Union
 import spacy
 from loguru import logger
-from ..utils.config import Config
+from centralized_nlp_package.utils.config import Config
+from centralized_nlp_package.text_processing.text_utils import expand_contractions, word_tokenizer
 
 def initialize_spacy() -> spacy.Language:
     """
@@ -102,56 +103,73 @@ def tokenize_matched_words(doc: str, nlp: spacy.Language) -> List[str]:
     logger.debug(f"Tokenized matched words into {len(ret)} tokens.")
     return ret
 
-# def preprocess_text(text: Union[str, List[str]], nlp: spacy.Language) -> Tuple[Optional[str], List[str], int]:
-#     """
-#     Preprocesses the input text by cleaning and tokenizing.
+def preprocess_text(text: Union[str, List[str]], nlp: spacy.Language) -> Tuple[Optional[str], List[str], int]:
+    """
+    Preprocesses the input text by cleaning and tokenizing.
 
-#     Args:
-#         text (Union[str, List[str]]): The input text or list of texts to preprocess.
-#         nlp (spacy.Language): Initialized SpaCy model.
+    Args:
+        text (Union[str, List[str]]): The input text or list of texts to preprocess.
+        nlp (spacy.Language): Initialized SpaCy model.
 
-#     Returns:
-#         Tuple[Optional[str], List[str], int]: Cleaned text, list of tokens, and word count.
-#     """
-#     logger.debug("Preprocessing text.")
-#     if isinstance(text, list):
-#         logger.error("Expected a single string input for this function.")
-#         return None, [], 0
-#     cleaned = clean_text(text, Config())  # Pass the actual config
-#     if cleaned:
-#         tokens = tokenize_text(cleaned, nlp)
-#         word_count = len(tokens)
-#         return cleaned, tokens, word_count
-#     else:
-#         return None, [], 0
+    Returns:
+        Tuple[Optional[str], List[str], int]: Cleaned text, list of tokens, and word count.
+    """
+    logger.debug("Preprocessing text.")
+    if isinstance(text, list):
+        logger.error("Expected a single string input for this function.")
+        return None, [], 0
+    cleaned = clean_text(text, Config())  # Pass the actual config
+    if cleaned:
+        tokens = word_tokenizer(cleaned, nlp)
+        word_count = len(tokens)
+        return cleaned, tokens, word_count
+    else:
+        return None, [], 0
 
-# def preprocess_text_list(text_list: List[str], nlp: spacy.Language) -> Tuple[List[str], List[List[str]], List[int]]:
-#     """
-#     Preprocesses a list of texts by cleaning and tokenizing each.
+def preprocess_text_list(text_list: List[str], nlp: spacy.Language) -> Tuple[List[str], List[List[str]], List[int]]:
+    """
+    Preprocesses a list of texts by cleaning and tokenizing each.
 
-#     Args:
-#         text_list (List[str]): The list of texts to preprocess.
-#         nlp (spacy.Language): Initialized SpaCy model.
+    Args:
+        text_list (List[str]): The list of texts to preprocess.
+        nlp (spacy.Language): Initialized SpaCy model.
 
-#     Returns:
-#         Tuple[List[str], List[List[str]], List[int]]: Cleaned texts, list of token lists, and word counts.
-#     """
-#     logger.debug("Preprocessing list of texts.")
-#     final_text_list = []
-#     input_word_list = []
-#     word_count_list = []
+    Returns:
+        Tuple[List[str], List[List[str]], List[int]]: Cleaned texts, list of token lists, and word counts.
+    """
+    logger.debug("Preprocessing list of texts.")
+    final_text_list = []
+    input_word_list = []
+    word_count_list = []
 
-#     for text in text_list:
-#         cleaned = clean_text(text, Config())  # Pass the actual config
-#         if cleaned:
-#             tokens = tokenize_text(cleaned, nlp)
-#             final_text_list.append(cleaned)
-#             input_word_list.append(tokens)
-#             word_count_list.append(len(tokens))
-#         else:
-#             final_text_list.append("")
-#             input_word_list.append([])
-#             word_count_list.append(0)
+    for text in text_list:
+        cleaned = clean_text(text)  # Pass the actual config
+        if cleaned:
+            tokens = word_tokenizer(cleaned, nlp)
+            final_text_list.append(cleaned)
+            input_word_list.append(tokens)
+            word_count_list.append(len(tokens))
+        else:
+            final_text_list.append("")
+            input_word_list.append([])
+            word_count_list.append(0)
 
-#     logger.debug(f"Preprocessed {len(text_list)} texts.")
-#     return final_text_list, input_word_list, word_count_list
+    logger.debug(f"Preprocessed {len(text_list)} texts.")
+    return final_text_list, input_word_list, word_count_list
+
+def clean_text(text: str) -> str:
+    """
+    Cleans the input text by expanding contractions, removing unwanted characters, and normalizing spaces.
+    Args:
+        text (str): The input text to clean.
+    Returns:
+        str: The cleaned text.
+    """
+    text = expand_contractions(re.sub('’', "'", text))
+    text = text.strip().lower()
+    text = text.replace('"', '')
+    text = re.sub(r"\b[a-zA-Z]\b", "", text)
+    text = re.sub("[^a-zA-Z]", " ", text)
+    text = re.sub("\s+", ' ', text)
+    logger.debug("Cleaned the text.")
+    return text.strip()

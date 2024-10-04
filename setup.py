@@ -2,13 +2,13 @@
 
 from setuptools import setup, find_packages
 
-with open("README.md", "r") as fh:
+with open("./README.md", "r") as fh:
     long_description = fh.read()
 
 # Read requirements files
 def read_requirements_file(filename):
-    with open(filename, 'r') as file:
-        return file.read().splitlines()
+       with open(filename) as f:
+           return [line.strip() for line in f if line.strip() and not line.startswith("#") and not line.startswith("-r")]
 
 setup(
     name="centralized_nlp_package",

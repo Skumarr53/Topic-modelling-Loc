@@ -9,6 +9,7 @@ from loguru import logger
 
 from ..utils.config import Config
 from ..utils.exceptions import FilesNotLoadedException
+from ..text_preprocessing.preprocessing import clean_text 
 
 
 def find_ngrams(input_list: List[str], n: int) -> Iterator[Tuple[str, ...]]:
@@ -74,30 +75,22 @@ def load_list_from_txt(file_path: str, is_lower: bool = True) -> set:
         raise FilesNotLoadedException(f"Error loading list from {file_path}: {e}") from e
 
 
-def expand_contractions(text: str, config: Config) -> str:
-    """
-    Expands contractions in the text based on a provided contractions list.
+def expand_contractions(text):
+    """Expand contractions
 
-    Args:
-        text (str): The input text.
-        config (Config): Configuration object containing file paths.
-
+    Parameters:
+    argument1 (str): text
+   
     Returns:
-        str: Text with expanded contractions.
+    str:returns text with expanded contractions
+    
     """
-    contractions_path = Path(config.model_artifacts.path) / config.blob_filenames.contraction_flnm
-    contractions = load_list_from_txt(str(contractions_path), is_lower=True)
-    contractions_dict = {word.lower(): word for word in contractions}  # Assuming contractions list is "can't" etc.
-
-    def replace(match):
-        word = match.group(0)
-        return contractions_dict.get(word.lower(), word)
-
-    pattern = re.compile(r'\b(' + '|'.join(re.escape(k) for k in contractions_dict.keys()) + r')\b')
-    expanded_text = pattern.sub(replace, text)
-    logger.debug("Expanded contractions in text.")
-    return expanded_text
-
+    # TODO: add contraction words to config or txt file then load
+    contraction_dict = None
+    for word in text.split():
+      if word.lower() in contraction_dict:
+        text = text.replace(word, contraction_dict[word.lower()])
+    return text
 
 def check_datatype(text_input: Optional[Union[str, List[str]]]) -> Optional[str]:
     """
@@ -124,28 +117,6 @@ def check_datatype(text_input: Optional[Union[str, List[str]]]) -> Optional[str]
         return None
 
 
-def _clean_text(text: str, config: Config) -> str:
-    """
-    Cleans the input text by expanding contractions, removing unwanted characters, and normalizing spaces.
-
-    Args:
-        text (str): The input text to clean.
-        config (Config): Configuration object containing file paths.
-
-    Returns:
-        str: The cleaned text.
-    """
-    text = expand_contractions(text.replace('’', "'"), config)
-    text = text.strip().lower()
-    text = text.replace('"', '')
-    text = re.sub(r"\b[a-zA-Z]\b", "", text)
-    text = re.sub("[^a-zA-Z]", " ", text)
-    text = re.sub("\s+", ' ', text)
-    cleaned_text = text.strip()
-    logger.debug("Cleaned the text.")
-    return cleaned_text
-
-
 def word_tokenizer(text: str, config: Config, spacy_tokenizer: spacy.Language) -> List[str]:
     """
     Tokenizes the text and performs lemmatization.
@@ -161,7 +132,7 @@ def word_tokenizer(text: str, config: Config, spacy_tokenizer: spacy.Language) -
     stop_words_path = Path(config.model_artifacts.path) / config.blob_filenames.stop_words_flnm
     stop_words_list = load_list_from_txt(str(stop_words_path), is_lower=True)
 
-    doc = spacy_tokenizer(text)
+    doc = spacy_tokenizer(text.lower())
     token_lemmatized = [token.lemma_ for token in doc]
     filtered_words = [word for word in token_lemmatized if word not in stop_words_list]
     logger.debug(f"Tokenized and filtered words. {len(filtered_words)} words remaining.")
@@ -182,7 +153,7 @@ def preprocess_text(text_input: Optional[Union[str, List[str]]], config: Config,
     """
     text = check_datatype(text_input)
     if text:
-        cleaned_text = _clean_text(text, config)
+        cleaned_text = clean_text(text)
         input_words = word_tokenizer(cleaned_text, config, spacy_tokenizer)
         word_count = len(input_words)
         logger.debug("Preprocessed single text input.")
@@ -212,7 +183,7 @@ def preprocess_text_list(text_list: List[str], config: Config, spacy_tokenizer: 
     word_count_list = []
 
     for text in text_list:
-        cleaned_text = _clean_text(text, config)
+        cleaned_text = clean_text(text)
         token_word_list = word_tokenizer(cleaned_text, config, spacy_tokenizer)
         final_text_list.append(cleaned_text)
         input_word_list.append(token_word_list)

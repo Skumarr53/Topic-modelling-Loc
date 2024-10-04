@@ -1,47 +1,31 @@
 # centralized_nlp_package/text_processing/text_analysis.py
 
-import re
+import os, re
 from typing import List, Tuple, Optional, Dict, Any
 import numpy as np
 from collections import Counter
 from loguru import logger
-from ..data_access.snowflake_utils import read_from_snowflake
-from ..preprocessing.text_processing import preprocess_text, preprocess_text_list
-from ..utils.config import Config
-from ..utils.exceptions import FilesNotLoadedException
+from text_utils import load_list_from_txt, combine_sent, word_tokenizer, find_ngrams
+from centralized_nlp_package.data_access.snowflake_utils import read_from_snowflake
+from centralized_nlp_package.preprocessing.text_preprocessing import preprocess_text, preprocess_text_list, tokenize_matched_words
+from centralized_nlp_package.utils.config import Config
+from centralized_nlp_package.utils.exception import FilesNotLoadedException
 
 
-def get_blob_storage_path(config: Config, filename: str) -> str:
-    """
-    Constructs the full path to a file in blob storage.
-
-    Args:
-        config (Config): Configuration object.
-        filename (str): Name of the file.
-
-    Returns:
-        str: Full path to the file.
-    """
-    path = f"{config.psycholinguistics.model_artifacts_path}{filename}"
-    logger.debug(f"Constructed blob storage path: {path}")
-    return path
-
-
-def load_word_set(blob_util: Any, config: Config, filename: str) -> set:
+def load_word_set(config: Config, filename: str) -> set:
     """
     Loads a set of words from a specified file in blob storage.
 
     Args:
-        blob_util (Any): Instance of BlobStorageUtility.
         config (Config): Configuration object.
         filename (str): Name of the file.
 
     Returns:
         set: Set of words.
     """
-    file_path = get_blob_storage_path(config, filename)
+    file_path = os.path.join(config.psycholinguistics.model_artifacts_path, filename)
     try:
-        word_set = blob_util.load_list_from_txt(file_path)
+        word_set = load_list_from_txt(file_path)
         logger.debug(f"Loaded word set from {file_path} with {len(word_set)} words.")
         return word_set
     except FileNotFoundError:
@@ -52,21 +36,20 @@ def load_word_set(blob_util: Any, config: Config, filename: str) -> set:
         raise
 
 
-def load_syllable_counts(blob_util: Any, config: Config, filename: str) -> Dict[str, int]:
+def load_syllable_counts( config: Config, filename: str) -> Dict[str, int]:
     """
     Loads syllable counts from a specified file in blob storage.
 
     Args:
-        blob_util (Any): Instance of BlobStorageUtility.
         config (Config): Configuration object.
         filename (str): Name of the file.
 
     Returns:
         Dict[str, int]: Dictionary mapping words to their syllable counts.
     """
-    file_path = get_blob_storage_path(config, filename)
+    file_path =  os.path.join(config.psycholinguistics.model_artifacts_path, filename)
     try:
-        syllable_counts = blob_util.read_syllable_count(file_path)
+        syllable_counts = load_syllable_counts(file_path)
         logger.debug(f"Loaded syllable counts from {file_path}.")
         return syllable_counts
     except FileNotFoundError:
@@ -77,22 +60,23 @@ def load_syllable_counts(blob_util: Any, config: Config, filename: str) -> Dict[
         raise
 
 
-def check_negation(input_words: List[str], index: int, preprocess_obj: Any) -> bool:
+def check_negation(input_words: List[str], index: int) -> bool:
     """
     Checks if a word at a given index is preceded by a negation within three words.
 
     Args:
         input_words (List[str]): List of tokenized words.
         index (int): Current word index.
-        preprocess_obj (Any): Instance of DictionaryModelPreprocessor.
 
     Returns:
         bool: True if negated, False otherwise.
     """
+    # TODO: add negation words to config or txt file then load
+    negated_words = None
     negation_window = 3
     start = max(0, index - negation_window)
     for i in range(start, index):
-        if preprocess_obj.word_negated(input_words[i]):
+        if input_words[i] in negated_words:
             logger.debug(f"Negation found before word '{input_words[index]}' at position {i}.")
             return True
     return False
@@ -102,8 +86,6 @@ def calculate_polarity_score(
     input_words: List[str],
     positive_words: set,
     negative_words: set,
-    preprocess_obj: Any,
-    statistics_obj: Any
 ) -> Tuple[float, int, int, int, float]:
     """
     Calculates the polarity score based on positive and negative word counts.
@@ -112,8 +94,6 @@ def calculate_polarity_score(
         input_words (List[str]): List of tokenized words.
         positive_words (set): Set of positive words.
         negative_words (set): Set of negative words.
-        preprocess_obj (Any): Instance of DictionaryModelPreprocessor.
-        statistics_obj (Any): Instance of Statistics.
 
     Returns:
         Tuple[float, int, int, int, float]: Polarity score, word count, sum of negatives, count of positives, legacy score.
@@ -128,7 +108,7 @@ def calculate_polarity_score(
             logger.debug(f"Negative word found: {word} at position {i}.")
 
         if word in positive_words:
-            if check_negation(input_words, i, preprocess_obj):
+            if check_negation(input_words, i):
                 negative_count -= 1
                 logger.debug(f"Positive word '{word}' at position {i} negated.")
             else:
@@ -137,81 +117,63 @@ def calculate_polarity_score(
 
     sum_negative = -negative_count
     polarity_score = (positive_count - sum_negative) / word_count if word_count > 0 else np.nan
-    legacy_score = statistics_obj.combine_sent(positive_count, sum_negative)
+    legacy_score = combine_sent(positive_count, sum_negative)
     logger.debug(f"Polarity Score: {polarity_score}, Word Count: {word_count}, Sum Negative: {sum_negative}, Positive Count: {positive_count}, Legacy Score: {legacy_score}")
     return polarity_score, word_count, sum_negative, positive_count, legacy_score
 
 
 def polarity_score_per_section(
-    blob_util: Any,
     config: Config,
     text_list: List[str],
-    preprocess_obj: Any,
-    statistics_obj: Any
-) -> Tuple[Optional[float], Optional[float], Optional[float], Optional[int], Optional[int], Optional[int], Optional[int]]:
+) -> Tuple[Optional[float], Optional[int], Optional[int], Optional[int], Optional[float]]:
     """
-    Analyzes text to calculate litigious, complex, and uncertain word scores.
+    Generates the polarity score for the input text to identify the sentiment.
 
     Args:
-        blob_util (Any): Instance of BlobStorageUtility.
         config (Config): Configuration object.
         text_list (List[str]): List of texts to analyze.
-        preprocess_obj (Any): Instance of DictionaryModelPreprocessor.
-        statistics_obj (Any): Instance of Statistics.
 
     Returns:
-        Tuple[Optional[float], Optional[float], Optional[float], Optional[int], Optional[int], Optional[int], Optional[int]]:
-            Litigious score, Complex score, Uncertain score, Word count,
-            Litigious count, Complex count, Uncertain count.
+        Tuple[Optional[float], Optional[int], Optional[int], Optional[int], Optional[float]]:
+            Polarity score, word count, sum of negatives, count of positives, legacy score.
     """
-    litigious_words = load_word_set(blob_util, config, config.psycholinguistics.filecfg.litigious_flnm)
-    complex_words = load_word_set(blob_util, config, config.psycholinguistics.filecfg.complex_flnm)
-    uncertain_words = load_word_set(blob_util, config, config.psycholinguistics.filecfg.uncertianity_flnm)
+    positive_words = load_word_set(config, config.psycholinguistics.filecfg.positive_flnm)
+    negative_words = load_word_set(config, config.psycholinguistics.filecfg.negative_flnm)
 
-    cleaned_text, input_words, word_count = preprocess_text(text_list, preprocess_obj)
+    cleaned_text, input_words, word_count = preprocess_text(text_list)
 
     if cleaned_text and word_count > 1:
-        litigious_count = sum(1 for word in input_words if word in litigious_words)
-        complex_count = sum(1 for word in input_words if word in complex_words)
-        uncertain_count = sum(1 for word in input_words if word in uncertain_words)
-
-        litigious_score = litigious_count / word_count
-        complex_score = complex_count / word_count
-        uncertain_score = uncertain_count / word_count
-
-        logger.info(f"Section Analysis - Litigious: {litigious_score}, Complex: {complex_score}, Uncertain: {uncertain_score}")
-        return (litigious_score, complex_score, uncertain_score, word_count, litigious_count, complex_count, uncertain_count)
+        polarity_score, word_count, sum_negative, positive_count, legacy_score = calculate_polarity_score(
+            input_words, positive_words, negative_words
+        )
+        return polarity_score, word_count, sum_negative, positive_count, legacy_score
     else:
-        logger.warning("Insufficient data for section analysis.")
-        return (np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan)
-
+        logger.warning("Insufficient data for polarity score calculation.")
+        return np.nan, np.nan, np.nan, np.nan, np.nan
 
 def polarity_score_per_sentence(
-    blob_util: Any,
     config: Config,
     text_list: List[str],
-    preprocess_obj: Any,
-    statistics_obj: Any
 ) -> Tuple[Optional[List[int]], Optional[List[int]], Optional[List[int]]]:
     """
     Analyzes sentences to calculate polarity scores.
 
     Args:
-        blob_util (Any): Instance of BlobStorageUtility.
         config (Config): Configuration object.
         text_list (List[str]): List of sentences to analyze.
-        preprocess_obj (Any): Instance of DictionaryModelPreprocessor.
-        statistics_obj (Any): Instance of Statistics.
 
     Returns:
         Tuple[Optional[List[int]], Optional[List[int]], Optional[List[int]]]:
             Word counts, positive word counts, negative word counts per sentence.
     """
-    litigious_words = load_word_set(blob_util, config, config.psycholinguistics.filecfg.litigious_flnm)
-    complex_words = load_word_set(blob_util, config, config.psycholinguistics.filecfg.complex_flnm)
-    uncertain_words = load_word_set(blob_util, config, config.psycholinguistics.filecfg.uncertianity_flnm)
+    # TODO: decide how to hancle nlp variable here
+    nlp = None
 
-    _, input_words_list, word_count_list = preprocess_text_list(text_list, preprocess_obj)
+    # TODO: Load postyive and negative words list
+    positive_words = load_word_set( config, config.psycholinguistics.filecfg.vocab_pos_flnm)
+    negative_words = load_word_set( config, config.psycholinguistics.filecfg.vocab_neg_flnm)
+
+    _, input_words_list, word_count_list = preprocess_text_list(text_list, nlp)
 
     if text_list and word_count_list:
         word_counts = []
@@ -220,7 +182,7 @@ def polarity_score_per_sentence(
 
         for input_words in input_words_list:
             polarity, wc, sum_neg, pos_count, _ = calculate_polarity_score(
-                input_words, litigious_words, uncertain_words, preprocess_obj, statistics_obj
+                input_words, positive_words, negative_words
             )
             word_counts.append(wc)
             positive_counts.append(pos_count)
@@ -248,16 +210,17 @@ def is_complex(word: str, syllables: Dict[str, int]) -> bool:
         return False
 
     suffix_rules = {
-        'es': 2,
-        'ing': 3,
-        'ed': 2
+        'es': [2, 1],
+        'ing': [3],
+        'ed': [2, 1]
     }
 
-    for suffix, strip_length in suffix_rules.items():
+    for suffix, strip_lengths in suffix_rules.items():
         if word.endswith(suffix):
-            root = word[:-strip_length]
-            if root in syllables and syllables[root] > 2:
-                return True
+            for strip_length in strip_lengths:
+                root = word[:-strip_length]
+                if root in syllables and syllables[root] > 2:
+                    return True
 
     if syllables.get(word, 0) > 2:
         return True
@@ -266,32 +229,31 @@ def is_complex(word: str, syllables: Dict[str, int]) -> bool:
 
 
 def fog_analysis_per_section(
-    blob_util: Any,
     config: Config,
     text_list: List[str],
-    preprocess_obj: Any
 ) -> Tuple[Optional[float], Optional[int], Optional[float], Optional[int]]:
     """
     Calculates the Fog Index for the input text to evaluate readability.
 
     Args:
-        blob_util (Any): Instance of BlobStorageUtility.
         config (Config): Configuration object.
         text_list (List[str]): List of texts to analyze.
-        preprocess_obj (Any): Instance of DictionaryModelPreprocessor.
 
     Returns:
         Tuple[Optional[float], Optional[int], Optional[float], Optional[int]]:
             Fog index, complex word count, average words per sentence, total word count.
     """
-    syllables = load_syllable_counts(blob_util, config, config.psycholinguistics.filecfg.syllable_flnm)
+
+    # TODO: decide how to hancle nlp variable here
+    nlp = None
+    syllables = load_syllable_counts( config, config.psycholinguistics.filecfg.syllable_flnm)
 
     raw_text = ' '.join(text_list) if isinstance(text_list, list) else text_list
     total_word_count = len(raw_text.split())
     sentences = raw_text.split('. ')
     average_words_per_sentence = np.mean([len(sentence.strip().split()) for sentence in sentences]) if sentences else 0
 
-    cleaned_text, input_words, word_count = preprocess_text(text_list, preprocess_obj)
+    cleaned_text, input_words, word_count = preprocess_text(text_list, nlp)
 
     if cleaned_text and word_count > 1:
         complex_word_count = sum(is_complex(word, syllables) for word in input_words)
@@ -304,30 +266,28 @@ def fog_analysis_per_section(
 
 
 def fog_analysis_per_sentence(
-    blob_util: Any,
     config: Config,
     text_list: List[str],
-    preprocess_obj: Any
 ) -> Tuple[Optional[List[float]], Optional[List[int]], Optional[List[int]]]:
     """
     Calculates the Fog Index for each sentence in the input list.
 
     Args:
-        blob_util (Any): Instance of BlobStorageUtility.
         config (Config): Configuration object.
         text_list (List[str]): List of sentences to analyze.
-        preprocess_obj (Any): Instance of DictionaryModelPreprocessor.
 
     Returns:
         Tuple[Optional[List[float]], Optional[List[int]], Optional[List[int]]]:
             Fog index list, complex word count list, total word count list.
     """
-    syllables = load_syllable_counts(blob_util, config, config.psycholinguistics.filecfg.syllable_flnm)
+    # TODO: decide how to hancle nlp variable here
+    nlp = None
+    syllables = load_syllable_counts( config, config.psycholinguistics.filecfg.syllable_flnm)
 
     word_count_list = [len(sentence.split()) for sentence in text_list]
     average_words_per_sentence = np.mean(word_count_list) if text_list else 0
 
-    _, input_words_list, _ = preprocess_text_list(text_list, preprocess_obj)
+    _, input_words_list, _ = preprocess_text_list(text_list, nlp)
 
     if text_list and word_count_list:
         fog_index_list = []
@@ -348,108 +308,406 @@ def fog_analysis_per_sentence(
         return (None, None, None)
 
 
-def tone_count_with_negation_check(
-    blob_util: Any,
-    config: Config,
-    text_list: List[str],
-    preprocess_obj: Any,
-    statistics_obj: Any
-) -> Tuple[List[float], List[int], List[int], List[int], List[float]]:
+def tone_count_with_negation_check(self, text_list):
     """
-    Counts positive and negative words with negation checks and calculates legacy scores.
-
-    Args:
-        blob_util (Any): Instance of BlobStorageUtility.
-        config (Config): Configuration object.
-        text_list (List[str]): List of texts to analyze.
-        preprocess_obj (Any): Instance of DictionaryModelPreprocessor.
-        statistics_obj (Any): Instance of Statistics.
+    Count positive and negative words with negation check. Account for simple negation only for positive words.
+    Simple negation is taken to be observations of one of negate words occurring within three words
+    preceding a positive words.
+    Parameters:
+    argument1 (list): text list
 
     Returns:
-        Tuple[List[float], List[int], List[int], List[int], List[float]]:
-            Polarity scores, word counts, negative word counts, positive word counts, legacy scores.
-    """
+    array, int:returns polarity_scores, word_count, negative_word_count_list, positive_word_count_list, legacy_scores
+
+    """ 
+
     polarity_scores = []
     legacy_scores = []
-    word_counts = []
-    negative_word_counts = []
-    positive_word_counts = []
+    word_count = []
+    negative_word_count_list = []
+    positive_word_count_list = []
 
-    litigious_words = load_word_set(blob_util, config, config.psycholinguistics.filecfg.litigious_flnm)
-    uncertain_words = load_word_set(blob_util, config, config.psycholinguistics.filecfg.uncertianity_flnm)
+    sentiment_metrics = polarity_score_per_section(text_list)
 
-    cleaned_text, input_words, word_count = preprocess_text(text_list, preprocess_obj)
+    polarity_scores.append(sentiment_metrics[0])
+    word_count.append(sentiment_metrics[1])
+    negative_word_count_list.append(sentiment_metrics[2])
+    positive_word_count_list.append(sentiment_metrics[3])
+    legacy_scores.append(sentiment_metrics[4])
 
-    if cleaned_text and word_count > 1:
-        polarity, wc, sum_neg, pos_count, legacy = calculate_polarity_score(
-            input_words, litigious_words, uncertain_words, preprocess_obj, statistics_obj
-        )
-        polarity_scores.append(polarity)
-        word_counts.append(wc)
-        negative_word_counts.append(sum_neg)
-        positive_word_counts.append(pos_count)
-        legacy_scores.append(legacy)
-    else:
-        polarity_scores.append(np.nan)
-        word_counts.append(np.nan)
-        negative_word_counts.append(np.nan)
-        positive_word_counts.append(np.nan)
-        legacy_scores.append(np.nan)
-
-    logger.info("Tone count with negation check completed.")
-    return (polarity_scores, word_counts, negative_word_counts, positive_word_counts, legacy_scores)
-
-
-def tone_count_with_negation_check_per_sentence(
-    blob_util: Any,
-    config: Config,
-    text_list: List[str],
-    preprocess_obj: Any,
-    statistics_obj: Any
-) -> Tuple[Optional[List[int]], Optional[List[int]], Optional[List[int]]]:
+    return (polarity_scores, word_count, negative_word_count_list, positive_word_count_list, legacy_scores)
+    
+def tone_count_with_negation_check_per_sentence(self, text_list):
     """
-    Counts positive and negative words with negation checks for each sentence.
-
-    Args:
-        blob_util (Any): Instance of BlobStorageUtility.
-        config (Config): Configuration object.
-        text_list (List[str]): List of sentences to analyze.
-        preprocess_obj (Any): Instance of DictionaryModelPreprocessor.
-        statistics_obj (Any): Instance of Statistics.
+    Count positive and negative words with negation check. Account for simple negation only for positive words.
+    Simple negation is taken to be observations of one of negate words occurring within three words
+    preceding a positive words.
+    Parameters:
+    argument1 (list): text list
 
     Returns:
-        Tuple[Optional[List[int]], Optional[List[int]], Optional[List[int]]]:
-            Word counts, positive word counts per sentence, negative word counts per sentence.
+    tuple:(polarity scores(float), word count(int), negative word count list(list), positive word count list(list), legacy scores(double)))
+
+    """ 
+
+    word_count = []
+    positive_word_count_list_per_sentence=[]
+    negative_word_count_list_per_sentence=[]
+    sentiment_metrics = polarity_score_per_sentence(text_list)
+    word_count.append(sentiment_metrics[0])
+    positive_word_count_list_per_sentence.append(sentiment_metrics[1])
+    negative_word_count_list_per_sentence.append(sentiment_metrics[2])
+
+    return (word_count, positive_word_count_list_per_sentence,negative_word_count_list_per_sentence)
+
+
+
+def get_match_set(matches: List[str]) -> Dict[str, set]:
     """
-    word_counts = []
-    positive_counts = []
-    negative_counts = []
+    Generates the match set including unigrams, bigrams, and phrases.
 
-    litigious_words = load_word_set(blob_util, config, config.psycholinguistics.filecfg.litigious_flnm)
-    uncertain_words = load_word_set(blob_util, config, config.psycholinguistics.filecfg.uncertianity_flnm)
+    Args:
+        matches (List[str]): List of matched words or phrases.
 
-    _, input_words_list, _ = preprocess_text_list(text_list, preprocess_obj)
+    Returns:
+        Dict[str, set]: Dictionary containing original matches, unigrams, bigrams, and phrases.
+    """
+    
+    bigrams = set(
+        [
+            word.lower()
+            for word in matches
+            if len(word.split("_")) == 2
+        ]
+        + [
+            word.lower().replace(" ", "_")
+            for word in matches
+            if len(word.split(" ")) == 2
+        ]
+        + [
+            "_".join(tokenize_matched_words(word))
+            for word in matches
+            if len(word.split(" ")) == 2
+        ]
+    )
 
-    if text_list and input_words_list:
-        for input_words in input_words_list:
-            polarity, wc, sum_neg, pos_count, _ = calculate_polarity_score(
-                input_words, litigious_words, uncertain_words, preprocess_obj, statistics_obj
-            )
-            word_counts.append(wc)
-            positive_counts.append(pos_count)
-            negative_counts.append(sum_neg)
+    unigrams = set(
+        [
+            tokenize_matched_words(match)[0]
+            for match in matches
+            if "_" not in match and len(match.split(" ")) == 1
+        ]
+        + [
+            match.lower()
+            for match in matches
+            if "_" not in match and len(match.split(" ")) == 1
+        ]
+    )
 
-        logger.info("Sentence-level tone count with negation check completed.")
-        return (word_counts, positive_counts, negative_counts)
+    phrases = [phrase.lower() for phrase in matches if len(phrase.split(" ")) > 2]
+
+    logger.debug(f"Generated match sets: {len(unigrams)} unigrams, {len(bigrams)} bigrams, {len(phrases)} phrases.")
+    return {
+        "original": set(matches),
+        "unigrams": unigrams,
+        "bigrams": bigrams,
+        "phrases": set(phrases),
+    }
+
+
+def match_count(
+    text: str,
+    match_sets: Dict[str, Dict[str, set]],
+    phrases: bool = True
+) -> Dict[str, Any]:
+    """
+    Generates the count dictionary with matched count of unigrams, bigrams, and phrases.
+
+    Args:
+        text (str): The text to analyze.
+        match_sets (Dict[str, Dict[str, set]]): Dictionary containing labeled sets of unigrams, bigrams, and phrases.
+        phrases (bool): Whether to count phrases.
+
+    Returns:
+        Dict[str, Any]: Dictionary containing counts and statistics.
+    """
+    unigrams = word_tokenizer(text)
+    bigrams = ["_".join(g) for g in find_ngrams(unigrams, 2)]
+
+    # Initialize count dictionaries per label
+    count_dict = {
+        label: {match: 0 for match in match_set['unigrams'].union(match_set['bigrams'])}
+        for label, match_set in match_sets.items()
+    }
+
+    unigram_count = {label: 0 for label in match_sets.keys()}
+    bigram_count = {label: 0 for label in match_sets.keys()}
+
+    if phrases:
+        phrase_count = {label: 0 for label in match_sets.keys()}
+    total_count = {label: 0 for label in match_sets.keys()}
+
+    # Iterate over each label and its corresponding match sets
+    for label, match_set in match_sets.items():
+        # Count unigrams
+        for word in unigrams:
+            if word in match_set['unigrams']:
+                count_dict[label][word] += 1
+                unigram_count[label] += 1
+
+        # Count bigrams
+        for bigram in bigrams:
+            if bigram in match_set['bigrams']:
+                count_dict[label][bigram] += 1
+                bigram_count[label] += 1
+
+        # Count phrases as presence (1 if present, else 0)
+        if phrases:
+            for phrase in match_set.get('phrases', set()):
+                if phrase.lower() in text.lower():
+                    phrase_count[label] += 1
+            # Total count per label
+            total_count[label] = unigram_count[label] + bigram_count[label] + phrase_count[label]
+        else:
+            # Total count without phrases
+            total_count[label] = unigram_count[label] + bigram_count[label]
+
+    # Construct the return dictionary
+    if phrases:
+        ret = {
+            label: {
+                'uni': unigram_count[label],
+                'bi': bigram_count[label],
+                'phrase': phrase_count[label],
+                'total': total_count[label],
+                'stats': count_dict[label]
+            }
+            for label in match_sets.keys()
+        }
     else:
-        logger.warning("Insufficient data for sentence-level tone count with negation check.")
-        return (None, None, None)
+        ret = {
+            label: {
+                'uni': unigram_count[label],
+                'bi': bigram_count[label],
+                'total': total_count[label],
+                'stats': count_dict[label]
+            }
+            for label in match_sets.keys()
+        }
+
+    # Add additional metadata
+    ret['len'] = len(unigrams)
+    ret['raw_len'] = len(text.split(' '))
+    ret['filt'] = text  # Optional: Remove if not necessary
+
+    logger.debug(f"Match counts: {ret}")
+
+    return ret
+
+def merge_counts(counts: List[Dict[str, int]]) -> Dict[str, int]:
+    """
+    Merges multiple count dictionaries into a single dictionary.
+
+    Args:
+        counts (List[Dict[str, int]]): List of count dictionaries.
+
+    Returns:
+        Dict[str, int]: Merged count dictionary.
+    """
+    try:
+        merged = Counter()
+        for count in counts:
+            merged += Counter(count)
+        if not merged:
+            return {"NO_MATCH": 1}
+        return merged #dict(merged)
+    except Exception as e:
+        logger.error(f"Error merging counts: {e}")
+        return {"ERROR": 1}
+    
+
+def calculate_sentence_score(
+    a: List[int],
+    b: List[int],
+    weight: bool = True
+) -> Optional[float]:
+    """
+    Calculates the sentence score based on provided lists.
+
+    Args:
+        a (List[int]): List of relevant sentence indicators.
+        b (List[int]): List of weights or counts.
+        weight (bool): Whether to apply weighting.
+
+    Returns:
+        Optional[float]: Calculated sentence score or None.
+    """
+    length = len(a)
+    if length == 0 or length != len(b):
+        return None
+
+    num_relevant = len([x for x in a if x > 0])
+    if num_relevant == 0:
+        return None
+
+    if weight:
+        score = np.dot(a, b) / num_relevant
+    else:
+        binary_a = [1 if x > 0 else 0 for x in a]
+        score = np.dot(binary_a, b) / num_relevant
+
+    logger.debug(f"Calculated sentence score: {score}")
+    return score
+
+def netscore(a: List[int], b: List[int]) -> Optional[float]:
+    """
+    Calculates the net score based on provided lists.
+
+    Args:
+        a (List[int]): List of counts.
+        b (List[int]): List of indicators.
+
+    Returns:
+        Optional[float]: Calculated net score or None.
+    """
+    length = len(a)
+    if length == 0 or length != len(b):
+        return None
+
+    num_relevant = len([x for x in a if x > 0])
+    if num_relevant == 0:
+        return None
+
+    score = np.dot([1 if x > 0 else 0 for x in a], b)
+    logger.debug(f"Calculated net score: {score}")
+    return score
 
 
-# Perform analyses
-# section_polarity = polarity_score_per_section(blob_util, config, text_list, preprocess_obj, statistics_obj)
-# sentence_polarity = polarity_score_per_sentence(blob_util, config, text_list, preprocess_obj, statistics_obj)
-# section_fog = fog_analysis_per_section(blob_util, config, text_list, preprocess_obj)
-# sentence_fog = fog_analysis_per_sentence(blob_util, config, text_list, preprocess_obj)
-# tone_check = tone_count_with_negation_check(blob_util, config, text_list, preprocess_obj, statistics_obj)
-# tone_check_sentence = tone_count_with_negation_check_per_sentence(blob_util, config, text_list, preprocess_obj, statistics_obj)
+def generate_match_count(
+    df: Any,
+    word_set_dict: Dict[str, Dict[str, set]],
+    config: Config
+) -> Any:
+    """
+    Generates the match count using the topics data.
+
+    Args:
+        df (Any): DataFrame to process.
+        word_set_dict (Dict[str, Dict[str, set]]): Dictionary of word sets for each label.
+        config (Config): Configuration object.
+
+    Returns:
+        Any: Updated DataFrame with match counts.
+    """
+    for label in config.FILT_sections:
+        match_set = word_set_dict.get(label, {})
+        df[f"matches_{label}"] = df[label].apply(
+            lambda x: [match_count(sent, match_set, phrases=False) for sent in x],
+            meta=(f"matches_{label}", "object")
+        )
+    logger.info("Generated match counts for all sections.")
+    return df
+
+def generate_topic_statistics(
+    df: Any,
+    word_set_dict: Dict[str, Dict[str, set]],
+    config: Config
+) -> Any:
+    """
+    Generates new columns with topic total count statistics.
+
+    Args:
+        df (Any): DataFrame to process.
+        word_set_dict (Dict[str, Dict[str, set]]): Dictionary of word sets for each label.
+        config (Config): Configuration object.
+
+    Returns:
+        Any: Updated DataFrame with topic statistics.
+    """
+    for label in config.FILT_sections:
+        df[f"LEN_{label}"] = df[f"matches_{label}"].apply(
+            lambda x: [calc['len'] for calc in x]
+        )
+
+        df[f"RAW_LEN_{label}"] = df[f"matches_{label}"].apply(
+            lambda x: [calc['raw_len'] for calc in x]
+        )
+
+        for topic in word_set_dict.keys():
+            df[f"{topic}_TOTAL_{label}"] = df[f"matches_{label}"].apply(
+                lambda x: [calc[topic]['total'] for calc in x]
+            )
+            df[f"{topic}_STATS_{label}"] = df[f"matches_{label}"].apply(
+                lambda x: merge_counts([calc[topic]['stats'] for calc in x])
+            )
+            df[f"{topic}_STATS_LIST_{label}"] = df[f"matches_{label}"].apply(
+                lambda x: [dict(calc[topic]['stats']) for calc in x]
+            )
+        df[f"NUM_SENTS_{label}"] = df[f"LEN_{label}"].apply(lambda x: len(x))
+
+        df.drop(columns=[f"matches_{label}"], inplace=True)
+    logger.info("Generated topic statistics for all sections.")
+    return df
+
+
+def generate_sentence_relevance_score(
+    df: Any,
+    word_set_dict: Dict[str, Dict[str, set]],
+    config: Config
+) -> Any:
+    """
+    Generates relevance scores for each sentence.
+
+    Args:
+        df (Any): DataFrame to process.
+        word_set_dict (Dict[str, Dict[str, set]]): Dictionary of word sets for each label.
+        config (Config): Configuration object.
+
+    Returns:
+        Any: Updated DataFrame with sentence relevance scores.
+    """
+    for label in config.FILT_sections:
+        df[f"SENT_{label}"] = df[f"SENT_LABELS_{label}"].apply(
+            lambda x: float(np.sum(x) / len(x)) if len(x) > 0 else None
+        )
+        df[f"NET_SENT_{label}"] = df[f"SENT_LABELS_{label}"].apply(
+            lambda x: np.sum(x) if len(x) > 0 else None
+        )
+
+        for topic in word_set_dict.keys():
+            df[f"{topic}_RELEVANCE_{label}"] = df[f"{topic}_TOTAL_{label}"].apply(
+                lambda x: len([a for a in x if a > 0]) / len(x) if len(x) > 0 else None
+            )
+            df[f"{topic}_SENT_{label}"] = df.apply(
+                lambda row: calculate_sentence_score(
+                    row[f"{topic}_TOTAL_{label}"],
+                    row[f"SENT_LABELS_{label}"],
+                    weight=False
+                ),
+                axis=1
+            )
+
+            df[f"{topic}_SENT_REL_{label}"] = df.apply(
+                lambda row: float(row[f"{topic}_RELEVANCE_{label}"] * row[f"{topic}_SENT_{label}"]) if row[f"{topic}_SENT_{label}"] else None,
+                axis=1
+            )
+
+            df[f"{topic}_SENT_WEIGHT_{label}"] = df.apply(
+                lambda row: calculate_sentence_score(
+                    [sum(1 for val in stat.values() if val > 0) for stat in row[f"{topic}_STATS_LIST_{label}"]],
+                    row[f"SENT_LABELS_{label}"],
+                    weight=True
+                ),
+                axis=1
+            )
+            df[f"{topic}_SENT_WEIGHT_REL_{label}"] = df.apply(
+                lambda row: float(row[f"{topic}_RELEVANCE_{label}"] * row[f"{topic}_SENT_WEIGHT_{label}"]) if row[f"{topic}_SENT_WEIGHT_{label}"] else None,
+                axis=1
+            )
+
+            df[f"{topic}_NET_SENT_{label}"] = df.apply(
+                lambda row: netscore(row[f"{topic}_TOTAL_{label}"], row[f"SENT_LABELS_{label}"]),
+                axis=1
+            )
+    logger.info("Generated sentence relevance scores for all sections.")
+    return df

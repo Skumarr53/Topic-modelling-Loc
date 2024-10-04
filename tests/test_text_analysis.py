@@ -22,7 +22,7 @@ from centralized_nlp_package.text_processing.text_analysis import (
 )
 
 # Import custom exceptions
-from centralized_nlp_package.utils.exceptions import FilesNotLoadedException
+from centralized_nlp_package.utils.exception import FilesNotLoadedException
 
 # Import Config class
 from centralized_nlp_package.utils.config import Config
