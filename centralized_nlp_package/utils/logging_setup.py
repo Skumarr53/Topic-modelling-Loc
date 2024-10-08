@@ -1,7 +1,7 @@
 # centralized_nlp_package/utils/logging_setup.py
 
 from loguru import logger
-import sys
+import os, sys
 
 def setup_logging(log_level: str = "INFO") -> None:
     """
@@ -10,6 +10,24 @@ def setup_logging(log_level: str = "INFO") -> None:
     Args:
         log_level (str): Logging level (e.g., "INFO", "DEBUG").
     """
-    logger.remove()  # Remove the default logger
-    logger.add(sys.stderr, level=log_level, format="<green>{time}</green> | <level>{level}</level> | <level>{message}</level>")
-    logger.add("logs/{time:YYYY-MM-DD}.log", rotation="1 day", retention="7 days", level=log_level, format="{time} {level} {message}")
+    # Ensure the logs directory exists
+    os.makedirs("logs", exist_ok=True)
+
+    # Remove the default logger to prevent duplicate logs
+    logger.remove()
+
+    # Add a console sink with colored output
+    logger.add(
+        sys.stderr,
+        level=log_level,
+        format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level:<10}</level> | <level>{message}</level>"
+    )
+
+    # Add a file sink with daily rotation and retention policy
+    logger.add(
+        "logs/{time:YYYY-MM-DD}.log",
+        rotation="1 day",       # Rotate log file daily
+        retention="7 days",     # Keep logs for 7 days
+        level=log_level,
+        format="{time:YYYY-MM-DD HH:mm:ss} | {level:<10} | {message}"
+    )

@@ -1,8 +1,10 @@
+# access attirbutes example: config.lib_config.word2vec_unigram
 defaults:
-  - snowflake
-  - dask
-  - word2vec
-  - preprocessing
-  - blob_conf
-  - paths
-  - psycholinguistics
+  - lib_config/snowflake
+  - lib_config/dask
+  - lib_config/word2vec
+  - lib_config/preprocessing
+  - lib_config/blob_conf
+  - lib_config/paths
+  - queries/queries
+  - queries/query_mapping

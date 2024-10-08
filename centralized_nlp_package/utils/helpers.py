@@ -1,10 +1,15 @@
 # centralized_nlp_package/utils/helpers.py
-
+import re
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Tuple
 from loguru import logger
-from datetime  import 
+from omegaconf import DictConfig, OmegaConf
+from dateutil.relativedelta import relativedelta
+from centralized_nlp_package.utils.config import config
+from centralized_nlp_package.utils.logging_setup import setup_logging
+
+setup_logging()
 
 def load_file(file_path: str) -> str:
     """
@@ -68,21 +73,54 @@ def format_date(date: datetime) -> str:
     logger.debug(f"Formatted date: {formatted_date}")
     return formatted_date
 
-def construct_model_save_path(template: str, min_year: str, min_month: str, max_year: str, max_month: str) -> Path:
+def construct_model_save_path(template: str, **kwargs) -> Path:
     """
-    Constructs the model save path using the provided template and date components.
+    Constructs the model save path using the provided template and dynamic components.
 
     Args:
         template (str): Template string with placeholders.
-        min_year (str): Minimum year.
-        min_month (str): Minimum month.
-        max_year (str): Maximum year.
-        max_month (str): Maximum month.
+        **kwargs: Variable number of keyword arguments to replace placeholders in the template.
 
     Returns:
         Path: Constructed file path.
     """
-    path_str = template.format(min_year=min_year, min_month=min_month, max_year=max_year, max_month=max_month)
+    # Find placeholders in the template (in the form {key})
+    placeholders = re.findall(r"\{(\w+)\}", template)
+
+    if len(placeholders) != len(kwargs):
+        logger.error(f"Template expects {len(placeholders)} placeholders, but {len(kwargs)} were provided.")
+        raise ValueError(f"Template expects {len(placeholders)} placeholders, but {len(kwargs)} were provided.")
+    
+    # Construct the path string
+    path_str = template.format(**kwargs)
     path = Path(path_str)
     logger.debug(f"Constructed model save path: {path}")
     return path
+
+
+def query_constructor(query_identifier: str, **kwargs) -> str:
+    """
+    Constructs a query string with the provided parameters.
+    
+    Args:
+        query_identifier (str): The identifier for the query from the configuration.
+        *params: Parameters to replace placeholders in the query.
+        config (DictConfig): The Hydra configuration containing query mappings.
+
+    Returns:
+        str: The constructed query string with parameters substituted.
+    """
+    # Load the base query string from Hydra config
+    base_query = OmegaConf.select(config.queries.query_mapping, query_identifier)
+    
+    # Find placeholders in the query string (in the form :paramX)
+    placeholders = re.findall(r"{.*}", base_query)
+
+    if len(placeholders) != len(kwargs):
+        logger.error(f"Query expects {len(placeholders)} parameters, but {len(kwargs)} were provided.")
+        raise ValueError(f"Query expects {len(placeholders)} parameters, but {len(kwargs)} were provided.")
+    
+    # Replace placeholders with provided parameters
+    base_query = base_query.format(**kwargs)
+    
+    return base_query

@@ -5,14 +5,16 @@ from typing import List, Tuple, Optional, Dict, Any
 import numpy as np
 from collections import Counter
 from loguru import logger
+from centralized_nlp_package.utils.logging_setup import setup_logging
 from text_utils import load_list_from_txt, combine_sent, word_tokenizer, find_ngrams
 from centralized_nlp_package.data_access.snowflake_utils import read_from_snowflake
 from centralized_nlp_package.preprocessing.text_preprocessing import preprocess_text, preprocess_text_list, tokenize_matched_words
-from centralized_nlp_package.utils.config import Config
+from centralized_nlp_package.utils.config import config
 from centralized_nlp_package.utils.exception import FilesNotLoadedException
 
+setup_logging()
 
-def load_word_set(config: Config, filename: str) -> set:
+def load_word_set(filename: str) -> set:
     """
     Loads a set of words from a specified file in blob storage.
 
@@ -23,7 +25,7 @@ def load_word_set(config: Config, filename: str) -> set:
     Returns:
         set: Set of words.
     """
-    file_path = os.path.join(config.psycholinguistics.model_artifacts_path, filename)
+    file_path = os.path.join(config.lib_config.model_artifacts_path, filename)
     try:
         word_set = load_list_from_txt(file_path)
         logger.debug(f"Loaded word set from {file_path} with {len(word_set)} words.")
@@ -36,7 +38,7 @@ def load_word_set(config: Config, filename: str) -> set:
         raise
 
 
-def load_syllable_counts( config: Config, filename: str) -> Dict[str, int]:
+def load_syllable_counts(  filename: str) -> Dict[str, int]:
     """
     Loads syllable counts from a specified file in blob storage.
 
@@ -123,7 +125,7 @@ def calculate_polarity_score(
 
 
 def polarity_score_per_section(
-    config: Config,
+    
     text_list: List[str],
 ) -> Tuple[Optional[float], Optional[int], Optional[int], Optional[int], Optional[float]]:
     """
@@ -152,7 +154,7 @@ def polarity_score_per_section(
         return np.nan, np.nan, np.nan, np.nan, np.nan
 
 def polarity_score_per_sentence(
-    config: Config,
+    
     text_list: List[str],
 ) -> Tuple[Optional[List[int]], Optional[List[int]], Optional[List[int]]]:
     """
@@ -229,7 +231,7 @@ def is_complex(word: str, syllables: Dict[str, int]) -> bool:
 
 
 def fog_analysis_per_section(
-    config: Config,
+    
     text_list: List[str],
 ) -> Tuple[Optional[float], Optional[int], Optional[float], Optional[int]]:
     """
@@ -266,7 +268,7 @@ def fog_analysis_per_section(
 
 
 def fog_analysis_per_sentence(
-    config: Config,
+    
     text_list: List[str],
 ) -> Tuple[Optional[List[float]], Optional[List[int]], Optional[List[int]]]:
     """
@@ -585,8 +587,7 @@ def netscore(a: List[int], b: List[int]) -> Optional[float]:
 
 def generate_match_count(
     df: Any,
-    word_set_dict: Dict[str, Dict[str, set]],
-    config: Config
+    word_set_dict: Dict[str, Dict[str, set]]    
 ) -> Any:
     """
     Generates the match count using the topics data.
@@ -611,7 +612,7 @@ def generate_match_count(
 def generate_topic_statistics(
     df: Any,
     word_set_dict: Dict[str, Dict[str, set]],
-    config: Config
+    
 ) -> Any:
     """
     Generates new columns with topic total count statistics.
@@ -653,7 +654,7 @@ def generate_topic_statistics(
 def generate_sentence_relevance_score(
     df: Any,
     word_set_dict: Dict[str, Dict[str, set]],
-    config: Config
+    
 ) -> Any:
     """
     Generates relevance scores for each sentence.

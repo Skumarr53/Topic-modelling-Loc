@@ -5,8 +5,11 @@ import numpy as np
 import pandas as pd
 from gensim.models import Word2Vec
 from loguru import logger
+from centralized_nlp_package.utils.logging_setup import setup_logging
 from centralized_nlp_package.preprocessing.text_preprocessing import tokenize_text
 from  centralized_nlp_package.preprocessing.ngram_utils import find_ngrams
+
+setup_logging()
 
 def average_token_embeddings(tokens: List[str], model: Word2Vec) -> Optional[np.ndarray]:
     """

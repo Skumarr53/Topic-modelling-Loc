@@ -7,19 +7,22 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from dask.distributed import Client
 from loguru import logger
+from centralized_nlp_package.utils.logging_setup import setup_logging
 from pathlib import Path
 import ast
 import gc
-from  centralized_nlp_package.data_access.snowflake_utils import read_from_snowflake
-
-# from ..utils.config import Config, get_config
+from centralized_nlp_package.data_access.snowflake_utils import read_from_snowflake
+from centralized_nlp_package.embedding.word2vec_model import train_word2vec
+# from centralized_nlp_package.utils.config import config
 # from ..utils.logging_setup import setup_logging
 # from ..utils.helpers import format_date, construct_model_save_path
 # from ..data_access.snowflake_utils import read_from_snowflake
 # from ..preprocessing.text_preprocessing import initialize_spacy_model, word_tokenize
 # from ..embedding.word2vec_model import train_word2vec, save_model
 
-from centralized_nlp_package.utils.helpers import get_date_range
+from centralized_nlp_package.utils.helpers import get_date_range, query_constructor
+
+setup_logging()
 
 ## TODO: step 1: create spark connection object
 
@@ -27,7 +30,7 @@ from centralized_nlp_package.utils.helpers import get_date_range
 min_dt, max_dt = get_date_range()
 
 ## stes3: fetch data
-INP_QUERY = queries.embeddingCreateInpQuery.format(min_dt, max_dt)
+INP_QUERY = query_constructor('embed_create_q', min_dt, max_dt)
 currdf = read_from_snowflake(INP_QUERY)
 
 ## step 4: processing
@@ -37,11 +40,14 @@ currdf['FILT_DATA'] = currdf['FILT_DATA'].apply(ast.literal_eval)
 
 feed = list(itertools.chain.from_iterable(currdf['FILT_DATA'].tolist()))
 
+gen_bigram = True
+if gen_bigram:
+    bigram_transformer = Phrases(feed, threshold = 2)
+    model = train_word2vec(bigram_transformer[feed], bigram = True)
+else:
+    model = train_word2vec(feed)
 
-
-----
-
-def run_pipeline1(config: Config) -> None:
+def run_pipeline1() -> None:
     """
     Executes the first input preparation pipeline:
     - Retrieves data from Snowflake.

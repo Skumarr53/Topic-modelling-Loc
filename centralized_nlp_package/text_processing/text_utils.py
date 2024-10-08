@@ -6,11 +6,13 @@ from pathlib import Path
 import spacy
 import numpy as np
 from loguru import logger
+from centralized_nlp_package.utils.logging_setup import setup_logging
 
-from ..utils.config import Config
-from ..utils.exceptions import FilesNotLoadedException
-from ..text_preprocessing.preprocessing import clean_text 
+from centralized_nlp_package.utils.config import Config
+from centralized_nlp_package.utils.exceptions import FilesNotLoadedException
+from centralized_nlp_package.text_preprocessing.preprocessing import clean_text 
 
+setup_logging()
 
 def find_ngrams(input_list: List[str], n: int) -> Iterator[Tuple[str, ...]]:
     """

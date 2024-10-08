@@ -1,10 +1,13 @@
 # centralized_nlp_package/utils/config.py
-
+import logging
 from dataclasses import dataclass, field
 from typing import Any, Dict, List
 import hydra
-from omegaconf import OmegaConf, MISSING
+from typing import Optional
+from omegaconf import DictConfig,OmegaConf, MISSING
+from logging_setup  import setup_logging
 
+setup_logging()
 
 @dataclass(frozen=True)
 class PathsConfig:
@@ -65,18 +68,17 @@ class Config:
     blob_filenames: BlobFilenameConfig = BlobFilenameConfig()
     paths: PathsConfig = PathsConfig()
 
-def get_config(config_path: str = "../configs", config_name: str = "config") -> Config:
-    """
-    Loads the Hydra configuration.
+_config: Optional[DictConfig] = None
 
-    Args:
-        config_path (str): Path to the configuration directory.
-        config_name (str): Name of the main configuration file.
-
-    Returns:
-        Config: Configuration object.
-    """
-    cfg = hydra.compose(config_name=config_name, config_path=config_path)
-    # Convert OmegaConf to a structured Config dataclass
-    config = hydra.utils.instantiate(cfg, _recursive_=False)
-    return config
+def get_config() -> DictConfig:
+    global _config
+    # If the configuration is not already loaded, initialize and compose it
+    if _config is None:
+        try:
+            with hydra.initialize(config_path="../configs"):
+                _config = hydra.compose(config_name="config.yaml")
+        except Exception as e:
+            logging.error(f"Error loading configuration: {e}")
+            raise
+    return _config
+config = get_config()

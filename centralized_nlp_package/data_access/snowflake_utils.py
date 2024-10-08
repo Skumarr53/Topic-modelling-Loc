@@ -4,10 +4,12 @@ import pandas as pd
 from snowflake.connector import connect
 from typing import Any
 from pathlib import Path
-from centralized_nlp_package.utils.config import Config
 from loguru import logger
+from centralized_nlp_package.utils.config import Config
+from centralized_nlp_package.utils.logging_setup import setup_logging
 from pyspark.sql import SparkSession
 
+setup_logging()
 
 def get_snowflake_connection():
     """

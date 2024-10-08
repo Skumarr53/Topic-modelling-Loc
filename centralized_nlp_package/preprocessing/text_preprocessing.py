@@ -4,8 +4,12 @@ import re
 from typing import List, Tuple, Optional, Union
 import spacy
 from loguru import logger
+from centralized_nlp_package.utils.logging_setup import setup_logging
 from centralized_nlp_package.utils.config import Config
 from centralized_nlp_package.text_processing.text_utils import expand_contractions, word_tokenizer
+
+
+setup_logging()
 
 def initialize_spacy() -> spacy.Language:
     """

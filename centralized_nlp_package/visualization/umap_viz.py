@@ -6,6 +6,9 @@ import pandas as pd
 from typing import Optional
 import numpy as np
 from loguru import logger
+from centralized_nlp_package.utils.logging_setup import setup_logging
+
+setup_logging()
 
 def umap_viz(df: pd.DataFrame, marker_size: Optional[int] = None, save_to: Optional[str] = None) -> None:
     """

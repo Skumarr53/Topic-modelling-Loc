@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 from loguru import logger
+from centralized_nlp_package.utils.logging_setup import setup_logging
 import ast
 import gc
 
@@ -15,6 +16,8 @@ from ..preprocessing.text_preprocessing import initialize_spacy_model, word_toke
 from ..preprocessing.ngram_utils import get_model_ngrams
 from ..embedding.embedding_utils import embed_text, nearest_neighbors
 from ..visualization.umap_viz import umap_viz
+
+setup_logging()
 
 def process_dataframe(currdf: pd.DataFrame, text_processor) -> pd.DataFrame:
     """

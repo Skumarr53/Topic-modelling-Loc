@@ -3,32 +3,29 @@
 from gensim.models import Word2Vec, Phrases
 from typing import List, Dict, Any
 from loguru import logger
+from centralized_nlp_package.utils.logging_setup import setup_logging
 from pathlib import Path
+from centralized_nlp_package.utils.config import config
+
+setup_logging()
 
 ## TODO: Topic modelling 
-def train_word2vec_ngrams(feed: List[List[str]], gen_bigram: bool, model_params: Dict[str, Any]) -> Word2Vec:
+def train_word2vec(sents: List[List[str]], bigram = False) -> Word2Vec:
     """
     Trains a Word2Vec model on the provided corpus.
 
     Args:
         feed (List[List[str]]): Corpus of tokenized sentences.
-        gen_bigram (bool): Whether to generate bigrams.
         model_params (Dict[str, Any]): Parameters for Word2Vec.
 
     Returns:
         Word2Vec: Trained Word2Vec model.
     """
-    if gen_bigram:
-        logger.info("Generating bigrams using Phrases.")
-        phrases = Phrases(feed, threshold=model_params.get('bigram_threshold', 2))
-        sentences = phrases[feed]
-        logger.debug("Bigrams generated.")
-    else:
-        sentences = feed
-        logger.debug("Bigram generation skipped.")
-    
+    model_params = (config.lib_config.word2vec_bigram 
+                    if bigram else 
+                    config.lib_config.word2vec_unigram)
     logger.info("Starting Word2Vec model training.")
-    model = Word2Vec(sentences=sentences, **model_params)
+    model = Word2Vec(sentences=sents, **model_params)
     logger.info("Word2Vec model training completed.")
     return model
 
