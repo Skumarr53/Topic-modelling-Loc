@@ -1,10 +1,30 @@
-snowflake:
-  user: "your_username"
-  password: "your_password"
-  account: "your_account"
-  warehouse: "your_warehouse"
-  database: "your_database"
-  schema: "your_schema"
+development:
+  snowflake:
+      user: "gAAAAABnBmoBJnZglqJ8fIbGRh_G0CDtdktuzPrt_xSGg7d7WagLBLETG1EXRz9FX3t1q9GPI19FxPx1I4MbbMYEfFTEPebZ4f1z298fZBWir7b5eCJkrUs="
+      password: "gAAAAABnBmouvt_N-HTtIrtkmsIMeS3wm8n4dLYUInhPopPJlIxH-r4n6_r7_u1J-ddqO0ZA6NO-9oquQJw2MY81Hksk2Imaqw=="
+      account: voya.east-us-2.privatelink
+      database: EDS_PROD
+      schema: QUANT
+      role: "ROLE_EDS_PROD_DDLADMIN_QUANT"
+
+staging:
+  snowflake:
+      user: "gAAAAAB..."
+      password: "gAAAAAB..."
+      account: voya.east-us-2.privatelink
+      database: EDS_PROD
+      schema: QUANT_STG
+      role: ""
+
+production:
+  snowflake:
+      user: "gAAAAAB..."
+      password: "gAAAAAB..."
+      account: voya.east-us-2.privatelink
+      database: EDS_PROD
+      schema: QUANT_LIVE
+      role: ""
+
 
 
 # snowflake: Update snowflake.yaml to reference environment variables:
@@ -27,4 +47,4 @@ snowflake:
 # export SFLK_SCHEMA="your_schema"
 
 # non-default environment
-#python -m centralized_nlp_package.pipelines.input_preparation_pipeline1 dask.n_workers=16 word2vec.gen_bigram=true
+# python -m centralized_nlp_package.pipelines.input_preparation_pipeline1 dask.n_workers=16 word2vec.gen_bigram=true

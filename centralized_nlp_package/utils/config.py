@@ -1,13 +1,11 @@
 # centralized_nlp_package/utils/config.py
-import logging
+from loguru import logger
 from dataclasses import dataclass, field
 from typing import Any, Dict, List
 import hydra
 from typing import Optional
 from omegaconf import DictConfig,OmegaConf, MISSING
-from logging_setup  import setup_logging
-
-setup_logging()
+from centralized_nlp_package.utils.logging_setup import setup_logging
 
 @dataclass(frozen=True)
 class PathsConfig:
@@ -78,7 +76,7 @@ def get_config() -> DictConfig:
             with hydra.initialize(config_path="../configs"):
                 _config = hydra.compose(config_name="config.yaml")
         except Exception as e:
-            logging.error(f"Error loading configuration: {e}")
+            logger.error(f"Error loading configuration: {e}")
             raise
     return _config
 config = get_config()

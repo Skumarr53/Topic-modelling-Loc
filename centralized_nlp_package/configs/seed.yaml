@@ -1,0 +1,67 @@
+## Option:1 
+
+union:
+  - match: "Union City"
+    negate: true
+  - match: "Pacific Union"
+    negate: true
+  - match: "Blue Union"
+    negate: true
+  - match: "Atlantic Union"
+    negate: true
+  - match: "Union Square"
+    negate: true
+  - match: "Thai Union"
+    negate: true
+  - match: "labor challenge"
+    negate: false
+  - match: "Western union"
+    negate: true
+  - match: "credit union"
+    negate: true
+  - match: "worker union"
+    negate: false
+  - match: "European Union"
+    negate: true
+  - match: "union"
+    negate: false
+  - match: "unionize"
+    negate: false
+  - match: "unionization"
+    negate: false
+  - match: "union approval"
+    negate: false
+# import yaml
+
+# with open('data.yaml', 'r') as file:
+#     data = yaml.safe_load(file)
+
+# union_entries = data['union']
+
+# Option 2:
+union:
+  true:
+    - "Union City"
+    - "Pacific Union"
+    - "Blue Union"
+    - "Atlantic Union"
+    - "Union Square"
+    - "Thai Union"
+    - "Western union"
+    - "credit union"
+    - "European Union"
+  false:
+    - "labor challenge"
+    - "worker union"
+    - "union"
+    - "unionize"
+    - "unionization"
+    - "union approval"
+
+# import yaml
+
+# with open('data.yaml', 'r') as file:
+#     data = yaml.safe_load(file)
+
+# true_matches = data['union']['true']
+# false_matches = data['union']['false']

@@ -87,9 +87,9 @@ def construct_model_save_path(template: str, **kwargs) -> Path:
     # Find placeholders in the template (in the form {key})
     placeholders = re.findall(r"\{(\w+)\}", template)
 
-    if len(placeholders) != len(kwargs):
-        logger.error(f"Template expects {len(placeholders)} placeholders, but {len(kwargs)} were provided.")
-        raise ValueError(f"Template expects {len(placeholders)} placeholders, but {len(kwargs)} were provided.")
+    if not all(placeholder in kwargs for placeholder in placeholders):
+        logger.error(f"Template placeholders, not matches with parameters provided.")
+        raise ValueError(f"Template placeholders do not match the provided parameters.")
     
     # Construct the path string
     path_str = template.format(**kwargs)
@@ -116,9 +116,9 @@ def query_constructor(query_identifier: str, **kwargs) -> str:
     # Find placeholders in the query string (in the form :paramX)
     placeholders = re.findall(r"{.*}", base_query)
 
-    if len(placeholders) != len(kwargs):
-        logger.error(f"Query expects {len(placeholders)} parameters, but {len(kwargs)} were provided.")
-        raise ValueError(f"Query expects {len(placeholders)} parameters, but {len(kwargs)} were provided.")
+    if not all(placeholder in kwargs for placeholder in placeholders):
+        logger.error(f"Query placeholders do not match the provided parameters.")
+        raise ValueError(f"Queryplaceholders do not match the provided parameters.")
     
     # Replace placeholders with provided parameters
     base_query = base_query.format(**kwargs)

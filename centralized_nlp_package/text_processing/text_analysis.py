@@ -3,6 +3,7 @@
 import os, re
 from typing import List, Tuple, Optional, Dict, Any
 import numpy as np
+import pandas as pd
 from collections import Counter
 from loguru import logger
 from centralized_nlp_package.utils.logging_setup import setup_logging
@@ -712,3 +713,32 @@ def generate_sentence_relevance_score(
             )
     logger.info("Generated sentence relevance scores for all sections.")
     return df
+
+
+def find_nearest_words_with_embeddings(words, model, num_neigh=50, filename=False, regularize=False):
+    alist = {'label': [], 'embed': [], 'match': [], 'sim': []}
+    for topic in set(words['label']):
+        topic_embed = [[word[0], model.wv[word[0]], word[1]] for word in model.wv.most_similar_cosmul(
+            positive=words[words['label'] == topic]['match'].apply(lambda x: [y for y in get_model_ngrams(x, model) if y in model.wv] if x not in model.wv else [x]).sum(),
+            topn=num_neigh
+        )]
+        topic_embed_norm = [[word[0], model.wv[word[0]], word[1]] for word in model.wv.most_similar(
+            positive=words[words['label'] == topic]['match'].apply(lambda x: [y for y in get_model_ngrams(x, model) if y in model.wv] if x not in model.wv else [x]).sum(),
+            topn=num_neigh
+        )]
+
+        alist['label'] += [topic] * num_neigh
+        if regularize:
+            alist['embed'] += [embed[1] for embed in topic_embed]
+            alist['match'] += [word[0] for word in topic_embed]
+            alist['sim'] += [word[2] for word in topic_embed]
+        else:
+            alist['embed'] += [embed[1] for embed in topic_embed_norm]
+            alist['match'] += [word[0] for word in topic_embed_norm]
+            alist['sim'] += [word[2] for word in topic_embed_norm]
+
+    tdf = pd.DataFrame(alist)
+    if filename:
+        # Save to JSON
+        tdf.to_json(f"{filename}_neighbors_n{num_neigh}.json", orient="records")
+    return tdf

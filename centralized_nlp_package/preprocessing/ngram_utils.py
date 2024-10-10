@@ -1,5 +1,6 @@
 # centralized_nlp_package/preprocessing/ngram_utils.py
 
+import numpy as np
 from typing import List, Tuple, Iterator
 from gensim.models import Word2Vec, Phrases
 from centralized_nlp_package.preprocessing.text_preprocessing import tokenize_text
@@ -17,40 +18,69 @@ def find_ngrams(input_list: List[str], n: int) -> Iterator[Tuple[str, ...]]:
     """
     return zip(*[input_list[i:] for i in range(n)])
 
-def get_model_ngrams(text: List[str], model: Word2Vec) -> List[str]:
+
+##  topic modelling
+def process_ngrams_tokens(x, model):
     """
-    Replaces tokens in the text with their corresponding n-grams if they exist in the Word2Vec model.
+    Tokenizes the input text and processes bigrams that exist in the model's vocabulary.
 
     Args:
-        text (List[str]): List of tokens from the text.
-        model (Word2Vec): Trained Word2Vec model.
+        x (str): Input text.
+        model: Word2Vec model with vocabulary 'wv'.
 
     Returns:
-        List[str]: List of tokens with possible n-gram replacements.
+        list: Processed list of unigrams and bigrams.
     """
     unigrams = tokenize_text(x)
-    vocab = {word: 0 for word in set(unigrams)}
-    bigrams = [g for g in find_ngrams(unigrams, 2)]
-    
+    bigrams = list(find_ngrams(unigrams, 2))
     prev_removed = False
-    if len(bigrams)>0:
-        if '_'.join(bigrams[0]) in model.wv:
+
+    if bigrams:
+        bigram_joined = '_'.join(bigrams[0])
+        if bigram_joined in model.wv:
             unigrams.remove(bigrams[0][0])
             unigrams.remove(bigrams[0][1])
-            unigrams.append('_'.join(bigrams[0]))
+            unigrams.append(bigram_joined)
             prev_removed = True
-    
+
     for bigram in bigrams[1:]:
-        if '_'.join(bigram) in model.wv:
-        
+        bigram_joined = '_'.join(bigram)
+        if bigram_joined in model.wv:
             unigrams.remove(bigram[1])
-            unigrams.append('_'.join(bigram))
-        
+            unigrams.append(bigram_joined)
             if not prev_removed:
                 unigrams.remove(bigram[0])
                 prev_removed = True
-        
+        else:
+            prev_removed = False
+
+    return unigrams
+
+# topic modelling
+def compute_text_embedding(x, model):
+    """
+    Computes the embedding of the input text by averaging the embeddings of its unigrams and bigrams.
+
+    Args:
+        x (str): Input text.
+        model: Word2Vec model with vocabulary 'wv'.
+
+    Returns:
+        numpy.ndarray or None: The embedding vector, or None if not found.
+    """
+    if '_' in x:
+        try:
+            return model.wv[x]
+        except KeyError:
+            pass  # Continue processing if the word is not in the vocabulary
+
+    unigrams = process_ngrams_tokens(x, model)
+    embeddings = [model.wv[phrase] for phrase in unigrams if phrase in model.wv]
+
+    if embeddings:
+        return np.mean(np.stack(embeddings), axis=0)
     else:
-        prev_removed = False
-            
-    return unigrams 
+        try:
+            return model.wv[x]
+        except KeyError:
+            return None

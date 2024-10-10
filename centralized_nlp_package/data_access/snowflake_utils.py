@@ -1,15 +1,57 @@
 # centralized_nlp_package/data_access/snowflake_utils.py
-
+import os
+from dotenv import load_dotenv
+from cryptography.fernet import Fernet
 import pandas as pd
 from snowflake.connector import connect
 from typing import Any
 from pathlib import Path
 from loguru import logger
-from centralized_nlp_package.utils.config import Config
+from centralized_nlp_package.utils.config import config
 from centralized_nlp_package.utils.logging_setup import setup_logging
+from cryptography.fernet import Fernet
 from pyspark.sql import SparkSession
 
+
 setup_logging()
+
+load_dotenv()
+
+
+ENV = os.getenv('ENVIRONMENT', 'development')
+
+
+def encrypt_message(message):
+    """It encrypts data passed as a parameter to the method. 
+    The outcome of this encryption is known as a Fernet token which is basically the ciphertext.
+
+    Parameters:
+    argument1 (str): value that needs to be encrypted
+
+    Returns:
+    str: encrypted value 
+
+    """
+    encoded_message = message.encode()
+    fernet_obj= Fernet(os.getenv('FERNET_KEY'))
+    encrypted_message = fernet_obj.encrypt(encoded_message)
+    return encrypted_message
+
+def decrypt_message(encrypted_message):
+    """This method decrypts the Fernet token passed as a parameter to the method. 
+    On successful decryption the original plaintext is obtained as a result
+
+    Parameters:
+    argument1 (str): encrypted values that needs to be decrypted
+
+    Returns:
+    str: decrypted value 
+
+    """
+    fernet_obj= Fernet(os.getenv('FERNET_KEY'))    
+    decrypted_message = fernet_obj.decrypt(encrypted_message)
+    return decrypted_message.decode()
+
 
 def get_snowflake_connection():
     """
@@ -19,12 +61,13 @@ def get_snowflake_connection():
         conn: A Snowflake connection object
     """
     snowflake_config = {
-        'user': config.snowflake.user,
-        'password': config.snowflake.password,
-        'account': config.snowflake.account,
-        'warehouse': config.snowflake.warehouse,
-        'database': config.snowflake.database,
-        'schema': config.snowflake.schema
+        'user': decrypt_message(config.lib_config.development.snowflake.user),
+        'password': decrypt_message(config.lib_config.development.snowflake.password),
+        'account': config.lib_config.development.snowflake.account,
+        'database': config.lib_config.development.snowflake.database,
+        'schema': config.lib_config.development.snowflake.schema,
+        'timezone': "spark",
+        'role': config.lib_config.development.snowflake.role  # Optional if needed
     }
     
     conn = connect(**snowflake_config)
@@ -54,6 +97,7 @@ def read_from_snowflake(query: str) -> pd.DataFrame:
         conn.close()
         logger.info("Snowflake connection closed.")
     return df
+
 
 
 def write_to_snowflake(df: pd.DataFrame, table_name: str, if_exists: str = 'append') -> None:
@@ -96,17 +140,17 @@ def get_snowflake_options():
     Returns a dictionary of Snowflake options.
     """
     snowflake_options = {
-        'sfURL': f'{config.snowflake.account}.snowflakecomputing.com',
-        'sfUser': config.snowflake.user,
-        'sfPassword': config.snowflake.password,
-        'sfDatabase': config.snowflake.database,
-        'sfSchema': config.snowflake.schema,
-        'sfWarehouse': config.snowflake.warehouse,
-        'sfRole': config.snowflake.role  # Optional if needed
+        'sfURL': f'{config.lib_config.development.snowflake.account}.snowflakecomputing.com',
+        'sfUser': decrypt_message(config.lib_config.development.snowflake.user),
+        'sfPassword': decrypt_message(config.lib_config.development.snowflake.password),
+        'sfDatabase': config.lib_config.development.snowflake.database,
+        'sfSchema': config.lib_config.development.snowflake.schema,
+        "sfTimezone": "spark",
+        'sfRole': config.lib_config.development.snowflake.role  # Optional if needed
     }
     return  snowflake_options
 
-def read_from_snowflake_spark(query: str, config: Config, spark: SparkSession) -> 'pyspark.sql.DataFrame':
+def read_from_snowflake_spark(query: str, spark: SparkSession) -> 'pyspark.sql.DataFrame':
     """
     Executes a SQL query on Snowflake and returns the result as a Spark DataFrame.
 

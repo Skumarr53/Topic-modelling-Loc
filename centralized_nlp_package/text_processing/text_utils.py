@@ -1,6 +1,6 @@
 
 import re
-from typing import List, Tuple, Optional, Dict, Iterator
+from typing import List, Tuple, Optional, Dict, Iterator, Union
 from pathlib import Path
 
 import spacy
@@ -8,11 +8,37 @@ import numpy as np
 from loguru import logger
 from centralized_nlp_package.utils.logging_setup import setup_logging
 
-from centralized_nlp_package.utils.config import Config
-from centralized_nlp_package.utils.exceptions import FilesNotLoadedException
-from centralized_nlp_package.text_preprocessing.preprocessing import clean_text 
+from centralized_nlp_package.utils.config import config
+from centralized_nlp_package.utils.exception import FilesNotLoadedException
+# from centralized_nlp_package.preprocessing.text_preprocessing import clean_text 
 
 setup_logging()
+
+
+
+def check_datatype(text_list):
+    """
+    IF THE TEXT LIST HAS TEXT, PROCESS IT, OTHERWISE OUTPUT NAN
+    
+    Parameters:
+    argument1 (list): list
+   
+    Returns:
+    list:list
+    
+    """
+    if (not isinstance(text_list,str) and text_list and ' '.join(text_list).strip(' ')) or (isinstance(text_list,str) and text_list.strip(' ')):
+      #Text input is not and empty string or list
+      if not isinstance(text_list,str):
+        #Text input is a list
+        text = ' '.join(text_list)
+      else:
+        #Text input is a string
+        text = text_list
+    else:
+      text = False
+        
+    return text
 
 def find_ngrams(input_list: List[str], n: int) -> Iterator[Tuple[str, ...]]:
     """
@@ -119,7 +145,7 @@ def check_datatype(text_input: Optional[Union[str, List[str]]]) -> Optional[str]
         return None
 
 
-def word_tokenizer(text: str, config: Config, spacy_tokenizer: spacy.Language) -> List[str]:
+def word_tokenizer(text: str, spacy_tokenizer: spacy.Language) -> List[str]:
     """
     Tokenizes the text and performs lemmatization.
 
@@ -131,7 +157,7 @@ def word_tokenizer(text: str, config: Config, spacy_tokenizer: spacy.Language) -
     Returns:
         List[str]: A list of lemmatized words.
     """
-    stop_words_path = Path(config.model_artifacts.path) / config.blob_filenames.stop_words_flnm
+    stop_words_path = Path(config.lib_config.paths.model_artifacts.path) / config.lib_config.filenames.stop_words_flnm
     stop_words_list = load_list_from_txt(str(stop_words_path), is_lower=True)
 
     doc = spacy_tokenizer(text.lower())
@@ -139,61 +165,6 @@ def word_tokenizer(text: str, config: Config, spacy_tokenizer: spacy.Language) -
     filtered_words = [word for word in token_lemmatized if word not in stop_words_list]
     logger.debug(f"Tokenized and filtered words. {len(filtered_words)} words remaining.")
     return filtered_words
-
-
-def preprocess_text(text_input: Optional[Union[str, List[str]]], config: Config, spacy_tokenizer: spacy.Language) -> Tuple[Optional[str], List[str], int]:
-    """
-    Preprocesses the text by cleaning and tokenizing.
-
-    Args:
-        text_input (Optional[Union[str, List[str]]]): The input text or list of texts to preprocess.
-        config (Config): Configuration object containing file paths.
-        spacy_tokenizer (spacy.Language): Initialized SpaCy tokenizer.
-
-    Returns:
-        Tuple[Optional[str], List[str], int]: The preprocessed text, list of input words, and word count.
-    """
-    text = check_datatype(text_input)
-    if text:
-        cleaned_text = clean_text(text)
-        input_words = word_tokenizer(cleaned_text, config, spacy_tokenizer)
-        word_count = len(input_words)
-        logger.debug("Preprocessed single text input.")
-        return cleaned_text, input_words, word_count
-    else:
-        logger.warning("Preprocessing failed due to invalid input.")
-        return None, [], 0
-
-
-def preprocess_text_list(text_list: List[str], config: Config, spacy_tokenizer: spacy.Language) -> Tuple[List[str], List[List[str]], List[int]]:
-    """
-    Preprocesses a list of texts by cleaning and tokenizing each.
-
-    Args:
-        text_list (List[str]): The list of texts to preprocess.
-        config (Config): Configuration object containing file paths.
-        spacy_tokenizer (spacy.Language): Initialized SpaCy tokenizer.
-
-    Returns:
-        Tuple[List[str], List[List[str]], List[int]]: 
-            - List of preprocessed texts.
-            - List of input words for each text.
-            - List of word counts for each text.
-    """
-    final_text_list = []
-    input_word_list = []
-    word_count_list = []
-
-    for text in text_list:
-        cleaned_text = clean_text(text)
-        token_word_list = word_tokenizer(cleaned_text, config, spacy_tokenizer)
-        final_text_list.append(cleaned_text)
-        input_word_list.append(token_word_list)
-        word_count_list.append(len(token_word_list))
-        logger.debug(f"Preprocessed text: {text[:50]}...")
-
-    logger.info("Preprocessed list of texts.")
-    return final_text_list, input_word_list, word_count_list
 
 def combine_sent(x: int, y: int) -> float:
     """
@@ -214,7 +185,7 @@ def combine_sent(x: int, y: int) -> float:
         return combined_score
 
 
-def _is_complex(word: str, config: Config) -> bool:
+def _is_complex(word: str) -> bool:
     """
     Determines if a word is complex based on syllable count.
 
@@ -225,7 +196,7 @@ def _is_complex(word: str, config: Config) -> bool:
     Returns:
         bool: True if the word is complex, False otherwise.
     """
-    syllables_path = Path(config.model_artifacts.path) / config.blob_filenames.syllable_flnm
+    syllables_path = Path(config.lib_config.paths.model_artifacts.path) / config.lib_config.filenames.syllable_flnm
     syllables = load_syllable_count(str(syllables_path))
     syllable_count = syllables.get(word.lower(), 0)
     is_complex_word = syllable_count > 2
