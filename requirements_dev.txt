@@ -1,7 +1,0 @@
--r requirements.txt
-pytest==6.2.5
-pytest-cov==3.0.0
-mypy==0.910
-black==21.12b0
-sphinx-autobuild==2021.3.14
-sphinxcontrib-mermaid==0.7.1

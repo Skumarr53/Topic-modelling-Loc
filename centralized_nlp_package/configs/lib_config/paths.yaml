@@ -1,5 +1,0 @@
-paths:
-  model_artifacts_path: "/dbfs/mnt/access_work/UC25/Libraries/LM_Dictionary/"
-  seed_list_path: "/dbfs/mnt/access_work/UC25/Embeddings/Word lists/union_test_list_v3.csv"
-  output_seed_list_path: "/dbfs/mnt/access_work/UC25/Embeddings/Output Word lists/union_expanded_word_list.csv"
-  datm_word2vec_model_path: /dbfs/mnt/access_work/UC25/Topic Modeling/Embedding/word2vec_DATM_19_01_23_12_v1.model

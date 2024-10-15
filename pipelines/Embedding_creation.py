@@ -7,22 +7,21 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from dask.distributed import Client
 from loguru import logger
-from centralized_nlp_package.utils.logging_setup import setup_logging
 from pathlib import Path
 import ast
 import gc
 from centralized_nlp_package.data_access.snowflake_utils import read_from_snowflake
 from centralized_nlp_package.embedding.word2vec_model import train_word2vec
-# from centralized_nlp_package.utils.config import config
+# from centralized_nlp_package import config
 # from ..utils.logging_setup import setup_logging
-# from ..utils.helpers import format_date, construct_model_save_path
+# from ..utils.helpers import format_date, format_string_template
 # from ..data_access.snowflake_utils import read_from_snowflake
 # from ..preprocessing.text_preprocessing import initialize_spacy_model, word_tokenize
 # from ..embedding.word2vec_model import train_word2vec, save_model
 
-from centralized_nlp_package.utils.helpers import get_date_range, query_constructor
+from centralized_nlp_package.utils.helpers import get_date_range, format_string_template, query_constructor
 
-setup_logging()
+
 
 ## TODO: step 1: create spark connection object
 
@@ -42,7 +41,7 @@ feed = list(itertools.chain.from_iterable(currdf['FILT_DATA'].tolist()))
 
 gen_bigram = True
 if gen_bigram:
-    bigram_transformer = Phrases(feed, threshold = 2)
+    bigram_transformer = Phrases(feed, threshold = 2) ## thresold should come from config 
     model = train_word2vec(bigram_transformer[feed], bigram = True)
 else:
     model = train_word2vec(feed)
@@ -57,7 +56,7 @@ def run_pipeline1() -> None:
     Args:
         config (Config): Configuration object containing all necessary settings.
     """
-    setup_logging()
+    
     logger.info("Starting Pipeline 1: Model Inputs Preparation")
     
     # Initialize Dask client
@@ -106,7 +105,7 @@ def run_pipeline1() -> None:
     max_year = maxDateNewQuery[2:4]
     max_month = maxDateNewQuery[5:7]
     
-    model_save_path = construct_model_save_path(
+    model_save_path = format_string_template(
         config.word2vec.model_save_path,
         min_year=min_year,
         min_month=min_month,
@@ -120,7 +119,3 @@ def run_pipeline1() -> None:
     
     client.close()
     logger.info("Dask client closed. Pipeline 1 completed successfully.")
-
-if __name__ == "__main__":
-    config = get_config()
-    run_pipeline1(config)

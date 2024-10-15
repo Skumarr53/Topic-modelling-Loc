@@ -1,2 +1,0 @@
-query_mapping:
-  embed_create_q: ${queries.embed_create_q}

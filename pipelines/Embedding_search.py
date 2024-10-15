@@ -4,12 +4,10 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 from loguru import logger
-from centralized_nlp_package.utils.logging_setup import setup_logging
 import ast
 import gc
 
-# from centralized_nlp_package.utils.config import Config, get_config
-from centralized_nlp_package.utils.logging_setup import setup_logging
+# from centralized_nlp_package import config, get_config
 # from centralized_nlp_package.utils.helpers import format_date, construct_model_save_path
 # from centralized_nlp_package.data_access.snowflake_utils import read_from_snowflake
 from centralized_nlp_package.text_processing.text_utils import word_tokenizer
@@ -22,7 +20,7 @@ from centralized_nlp_package.preprocessing.text_preprocessing import initialize_
 # from centralized_nlp_package.utils.helpers import get_date_range, query_constructor
 
 
-setup_logging()
+
 
 
 nlp = initialize_spacy()
@@ -71,7 +69,7 @@ seed['seed'] = True
 #     Args:
 #         config (Config): Configuration object containing all necessary settings.
 #     """
-#     setup_logging()
+#     
 #     logger.info("Starting Pipeline 2: Embedding Generation and Visualization")
     
 #     # Initialize SpaCy model
