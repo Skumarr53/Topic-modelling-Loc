@@ -1,0 +1,9 @@
+database:
+  db_path: "/dbfs/mnt/access_work/UC25/"
+  snowflake_pickle_path: "mysf_prod_quant.pkl"
+processing:
+  n_tasks: 8
+  stop_words: ["bottom", "top", "call", "down"]
+paths:
+  match_list_path: "/dbfs/path/to/match_list.csv"
+  output_path: "/dbfs/mnt/access_work/UC25/output.parquet"
