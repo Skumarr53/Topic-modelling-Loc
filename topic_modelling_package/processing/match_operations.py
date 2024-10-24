@@ -46,7 +46,7 @@ def match_count_lowStat(texts: list, match_sets: dict, phrases: bool = True, sup
     for text in texts:
         counted = {label: 0 for label in match_sets.keys()}
         unigrams = tokenize_and_lemmatize_text(text)
-        bigrams = ['_'.join(g) for g in find_ngrams(unigrams, 2)]
+        bigrams = ['_'.join(g) for g in generate_ngrams(unigrams, 2)]
         
         text = text.lower()
         for label, match_set in match_sets.items(): 
@@ -89,7 +89,7 @@ def match_count_lowStat_singleSent(text: str, match_sets: dict, phrases: bool = 
     counted = {label: 0 for label in match_sets.keys()}
     
     unigrams = word_tokenize(text)
-    bigrams = ['_'.join(g) for g in find_ngrams(unigrams, 2)]
+    bigrams = ['_'.join(g) for g in generate_ngrams(unigrams, 2)]
     text = text.lower()
 
     for label, match_set in match_sets.items():

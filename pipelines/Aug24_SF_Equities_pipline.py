@@ -37,13 +37,15 @@ curr_df = read_from_snowflake(query)
 # row transformation 
 ## transformed column name as key if column does not exist a new column will be created and function as values
 row_transformations1 = [
-                            ('CALL_ID', str, False),
-                            ('FILT_MD', ast.literal_eval, False),
-                            ('FILT_QA', ast.literal_eval, False),
-                            ('LEN_MD', lambda row: len(row['FILT_MD']), True),
-                            ('LEN_QA', lambda row: len(row['FILT_QA']), True),
-                            ('FILT_MD', lambda row: [y for y, z in zip(row['FILT_MD'], row['SENT_LABELS_FILT_MD']) if (z == 1 and not y.endswith('?'))], True),
-                            ('FILT_QA', lambda row: [y for y, z in zip(row['FILT_QA'], row['SENT_LABELS_FILT_QA']) if (z == 1 and not y.endswith('?'))], True)
+                            ('CALL_ID', 'CALL_ID', str),
+                            ('FILT_MD', 'FILT_MD',ast.literal_eval),
+                            ('FILT_QA', 'FILT_QA',ast.literal_eval),
+                            ('SENT_LABELS_FILT_QA', 'SENT_LABELS_FILT_QA',ast.literal_eval),
+                            ('SENT_LABELS_FILT_MD', 'SENT_LABELS_FILT_MD',ast.literal_eval),
+                            ('LEN_MD', 'FILT_MD',lambda row: len(row['FILT_MD'])),
+                            ('LEN_QA', 'FILT_QA', lambda row: len(row['FILT_QA'])),
+                            ('FILT_MD', ['FILT_MD', 'SENT_LABELS_FILT_MD'], lambda x: [y for y,z in zip(x[0], x[1]) if ((z==1) & (not y.endswith('?')))]),
+                            ('FILT_QA', ['FILT_QA', 'SENT_LABELS_FILT_QA'], lambda x: [y for y,z in zip(x[0], x[1]) if ((z==1) & (not y.endswith('?')))])
                         ]
 
 curr_df = df_apply_transformations(curr_df, row_transformations1)
@@ -59,15 +61,24 @@ dask_df = dask_compute_with_progress(curr_df)
 
 
 # ### 
-row_transformations2 = [('matches_' + label, 
-                        lambda x: match_count_lowStat(x, word_set_dict, suppress = negate_dict), True)
-                        for label in ['FILT_MD', 'FILT_QA']]
+# row_transformations2 = [(topic + '_TOTAL_' + label, 'matches_' + label, lambda x: x[topic]['total'])
+#                         for label in ['FILT_MD', 'FILT_QA']]
 
-dask_df = df_apply_transformations(dask_df, row_transformations2)
+# dask_df = df_apply_transformations(dask_df, row_transformations2)
 
 #Generates a report based on top matches for a given topic.
-generate_topic_report(dask_df, word_set_dict, label_column='matches_')
+generate_topic_report(dask_df, word_set_dict, label_column='matches')
 
+
+rdf = generate_top_matches_report(dask_df, 
+                            topic= 'RECOVERY', 
+                            sortby = 'RECOVERY_REL_FILT_MD')
+cdf = generate_top_matches_report(dask_df, 
+                            topic= 'CYCLE', 
+                            sortby = 'CYCLE_REL_FILT_MD')
+rdf = generate_top_matches_report(dask_df, 
+                            topic= 'S&D', 
+                            sortby = 'S&D_REL_FILT_MD')
 
 
 

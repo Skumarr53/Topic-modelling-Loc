@@ -37,7 +37,7 @@ def generate_ngram_embedding(x: str, model: Word2Vec) -> np.ndarray:
     unigrams = tokenize_text(x)
     
     # Create a set of bigrams from the unigrams
-    bigrams = [f"{b[0]}_{b[1]}" for b in find_ngrams(unigrams, 2)]
+    bigrams = [f"{b[0]}_{b[1]}" for b in generate_ngrams(unigrams, 2)]
     
     # Process bigrams and adjust unigrams list if bigrams are found in the model
     final_tokens = []
@@ -122,7 +122,7 @@ def process_ngrams_tokens(x, model):
         list: Processed list of unigrams and bigrams.
     """
     unigrams = tokenize_text(x)
-    bigrams = list(find_ngrams(unigrams, 2))
+    bigrams = list(generate_ngrams(unigrams, 2))
     prev_removed = False
 
     if bigrams:
