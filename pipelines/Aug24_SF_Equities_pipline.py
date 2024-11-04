@@ -1,26 +1,20 @@
 import ast
 import pandas as pd
-from topic_modelling_package import config
-from data.data_extraction import DataExtraction
-from processing.text_processing import word_tokenize
-from processing.match_operations import get_match_set, match_count_lowStat
-from reports.report_generation import generate_topic_report, generate_top_matches_report, save_report_to_csv
+from reports.report_generation import generate_topic_report, generate_top_matches_report
 from utils.dask_utils import initialize_dask_client, dask_compute_with_progress
-from utils.db_access import DBFShelper
-import hydra
-from utils.logging import setup_logging
-from centralized_nlp_package.preprocessing.text_preprocessing import (initialize_spacy, 
-                                                                      tokenize_and_lemmatize_text, 
-                                                                      tokenize_matched_words)
-from centralized_nlp_package.text_processing.text_utils import find_ngrams
-from centralized_nlp_package.data_access.dask_utils import initialize_dask_client
-from centralized_nlp_package.data_access.snowflake_utils import read
+from centralized_nlp_package.data_access import read_from_snowflake, write_dataframe_to_snowflake
+from centralized_nlp_package.utils import determine_environment
+from centralized_nlp_package.preprocessing import (initialize_spacy)
+from centralized_nlp_package.text_processing import find_ngrams
+from centralized_nlp_package.data_processing import concatenate_and_reset_index, pandas_to_spark, initialize_dask_client, convert_columns_to_timestamp
 from centralized_nlp_package.utils.helpers import (df_convert_str2py_objects, 
                                                    query_constructor, 
                                                    get_date_range, 
                                                    df_apply_transformations)
-from topic_modelling_pakage import create_topic_dict
+from topic_modelling_pakage.reports.report_generation import create_topic_dict, generate_topic_report
 
+
+ENV = determine_environment()
 
 dask_client = initialize_dask_client()
 
@@ -67,7 +61,7 @@ dask_df = dask_compute_with_progress(curr_df)
 # dask_df = df_apply_transformations(dask_df, row_transformations2)
 
 #Generates a report based on top matches for a given topic.
-generate_topic_report(dask_df, word_set_dict, label_column='matches')
+dask_df = generate_topic_report(dask_df, word_set_dict, stats=['total', 'stats', 'relevance', , 'extract'], label_column='matches')
 
 
 rdf = generate_top_matches_report(dask_df, 
@@ -76,47 +70,32 @@ rdf = generate_top_matches_report(dask_df,
 cdf = generate_top_matches_report(dask_df, 
                             topic= 'CYCLE', 
                             sortby = 'CYCLE_REL_FILT_MD')
-rdf = generate_top_matches_report(dask_df, 
+sdf = generate_top_matches_report(dask_df, 
                             topic= 'S&D', 
                             sortby = 'S&D_REL_FILT_MD')
 
 
+concatdf = concatenate_and_reset_index([rdf, cdf, sdf])
 
-# df_apply_transformations(dask_df,  row_transformations2)
+concatdf = concatdf[(concatdf['RECOVERY_REL_FILT_MD']>0) | (concatdf['CYCLE_REL_FILT_MD']>0) | (concatdf['S&D_REL_FILT_MD']>0)]
 
-# @hydra.main(config_path="config", config_name="config")
-# def pipeline_one(cfg):
-#     setup_logging()
-    
-#     # Step 1: Initialize Dask Client
-#     dask_client = initialize_dask_client(config.processing.n_tasks)
+def simpDict(x):
+ # print(type(x))
+  return {key : val for key, val in x.items() if val!=0}
 
-#     # Step 2: Data Extraction
-#     db_helper = DBFShelper()
-#     data_extractor = DataExtraction(db_helper)
-#     transcripts_query = cfg.database.transcripts_query_one
-#     currdf = data_extractor.get_snowflake_data(transcripts_query)
+stats_col_transform = [(col, col, lambda x: simpDict(x) if type(x)==dict else None) for col in concatdf.columns if 'STATS' in col]
 
-#     # Step 3: Convert Pandas to Dask DataFrame
-#     import dask.dataframe as dd
-#     dask_df = dd.from_pandas(currdf, npartitions=cfg.processing.n_tasks)
+concatdf = df_apply_transformations(concatdf, stats_col_transform)
 
-#     # Step 4: Compute with Dask
-#     computed_df = dask_compute_with_progress(dask_df, use_progress=True)
+concatdf['REPORT_DATE'] = pd.to_datetime(max_dt[1:-1])
+concatdf.to_csv('/dbfs/mnt/access_work/UC25/SF_Equities_Reports/sf_equities_report_' + str(month) + '_' + str(year) + '.csv')
 
-#     # Step 5: Match Operations
-#     match_df = pd.read_csv(cfg.paths.match_list_path)
-#     word_set_dict = {topic.replace(' ', '_').upper(): get_match_set(match_df[(match_df['label'] == topic) & (match_df['negate'] == False)]['match'].values) for topic in match_df['label'].unique()}
-    
-#     # Apply match counts
-#     computed_df['matches_filt_md'] = computed_df['FILT_MD'].apply(lambda x: match_count_lowStat(x, word_set_dict), meta=('matches_filt_md', object))
 
-#     # Step 6: Report Generation
-#     computed_df = generate_topic_report(computed_df, word_set_dict)
+spark_df = pandas_to_spark(concatdf)
+spark_df = spark_df.replace(np.nan, None)
+spark_df = (convert_columns_to_timestamp(spark_df, {
+                                                # 'DATE': 'yyyy-MM-dd',
+                                                'REPORT_DATE': 'yyyy-MM-dd HH mm ss',
+                                                'EVENT_DATETIME_UTC': 'yyyy-MM-dd HH mm ss'}))
 
-#     # Generate and Save Specific Reports
-#     recovery_report = generate_top_matches_report(computed_df, topic="RECOVERY", label="FILT_MD", sort_by="RECOVERY_REL_FILT_MD", top_n=100)
-#     save_report_to_csv(recovery_report, cfg.paths.recovery_report_path)
-
-# if __name__ == "__main__":
-#     pipeline_one()
+write_dataframe_to_snowflake(spark_df, database = 'EDS_PROD', schema = 'QUANT', table_name='PARTHA_SF_REPORT_CTS_STG_1')

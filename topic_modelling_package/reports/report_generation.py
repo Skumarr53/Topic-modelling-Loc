@@ -1,8 +1,8 @@
 import pandas as pd
+from typing import Dict, Any, List
 from topic_modelling_package.processing.match_operations import get_match_set, match_count_lowStat
 from centralized_nlp_package.utils.helpers import df_apply_transformations
-from centralized_nlp_package.text_processing.text_analysis import calculate_sentence_score
-import gc
+from topic_modelling_package.utils.transformation import STATISTICS_MAP
 
 
 
@@ -34,52 +34,61 @@ def create_topic_dict(match_df):
 
     return word_set_dict, negate_dict
 
-def generate_topic_report(df: pd.DataFrame, word_set_dict: dict, negate_dict: dict, label_column: str = "matches") -> pd.DataFrame:
+def generate_topic_report(
+    df: pd.DataFrame,
+    word_set_dict: Dict[str, Any],
+    negate_dict: Dict[str, Any],
+    stats_list: List[str],
+    label_column: str = "matches",
+) -> pd.DataFrame:
     """
-    Generates topic-specific columns for match counts, relevance, and sentiment.
+    Generates topic-specific columns for selected statistics.
 
     Args:
         df (pd.DataFrame): DataFrame containing the data to be processed.
-        word_set_dict (dict): Dictionary of word sets for different topics.
-        label_column (str): Prefix for match labels in the DataFrame.
+        word_set_dict (Dict[str, Any]): Dictionary of word sets for different topics.
+        negate_dict (Dict[str, Any]): Dictionary for negation handling.
+        stats_list (List[str]): List of statistic identifiers to compute. Supported:
+            ['total', 'stats', 'relevance', 'count', 'extract', 'sentiment']
+        label_column (str): Prefix for match labels in the DataFrame. Defaults to "matches".
 
     Returns:
-        pd.DataFrame: Updated DataFrame with additional report columns for each topic.
-    """
-
-    labels = ['FILT_MD', 'FILT_QA']
-    lab_sec_dict1 = [(f'{label_column}_{lab}', lab, lambda x: match_count_lowStat(x, word_set_dict, suppress = negate_dict)) for lab in labels]
+        pd.DataFrame: Updated DataFrame with additional report columns for each topic and selected statistics.
     
+    Raises:
+        ValueError: If an unsupported statistic identifier is provided in stats_list.
+    """
+    # Validate stats_list
+    unsupported_stats = set(stats_list) - set(STATISTICS_MAP.keys())
+    if unsupported_stats:
+        raise ValueError(f"Unsupported statistics requested: {unsupported_stats}")
+
+    # Initial transformations: match counts
+    labels = ["FILT_MD", "FILT_QA"]
+    lab_sec_dict1 = [
+        (f"{label_column}_{lab}", lab, lambda x: match_count_lowStat(x, word_set_dict, suppress=negate_dict))
+        for lab in labels
+    ]
+
     df = df_apply_transformations(df, lab_sec_dict1)
 
-    # lab_sec_dict2 = [
-    #     (f'{topic}_TOTAL_{label}', f'{label_column}_{label}', lambda x: x[topic]['total']),
-    #     (f'{topic}_STATS_{label}', f'{label_column}_{label}', lambda x: x[topic]['stats']),
-    #     (f'{topic}_REL_{label}', f'{topic}_TOTAL_{label}', lambda x: len([a for a in x if a > 0]) / len(x) if len(x) > 0 else None),
-    #     (f'{topic}_COUNT_{label}', f'{label_column}_{label}', lambda x: len([a for a in x if a > 0]) if len(x) > 0 else None),
-    #     (f'{topic}_EXTRACT_{label}', [label, f'{topic}_TOTAL_{label}'], lambda x: ' '.join([y for y,z in zip(x[0], x[1]) if ((z>0))])),
-    #     (f'{topic}_SENT_{label}', [f'{topic}_TOTAL_{label}', f'SENT_LABELS_{label}'], lambda x: calculate_sentence_score(x[0], x[1], weight=False))
-    #     ]
-
+    # Iterate over labels and topics to apply selected statistics
     for label in labels:
-        for topic in word_set_dict:
-            lab_sec_dict2 = [
-                            (f'{topic}_TOTAL_{label}',   f'{label_column}_{label}',                          lambda x: x[topic]['total']),
-                            (f'{topic}_STATS_{label}',   f'{label_column}_{label}',                          lambda x: x[topic]['stats']),
-                            (f'{topic}_REL_{label}',     f'{topic}_TOTAL_{label}',                           lambda x: len([a for a in x if a > 0]) / len(x) if len(x) > 0 else None),
-                            (f'{topic}_COUNT_{label}',   f'{label_column}_{label}',                          lambda x: len([a for a in x if a > 0]) if len(x) > 0 else None),
-                            (f'{topic}_EXTRACT_{label}', [label, f'{topic}_TOTAL_{label}'],                  lambda x: ' '.join([y for y,z in zip(x[0], x[1]) if ((z>0))])),
-                            (f'{topic}_SENT_{label}',    [f'{topic}_TOTAL_{label}', f'SENT_LABELS_{label}'], lambda x: calculate_sentence_score(x[0], x[1], weight=False))
-                            ]
+        for topic in word_set_dict.keys():
+            lab_sec_dict2 = []
+            for stat in stats_list:
+                transformation_func = STATISTICS_MAP[stat]
+                lab_sec_dict2.append(transformation_func(topic, label, label_column))
             df = df_apply_transformations(df, lab_sec_dict2)
-    
 
-    
-    df.drop([f'{label_column}_{label}' for label in labels], axis=1, inplace=True)
+    # Drop intermediate match columns
+    df.drop([f"{label_column}_{label}" for label in labels], axis=1, inplace=True)
 
     return df
 
-def generate_top_matches_report(df: pd.DataFrame, topic: str, label: str, sort_by: str, top_n: int = 100) -> pd.DataFrame:
+
+
+def generate_top_matches_report(df: pd.DataFrame, topic: str, label: str, sort_by: str, top_n: int = 100, meta_cols: List[str] = ['ENTITY_ID', 'CALL_NAME', 'EVENT_DATETIME_UTC', 'COMPANY_NAME']) -> pd.DataFrame:
     """
     Generates a report based on top matches for a given topic.
 
@@ -93,7 +102,7 @@ def generate_top_matches_report(df: pd.DataFrame, topic: str, label: str, sort_b
     Returns:
         pd.DataFrame: DataFrame containing top matches for the specified topic.
     """
-    filtered_df = (df.sort_values(sort_by, ascending=False)[['ENTITY_ID', 'CALL_NAME', 'EVENT_DATETIME_UTC', 'COMPANY_NAME', 
+    filtered_df = (df.sort_values(sort_by, ascending=False)[[*meta_cols, 
                                                              sort_by, topic + '_STATS_' + label, topic + '_TOTAL_' + label]]
                                                              .drop_duplicates('ENTITY_ID').head(top_n))
     return filtered_df.dropna(subset=[sort_by])
