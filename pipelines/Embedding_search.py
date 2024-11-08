@@ -8,7 +8,7 @@ import ast
 import gc
 
 # from centralized_nlp_package import config, get_config
-# from centralized_nlp_package.utils.helpers import format_date, construct_model_save_path
+# from centralized_nlp_package.utils.helper import format_date, construct_model_save_path
 # from centralized_nlp_package.data_access.snowflake_utils import read_from_snowflake
 from centralized_nlp_package.text_processing.text_utils import word_tokenizer
 from centralized_nlp_package.preprocessing.text_preprocessing import initialize_spacy
@@ -17,7 +17,7 @@ from centralized_nlp_package.preprocessing.text_preprocessing import initialize_
 # from centralized_nlp_package.visualization.umap_viz import umap_viz
 # from centralized_nlp_package.data_access.snowflake_utils import read_from_snowflake
 # from centralized_nlp_package.embedding.word2vec_model import train_word2vec
-# from centralized_nlp_package.utils.helpers import get_date_range, query_constructor
+# from centralized_nlp_package.utils.helper import get_date_range, query_constructor
 
 
 

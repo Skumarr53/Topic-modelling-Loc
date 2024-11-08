@@ -15,7 +15,7 @@ from centralized_nlp_package.preprocessing.ngram_utils import find_ngrams
 
 def generate_ngram_embedding(x: str, model: Word2Vec) -> np.ndarray:
     """
-    Computes the embedding for a given string `x` using a word2vec model. If bigrams exist in the model, 
+    Computes the embedding for a given string 'x' using a word2vec model. If bigrams exist in the model, 
     they are prioritized over unigrams.
 
     Args:

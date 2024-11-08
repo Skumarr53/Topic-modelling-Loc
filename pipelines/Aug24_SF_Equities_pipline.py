@@ -1,17 +1,18 @@
 import ast
 import pandas as pd
 from reports.report_generation import generate_topic_report, generate_top_matches_report
-from utils.dask_utils import initialize_dask_client, dask_compute_with_progress
 from centralized_nlp_package.data_access import read_from_snowflake, write_dataframe_to_snowflake
 from centralized_nlp_package.utils import determine_environment
+from centralized_nlp_package.common_utils import get_date_range, query_constructor
 from centralized_nlp_package.preprocessing import (initialize_spacy)
 from centralized_nlp_package.text_processing import find_ngrams
-from centralized_nlp_package.data_processing import concatenate_and_reset_index, pandas_to_spark, initialize_dask_client, convert_columns_to_timestamp
-from centralized_nlp_package.utils.helpers import (df_convert_str2py_objects, 
-                                                   query_constructor, 
-                                                   get_date_range, 
-                                                   df_apply_transformations)
-from topic_modelling_pakage.reports.report_generation import create_topic_dict, generate_topic_report
+from centralized_nlp_package.data_processing import (concatenate_and_reset_index, 
+                                                     df_apply_transformations,
+                                                     pandas_to_spark, 
+                                                     initialize_dask_client, 
+                                                     dask_compute_with_progress,
+                                                     convert_columns_to_timestamp)
+from topic_modelling_pakage.reports import create_topic_dict, generate_topic_report
 
 
 ENV = determine_environment()
@@ -36,8 +37,8 @@ row_transformations1 = [
                             ('FILT_QA', 'FILT_QA',ast.literal_eval),
                             ('SENT_LABELS_FILT_QA', 'SENT_LABELS_FILT_QA',ast.literal_eval),
                             ('SENT_LABELS_FILT_MD', 'SENT_LABELS_FILT_MD',ast.literal_eval),
-                            ('LEN_MD', 'FILT_MD',lambda row: len(row['FILT_MD'])),
-                            ('LEN_QA', 'FILT_QA', lambda row: len(row['FILT_QA'])),
+                            ('LEN_MD', 'FILT_MD', len),
+                            ('LEN_QA', 'FILT_QA', len),
                             ('FILT_MD', ['FILT_MD', 'SENT_LABELS_FILT_MD'], lambda x: [y for y,z in zip(x[0], x[1]) if ((z==1) & (not y.endswith('?')))]),
                             ('FILT_QA', ['FILT_QA', 'SENT_LABELS_FILT_QA'], lambda x: [y for y,z in zip(x[0], x[1]) if ((z==1) & (not y.endswith('?')))])
                         ]
@@ -61,7 +62,7 @@ dask_df = dask_compute_with_progress(curr_df)
 # dask_df = df_apply_transformations(dask_df, row_transformations2)
 
 #Generates a report based on top matches for a given topic.
-dask_df = generate_topic_report(dask_df, word_set_dict, stats=['total', 'stats', 'relevance', , 'extract'], label_column='matches')
+dask_df = generate_topic_report(dask_df, word_set_dict, negate_dict, stats=['total', 'stats', 'relevance', , 'extract'], label_column='matches')
 
 
 rdf = generate_top_matches_report(dask_df, 
@@ -81,6 +82,7 @@ concatdf = concatdf[(concatdf['RECOVERY_REL_FILT_MD']>0) | (concatdf['CYCLE_REL_
 
 def simpDict(x):
  # print(type(x))
+  
   return {key : val for key, val in x.items() if val!=0}
 
 stats_col_transform = [(col, col, lambda x: simpDict(x) if type(x)==dict else None) for col in concatdf.columns if 'STATS' in col]

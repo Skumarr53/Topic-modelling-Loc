@@ -1,23 +1,37 @@
 import pandas as pd
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Tuple
 from topic_modelling_package.processing.match_operations import get_match_set, match_count_lowStat
-from centralized_nlp_package.utils.helpers import df_apply_transformations
+from centralized_nlp_package.utils.helper import df_apply_transformations
 from topic_modelling_package.utils.transformation import STATISTICS_MAP
 
 
 
-def create_topic_dict(match_df):
+def create_topic_dict(
+    match_df: pd.DataFrame,
+    label_col: str = 'label',
+    negate_col: str = 'negate',
+    match_col: str = 'match',
+) -> Tuple[Dict[str, set], Dict[str, List[str]]]:
     """
     Creates two dictionaries: word_set_dict and negate_dict.
 
     Parameters:
-    - match_df: pandas DataFrame containing columns 'label', 'negate', and 'match'
+    match_df : pd.DataFrame
+        DataFrame containing the data with columns for labels, negation, and matches.
+    label_col : str, optional
+        Name of the column representing labels/topics. Default is 'label'.
+    negate_col : str, optional
+        Name of the column indicating negation (True/False). Default is 'negate'.
+    match_col : str, optional
+        Name of the column containing match strings. Default is 'match'.
 
     Returns:
-    - word_set_dict: Dictionary containing positive match sets for each topic.
-    - negate_dict: Dictionary containing negative match lists for each topic.
+    Tuple[Dict[str, set], Dict[str, List[str]]]
+        - word_set_dict: Dictionary containing positive match sets for each formatted topic.
+        - negate_dict: Dictionary containing negative match lists for each formatted topic.
+
     """
-    unique_labels = match_df['label'].unique()
+    unique_labels = match_df[label_col].unique()
     word_set_dict = {}
     negate_dict = {}
 
@@ -25,14 +39,72 @@ def create_topic_dict(match_df):
         formatted_topic = topic.replace(' ', '_').upper()
         # Create word_set_dict
         word_set_dict[formatted_topic] = get_match_set(
-            match_df[(match_df['label'] == topic) & (match_df['negate'] == False)]['match'].values
+            match_df[(match_df[label_col] == topic) & (match_df[negate_col] == False)][match_col].values
         )
         # Create negate_dict
         negate_dict[formatted_topic] = [
-            word.lower() for word in match_df[(match_df['label'] == topic) & (match_df['negate'] == True)]['match'].values.tolist()
+            word.lower() for word in match_df[(match_df[label_col] == topic) & (match_df[negate_col] == True)][match_col].values.tolist()
         ]
 
     return word_set_dict, negate_dict
+
+
+from typing import Dict, List
+
+def replace_separator_in_dict_words(
+    input_dict: Dict[str, List[str]],
+    split_char: str = '_',
+    separator: str = ' ',
+    required_splits: int = 2
+) -> Dict[str, List[str]]:
+    """
+    Transforms the input dictionary by replacing a specified separator in words that split into exactly a given number of parts.
+
+    For each word in the lists associated with each key:
+    - If the word contains exactly 'required_splits' parts when split by 'split_char',
+      replace 'split_char' with 'separator'.
+    - Otherwise, retain the word as is.
+
+    Args:
+        input_dict (Dict[str, List[str]]): 
+            A dictionary with keys mapping to lists of words.
+        split_char (str, optional):  
+            The character used to split the words. Defaults to '_'.
+        separator (str, optional):  
+            The character used to join the split parts of the word. Defaults to ' '.
+        required_splits (int, optional):  
+            The exact number of parts a word must have after splitting to undergo transformation.  
+            Defaults to 2.
+
+    Returns:
+        Dict[str, List[str]]: 
+            A new dictionary with transformed words based on the specified conditions.
+
+    Examples:
+        >>> input_dict = {
+        ...     'Category1': ['word_one', 'wordtwo', 'another_word'],
+        ...     'Category2': ['simple', 'complex_here']
+        ... }
+        >>> transformed_dict = replace_separator_in_dict_words(input_dict)
+        >>> print(transformed_dict)
+        {
+            'Category1': ['word one', 'wordtwo', 'another word'],
+            'Category2': ['simple', 'complex here']
+        }
+    """
+    transformed_dict = {k: [] for k in input_dict}
+
+    for key, words in input_dict.items():
+        for word in words:
+            parts = word.split(split_char)
+            if len(parts) == required_splits:
+                transformed_word = separator.join(parts)
+                transformed_dict[key].append(transformed_word)
+            else:
+                transformed_dict[key].append(word)
+
+    return transformed_dict
+
 
 def generate_topic_report(
     df: pd.DataFrame,
@@ -106,13 +178,3 @@ def generate_top_matches_report(df: pd.DataFrame, topic: str, label: str, sort_b
                                                              sort_by, topic + '_STATS_' + label, topic + '_TOTAL_' + label]]
                                                              .drop_duplicates('ENTITY_ID').head(top_n))
     return filtered_df.dropna(subset=[sort_by])
-
-def save_report_to_csv(df: pd.DataFrame, path: str):
-    """
-    Saves the report DataFrame to a CSV file.
-
-    Args:
-        df (pd.DataFrame): DataFrame to be saved.
-        path (str): File path to save the CSV report.
-    """
-    df.to_csv(path, index=False)

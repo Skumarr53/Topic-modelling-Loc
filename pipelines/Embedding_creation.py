@@ -12,14 +12,7 @@ import ast
 import gc
 from centralized_nlp_package.data_access.snowflake_utils import read_from_snowflake
 from centralized_nlp_package.embedding.word2vec_model import train_word2vec
-# from centralized_nlp_package import config
-# from ..utils.logging_setup import setup_logging
-# from ..utils.helpers import format_date, format_string_template
-# from ..data_access.snowflake_utils import read_from_snowflake
-# from ..preprocessing.text_preprocessing import initialize_spacy_model, word_tokenize
-# from ..embedding.word2vec_model import train_word2vec, save_model
-
-from centralized_nlp_package.utils.helpers import get_date_range, format_string_template, query_constructor
+from centralized_nlp_package.utils.helper import get_date_range, format_string_template, query_constructor
 
 
 
