@@ -1,6 +1,6 @@
-
+# topic_modelling_package/utils/transformation.py
 from typing import Callable, Dict, List, Tuple, Union
-from centralized_nlp_package.text_processing.text_analysis import calculate_sentence_score, netscore
+from centralized_nlp_package.text_processing import calculate_sentence_score, netscore
 
 
 
