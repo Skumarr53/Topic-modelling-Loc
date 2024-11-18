@@ -11,8 +11,8 @@ import gc
 # from centralized_nlp_package.utils.helper import format_date, construct_model_save_path
 # from centralized_nlp_package.data_access.snowflake_utils import read_from_snowflake
 from centralized_nlp_package.text_processing.text_utils import word_tokenizer
-from centralized_nlp_package.preprocessing.text_preprocessing import initialize_spacy
-# from centralized_nlp_package.preprocessing.ngram_utils import get_model_ngrams
+from centralized_nlp_package.text_processing.text_preprocessing import initialize_spacy
+# from centralized_nlp_package.text_processing.ngram_utils import get_model_ngrams
 # from centralized_nlp_package.embedding.embedding_utils import embed_text, nearest_neighbors
 # from centralized_nlp_package.visualization.umap_viz import umap_viz
 # from centralized_nlp_package.data_access.snowflake_utils import read_from_snowflake

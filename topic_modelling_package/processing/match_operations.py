@@ -4,7 +4,7 @@ from collections import Counter
 from typing import List, Dict, Any, Optional
 
 from centralized_nlp_package.text_processing import generate_ngrams
-from centralized_nlp_package.preprocessing import (
+from centralized_nlp_package.text_processing import (
     tokenize_matched_words, 
     tokenize_and_lemmatize_text
 )

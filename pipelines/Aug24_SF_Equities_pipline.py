@@ -4,7 +4,7 @@ from reports.report_generation import generate_topic_report, generate_top_matche
 from centralized_nlp_package.data_access import read_from_snowflake, write_dataframe_to_snowflake
 from centralized_nlp_package.utils import determine_environment
 from centralized_nlp_package.common_utils import get_date_range, query_constructor
-from centralized_nlp_package.preprocessing import (initialize_spacy)
+from centralized_nlp_package.text_processing import (initialize_spacy)
 from centralized_nlp_package.text_processing import find_ngrams
 from centralized_nlp_package.data_processing import (concatenate_and_reset_index, 
                                                      df_apply_transformations,

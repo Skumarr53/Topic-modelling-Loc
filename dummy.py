@@ -8,10 +8,10 @@ from loguru import logger
 from gensim.models import Word2Vec
 import numpy as np
 from loguru import logger
-from centralized_nlp_package.preprocessing.text_preprocessing import tokenize_text
-from centralized_nlp_package.preprocessing.ngram_utils import find_ngrams
+from centralized_nlp_package.text_processing.text_preprocessing import tokenize_text
+from centralized_nlp_package.text_processing.ngram_utils import find_ngrams
 from centralized_nlp_package.embedding.embedding_utils import average_token_embeddings
-from centralized_nlp_package.preprocessing.ngram_utils import find_ngrams
+from centralized_nlp_package.text_processing.ngram_utils import find_ngrams
 
 def generate_ngram_embedding(x: str, model: Word2Vec) -> np.ndarray:
     """

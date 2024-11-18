@@ -10,7 +10,7 @@ from centralized_nlp_package.data_processing import check_pd_dataframe_for_recor
 from centralized_nlp_package.utils import determine_environment
 
 
-from centralized_nlp_package.preprocessing import initialize_spacy
+from centralized_nlp_package.text_processing import initialize_spacy
 from centralized_nlp_package.data_processing import (
     df_apply_transformations,
     dask_compute_with_progress,
