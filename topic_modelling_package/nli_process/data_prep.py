@@ -65,9 +65,8 @@ def create_text_pairs(filters: List[str], labels: List[str]) -> List[str]:
 
 def generate_label_columns(
     labels: List[str],
-    metrics: List[str],
+    metrics: List[str] = ['COUNT', 'REL', 'SCORE', 'TOTAL'],
     sec_filters: List[str] = ['FILT_MD', 'FILT_QA'],
-    include_extract: bool = False
 ) -> List[str]:
     """
     Generates a list of column names based on the provided labels, metrics, and secondary filters.
@@ -99,12 +98,6 @@ def generate_label_columns(
                 column_name = f"{label}_{metric}_{sec_filter}"
                 dynamic_columns.append(column_name)
                 logger.debug(f"Generated column name: {column_name}")
-
-                # If include_extract is True, add the _EXTRACT_ version
-            if include_extract:
-                extract_column = f"{label}_EXTRACT_{sec_filter}"
-                dynamic_columns.append(extract_column)
-                logger.debug(f"Generated extract column name: {extract_column}")
 
     logger.info(f"Generated {len(dynamic_columns)} label columns.")
     return dynamic_columns

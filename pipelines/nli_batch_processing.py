@@ -13,15 +13,14 @@ from centralized_nlp_package.data_processing import sparkdf_apply_transformation
 spark = initialize_spark_session()
 
 ### Config
+LABELS_MAPPING = {
+    "This text is about consumer strength": "CONSUMER_STRENGTH",
+    "This text is about consumer weakness": "CONSUMER_WEAKNESS",
+    "This text is about reduced consumer's spending patterns": "CONSUMER_SPENDING_PATTERNS"
+}
 MODEL_FOLDER_PATH = "/dbfs/mnt/access_work/UC25/Libraries/HuggingFace/"
 MODEL_NAME = "deberta-v3-large-zeroshot-v2"
-LABELS = [
-    "This text is about consumer strength",
-    "This text is about consumer weakness",
-    "This text is about reduced consumer's spending patterns"
-]
-
-labels_broadcast = spark.sparkContext.broadcast(LABELS)
+labels_broadcast = spark.sparkContext.broadcast(LABELS_MAPPING.values())
 
 # Configuration Flags
 ENABLE_QUANTIZATION = True  # Set to False to disable quantization
@@ -146,17 +145,15 @@ array_type_cols = ["This text is about consumer weakness_SCORE_FILT_MD",
                   ]       
 
 
+float_type_cols = generate_label_columns(LABELS_MAPPING.keys(),[])
+
 currdf_spark = convert_column_types(currdf_spark, 
                                     float_type_cols = float_type_cols, 
                                     float_type_cols = array_type_cols)
 
 
 # Define the mapping of original labels to new labels
-LABELS_MAPPING = {
-    "This text is about consumer strength": "CONSUMER_STRENGTH",
-    "This text is about consumer weakness": "CONSUMER_WEAKNESS",
-    "This text is about reduced consumer's spending patterns": "CONSUMER_SPENDING_PATTERNS"
-}
+
 
 
 currdf_spark = rename_columns_by_label_matching(currdf_spark, LABELS_MAPPING)
@@ -173,4 +170,4 @@ base_columns = ['ENTITY_ID', 'CALL_ID', 'VERSION_ID', 'DATE', 'CALL_NAME',
 labels = ['CONSUMER_STRENGTH', 'CONSUMER_WEAKNESS', 'CONSUMER_SPENDING_PATTERNS']
 metrics = ['COUNT', 'REL', 'SCORE', 'TOTAL']
 
-columns_order = generate_label_columns(labels,metrics,include_extract=True)
+columns_order = generate_label_columns(LABELS_MAPPING.values(),metrics,include_extract=True)
