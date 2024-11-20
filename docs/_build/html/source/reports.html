@@ -179,7 +179,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -238,14 +238,161 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="reports">
-<h1>Reports<a class="headerlink" href="#reports" title="Permalink to this heading">¶</a></h1>
+          <section id="module-topic_modelling_package.reports.transformations">
+<span id="reports"></span><h1>Reports<a class="headerlink" href="#module-topic_modelling_package.reports.transformations" title="Permalink to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="topic_modelling_package.reports.transformations.count_transformation">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.transformations.</span></span><span class="sig-name descname"><span class="pre">count_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/transformations.html#count_transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.transformations.count_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a transformation for counting positive occurrences of a label within a topic.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>topic</strong> (<em>str</em>) – The topic name.</p></li>
+<li><p><strong>label</strong> (<em>str</em>) – The label name.</p></li>
+<li><p><strong>label_column</strong> (<em>str</em>) – The column name associated with the label.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the new column name, source column(s), and the transformation function.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Transformation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="topic_modelling_package.reports.transformations.extract_transformation">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.transformations.</span></span><span class="sig-name descname"><span class="pre">extract_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/transformations.html#extract_transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.transformations.extract_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a transformation to extract relevant matches based on a label within a topic.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>topic</strong> (<em>str</em>) – The topic name.</p></li>
+<li><p><strong>label</strong> (<em>str</em>) – The label name.</p></li>
+<li><p><strong>label_column</strong> (<em>str</em>) – The column name associated with the label.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the new column name, source column(s), and the transformation function.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Transformation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="topic_modelling_package.reports.transformations.net_sent_transformation">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.transformations.</span></span><span class="sig-name descname"><span class="pre">net_sent_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/transformations.html#net_sent_transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.transformations.net_sent_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a transformation to calculate the net sentiment score of a label within a topic.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>topic</strong> (<em>str</em>) – The topic name.</p></li>
+<li><p><strong>label</strong> (<em>str</em>) – The label name.</p></li>
+<li><p><strong>label_column</strong> (<em>str</em>) – The column name associated with the label.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the new column name, source column(s), and the transformation function.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Transformation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="topic_modelling_package.reports.transformations.relevance_transformation">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.transformations.</span></span><span class="sig-name descname"><span class="pre">relevance_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/transformations.html#relevance_transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.transformations.relevance_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a transformation for the relevance score of a label within a topic.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>topic</strong> (<em>str</em>) – The topic name.</p></li>
+<li><p><strong>label</strong> (<em>str</em>) – The label name.</p></li>
+<li><p><strong>label_column</strong> (<em>str</em>) – The column name associated with the label.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the new column name, source column(s), and the transformation function.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Transformation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="topic_modelling_package.reports.transformations.sentiment_transformation">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.transformations.</span></span><span class="sig-name descname"><span class="pre">sentiment_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/transformations.html#sentiment_transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.transformations.sentiment_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a transformation to calculate the sentiment score of a label within a topic.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>topic</strong> (<em>str</em>) – The topic name.</p></li>
+<li><p><strong>label</strong> (<em>str</em>) – The label name.</p></li>
+<li><p><strong>label_column</strong> (<em>str</em>) – The column name associated with the label.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the new column name, source column(s), and the transformation function.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Transformation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="topic_modelling_package.reports.transformations.stats_transformation">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.transformations.</span></span><span class="sig-name descname"><span class="pre">stats_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/transformations.html#stats_transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.transformations.stats_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a transformation for statistics of a label within a topic.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>topic</strong> (<em>str</em>) – The topic name.</p></li>
+<li><p><strong>label</strong> (<em>str</em>) – The label name.</p></li>
+<li><p><strong>label_column</strong> (<em>str</em>) – The column name associated with the label.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the new column name, source column(s), and the transformation function.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Transformation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="topic_modelling_package.reports.transformations.total_transformation">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.transformations.</span></span><span class="sig-name descname"><span class="pre">total_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/transformations.html#total_transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.transformations.total_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a transformation for the total count of a label within a topic.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>topic</strong> (<em>str</em>) – The topic name.</p></li>
+<li><p><strong>label</strong> (<em>str</em>) – The label name.</p></li>
+<li><p><strong>label_column</strong> (<em>str</em>) – The column name associated with the label.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the new column name, source column(s), and the transformation function.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Transformation</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
         </article>
@@ -283,8 +430,33 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Reports</a><ul>
+<li><a class="reference internal" href="#topic_modelling_package.reports.transformations.count_transformation"><code class="docutils literal notranslate"><span class="pre">count_transformation()</span></code></a></li>
+<li><a class="reference internal" href="#topic_modelling_package.reports.transformations.extract_transformation"><code class="docutils literal notranslate"><span class="pre">extract_transformation()</span></code></a></li>
+<li><a class="reference internal" href="#topic_modelling_package.reports.transformations.net_sent_transformation"><code class="docutils literal notranslate"><span class="pre">net_sent_transformation()</span></code></a></li>
+<li><a class="reference internal" href="#topic_modelling_package.reports.transformations.relevance_transformation"><code class="docutils literal notranslate"><span class="pre">relevance_transformation()</span></code></a></li>
+<li><a class="reference internal" href="#topic_modelling_package.reports.transformations.sentiment_transformation"><code class="docutils literal notranslate"><span class="pre">sentiment_transformation()</span></code></a></li>
+<li><a class="reference internal" href="#topic_modelling_package.reports.transformations.stats_transformation"><code class="docutils literal notranslate"><span class="pre">stats_transformation()</span></code></a></li>
+<li><a class="reference internal" href="#topic_modelling_package.reports.transformations.total_transformation"><code class="docutils literal notranslate"><span class="pre">total_transformation()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
