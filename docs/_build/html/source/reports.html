@@ -10,7 +10,7 @@
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=11203d66" />
     
     
 
@@ -179,7 +179,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -238,14 +238,371 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="reports">
-<h1>Reports<a class="headerlink" href="#reports" title="Permalink to this heading">¶</a></h1>
+          <section id="module-topic_modelling_package.reports.report_generation">
+<span id="reports"></span><h1>Reports<a class="headerlink" href="#module-topic_modelling_package.reports.report_generation" title="Permalink to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="topic_modelling_package.reports.report_generation.create_topic_dict">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.report_generation.</span></span><span class="sig-name descname"><span class="pre">create_topic_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">match_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'label'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negate_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'negate'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">match_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'match'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/report_generation.html#create_topic_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.report_generation.create_topic_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates dictionaries for positive and negative match patterns per topic.</p>
+<p>This function generates two dictionaries:
+1. <cite>word_set_dict</cite>: Contains positive match sets for each formatted topic.
+2. <cite>negate_dict</cite>: Contains lists of negative matches for each formatted topic.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>match_df</strong> (<em>pd.DataFrame</em>) – DataFrame containing the data with columns for labels, negation, and matches.</p></li>
+<li><p><strong>label_col</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the column representing labels/topics. Defaults to ‘label’.</p></li>
+<li><p><strong>negate_col</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the column indicating negation (True/False). Defaults to ‘negate’.</p></li>
+<li><p><strong>match_col</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the column containing match strings. Defaults to ‘match’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>word_set_dict: Dictionary containing positive match sets for each formatted topic.</p></li>
+<li><p>negate_dict: Dictionary containing negative match lists for each formatted topic.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[Dict[str, Dict[str, Any]], Dict[str, List[str]]]</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Positive&#39;</span><span class="p">,</span> <span class="s1">&#39;Positive&#39;</span><span class="p">,</span> <span class="s1">&#39;Negative&#39;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;negate&#39;</span><span class="p">:</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;match&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Good&#39;</span><span class="p">,</span> <span class="s1">&#39;Not Good&#39;</span><span class="p">,</span> <span class="s1">&#39;Bad&#39;</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">word_set</span><span class="p">,</span> <span class="n">negate</span> <span class="o">=</span> <span class="n">create_topic_dict</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">word_set</span><span class="p">)</span>
+<span class="go">{</span>
+<span class="go">    &#39;POSITIVE&#39;: {</span>
+<span class="go">        &#39;original&#39;: [&#39;Good&#39;],</span>
+<span class="go">        &#39;unigrams&#39;: {&#39;good&#39;},</span>
+<span class="go">        &#39;bigrams&#39;: set(),</span>
+<span class="go">        &#39;phrases&#39;: []</span>
+<span class="go">    }</span>
+<span class="go">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">negate</span><span class="p">)</span>
+<span class="go">{</span>
+<span class="go">    &#39;POSITIVE&#39;: [&#39;not good&#39;],</span>
+<span class="go">    &#39;NEGATIVE&#39;: []</span>
+<span class="go">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="topic_modelling_package.reports.report_generation.generate_top_matches_report">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.report_generation.</span></span><span class="sig-name descname"><span class="pre">generate_top_matches_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_by</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta_cols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/report_generation.html#generate_top_matches_report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.report_generation.generate_top_matches_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a report based on top matches for a given topic.</p>
+<p>This function sorts the DataFrame based on a specified column, selects the top N matches,
+and retains only the relevant metadata and match information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – DataFrame containing match data.</p></li>
+<li><p><strong>topic</strong> (<em>str</em>) – Topic name for which the report is generated.</p></li>
+<li><p><strong>label</strong> (<em>str</em>) – Label indicating which section (e.g., FILT_MD, FILT_QA).</p></li>
+<li><p><strong>sort_by</strong> (<em>str</em>) – Column to sort by when selecting top matches.</p></li>
+<li><p><strong>top_n</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of rows to include in the report. Defaults to 100.</p></li>
+<li><p><strong>meta_cols</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – List of metadata columns to retain.
+Defaults to [‘ENTITY_ID’, ‘CALL_NAME’, ‘EVENT_DATETIME_UTC’, ‘COMPANY_NAME’].</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>DataFrame containing top matches for the specified topic.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s1">&#39;ENTITY_ID&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;CALL_NAME&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Call1&#39;</span><span class="p">,</span> <span class="s1">&#39;Call2&#39;</span><span class="p">,</span> <span class="s1">&#39;Call3&#39;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;EVENT_DATETIME_UTC&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;2021-01-01&#39;</span><span class="p">,</span> <span class="s1">&#39;2021-01-02&#39;</span><span class="p">,</span> <span class="s1">&#39;2021-01-03&#39;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;COMPANY_NAME&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;CompanyA&#39;</span><span class="p">,</span> <span class="s1">&#39;CompanyB&#39;</span><span class="p">,</span> <span class="s1">&#39;CompanyC&#39;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;score&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.95</span><span class="p">,</span> <span class="mf">0.85</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;POSITIVE_STATS_FIL_MD&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;POSITIVE_TOTAL_FIL_MD&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">report</span> <span class="o">=</span> <span class="n">generate_top_matches_report</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="s1">&#39;POSITIVE&#39;</span><span class="p">,</span> <span class="s1">&#39;FIL_MD&#39;</span><span class="p">,</span> <span class="s1">&#39;score&#39;</span><span class="p">,</span> <span class="n">top_n</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+<span class="go">   ENTITY_ID CALL_NAME EVENT_DATETIME_UTC COMPANY_NAME  score  POSITIVE_STATS_FIL_MD  POSITIVE_TOTAL_FIL_MD</span>
+<span class="go">0          1     Call1           2021-01-01     CompanyA   0.95                     5                     5</span>
+<span class="go">1          2     Call2           2021-01-02     CompanyB   0.85                     3                     3</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="topic_modelling_package.reports.report_generation.generate_topic_report">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.report_generation.</span></span><span class="sig-name descname"><span class="pre">generate_topic_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">word_set_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negate_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'matches'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/report_generation.html#generate_topic_report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.report_generation.generate_topic_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates topic-specific columns for selected statistics.</p>
+<p>This function applies transformations to the DataFrame based on the provided statistics list.
+Supported statistics include:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>‘total’: Total counts of matches.</p></li>
+<li><p>‘stats’: Detailed statistics of matches.</p></li>
+<li><p>‘relevance’: Relevance scores.</p></li>
+<li><p>‘count’: Count of matches.</p></li>
+<li><p>‘extract’: Extracted matches.</p></li>
+<li><p>‘sentiment’: Sentiment analysis results.</p></li>
+</ul>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – DataFrame containing the data to be processed.</p></li>
+<li><p><strong>word_set_dict</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – Dictionary of word sets for different topics.</p></li>
+<li><p><strong>negate_dict</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em>) – Dictionary for negation handling.</p></li>
+<li><p><strong>stats_list</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – List of statistic identifiers to compute. Supported:
+[‘total’, ‘stats’, ‘relevance’, ‘count’, ‘extract’, ‘sentiment’]</p></li>
+<li><p><strong>label_column</strong> (<em>str</em><em>, </em><em>optional</em>) – Prefix for match labels in the DataFrame. Defaults to “matches”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Updated DataFrame with additional report columns for each topic and selected statistics.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If an unsupported statistic identifier is provided in stats_list.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s1">&#39;matches_FILT_MD&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="s1">&#39;good&#39;</span><span class="p">,</span> <span class="s1">&#39;bad&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;good&#39;</span><span class="p">]],</span>
+<span class="gp">... </span>    <span class="s1">&#39;matches_FILT_QA&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="s1">&#39;excellent&#39;</span><span class="p">,</span> <span class="s1">&#39;poor&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;average&#39;</span><span class="p">]],</span>
+<span class="gp">... </span>    <span class="s1">&#39;FILT_MD&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;some text&#39;</span><span class="p">,</span> <span class="s1">&#39;other text&#39;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;FILT_QA&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;additional text&#39;</span><span class="p">,</span> <span class="s1">&#39;more text&#39;</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">word_set_dict</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s1">&#39;POSITIVE&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;original&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;good&#39;</span><span class="p">],</span> <span class="s1">&#39;unigrams&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;good&#39;</span><span class="p">},</span> <span class="s1">&#39;bigrams&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;good_service&#39;</span><span class="p">},</span> <span class="s1">&#39;phrases&#39;</span><span class="p">:</span> <span class="p">[]},</span>
+<span class="gp">... </span>    <span class="s1">&#39;NEGATIVE&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;original&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;bad&#39;</span><span class="p">],</span> <span class="s1">&#39;unigrams&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;bad&#39;</span><span class="p">},</span> <span class="s1">&#39;bigrams&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;bad_service&#39;</span><span class="p">},</span> <span class="s1">&#39;phrases&#39;</span><span class="p">:</span> <span class="p">[]}</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">negate_dict</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s1">&#39;POSITIVE&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;not good&#39;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;NEGATIVE&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;not bad&#39;</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stats_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;total&#39;</span><span class="p">,</span> <span class="s1">&#39;count&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">report_df</span> <span class="o">=</span> <span class="n">generate_topic_report</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">word_set_dict</span><span class="p">,</span> <span class="n">negate_dict</span><span class="p">,</span> <span class="n">stats_list</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">report_df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+<span class="go">Index([&#39;matches_FILT_MD&#39;, &#39;matches_FILT_QA&#39;, &#39;FILT_MD&#39;, &#39;FILT_QA&#39;,</span>
+<span class="go">       &#39;POSITIVE_TOTAL_FILT_MD&#39;, &#39;POSITIVE_COUNT_FILT_MD&#39;,</span>
+<span class="go">       &#39;NEGATIVE_TOTAL_FILT_MD&#39;, &#39;NEGATIVE_COUNT_FILT_MD&#39;,</span>
+<span class="go">       &#39;POSITIVE_TOTAL_FILT_QA&#39;, &#39;POSITIVE_COUNT_FILT_QA&#39;,</span>
+<span class="go">       &#39;NEGATIVE_TOTAL_FILT_QA&#39;, &#39;NEGATIVE_COUNT_FILT_QA&#39;],</span>
+<span class="go">      dtype=&#39;object&#39;)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="topic_modelling_package.reports.report_generation.replace_separator_in_dict_words">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.report_generation.</span></span><span class="sig-name descname"><span class="pre">replace_separator_in_dict_words</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_char</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'_'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'</span> <span class="pre">'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">required_splits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/report_generation.html#replace_separator_in_dict_words"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.report_generation.replace_separator_in_dict_words" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transforms the input dictionary by replacing a specified separator in words that split into exactly a given number of parts.</p>
+<p>For each word in the lists associated with each key:
+- If the word contains exactly ‘required_splits’ parts when split by ‘split_char’,</p>
+<blockquote>
+<div><p>replace ‘split_char’ with ‘separator’.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>Otherwise, retain the word as is.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_dict</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em>) – A dictionary with keys mapping to lists of words.</p></li>
+<li><p><strong>split_char</strong> (<em>str</em><em>, </em><em>optional</em>) – The character used to split the words. Defaults to ‘_’.</p></li>
+<li><p><strong>separator</strong> (<em>str</em><em>, </em><em>optional</em>) – The character used to join the split parts of the word. Defaults to ‘ ‘.</p></li>
+<li><p><strong>required_splits</strong> (<em>int</em><em>, </em><em>optional</em>) – The exact number of parts a word must have after splitting to undergo transformation.
+Defaults to 2.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new dictionary with transformed words based on the specified conditions.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, List[str]]</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">input_dict</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s1">&#39;Category1&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;word_one&#39;</span><span class="p">,</span> <span class="s1">&#39;wordtwo&#39;</span><span class="p">,</span> <span class="s1">&#39;another_word&#39;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;Category2&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;simple&#39;</span><span class="p">,</span> <span class="s1">&#39;complex_here&#39;</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">transformed_dict</span> <span class="o">=</span> <span class="n">replace_separator_in_dict_words</span><span class="p">(</span><span class="n">input_dict</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">transformed_dict</span><span class="p">)</span>
+<span class="go">{</span>
+<span class="go">    &#39;Category1&#39;: [&#39;word one&#39;, &#39;wordtwo&#39;, &#39;another word&#39;],</span>
+<span class="go">    &#39;Category2&#39;: [&#39;simple&#39;, &#39;complex here&#39;]</span>
+<span class="go">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<span class="target" id="module-topic_modelling_package.reports.transformations"></span><dl class="py function">
+<dt class="sig sig-object py" id="topic_modelling_package.reports.transformations.count_transformation">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.transformations.</span></span><span class="sig-name descname"><span class="pre">count_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/transformations.html#count_transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.transformations.count_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a transformation for counting positive occurrences of a label within a topic.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>topic</strong> (<em>str</em>) – The topic name.</p></li>
+<li><p><strong>label</strong> (<em>str</em>) – The label name.</p></li>
+<li><p><strong>label_column</strong> (<em>str</em>) – The column name associated with the label.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the new column name, source column(s), and the transformation function.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Transformation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="topic_modelling_package.reports.transformations.extract_transformation">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.transformations.</span></span><span class="sig-name descname"><span class="pre">extract_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/transformations.html#extract_transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.transformations.extract_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a transformation to extract relevant matches based on a label within a topic.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>topic</strong> (<em>str</em>) – The topic name.</p></li>
+<li><p><strong>label</strong> (<em>str</em>) – The label name.</p></li>
+<li><p><strong>label_column</strong> (<em>str</em>) – The column name associated with the label.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the new column name, source column(s), and the transformation function.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Transformation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="topic_modelling_package.reports.transformations.net_sent_transformation">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.transformations.</span></span><span class="sig-name descname"><span class="pre">net_sent_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/transformations.html#net_sent_transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.transformations.net_sent_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a transformation to calculate the net sentiment score of a label within a topic.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>topic</strong> (<em>str</em>) – The topic name.</p></li>
+<li><p><strong>label</strong> (<em>str</em>) – The label name.</p></li>
+<li><p><strong>label_column</strong> (<em>str</em>) – The column name associated with the label.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the new column name, source column(s), and the transformation function.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Transformation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="topic_modelling_package.reports.transformations.relevance_transformation">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.transformations.</span></span><span class="sig-name descname"><span class="pre">relevance_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/transformations.html#relevance_transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.transformations.relevance_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a transformation for the relevance score of a label within a topic.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>topic</strong> (<em>str</em>) – The topic name.</p></li>
+<li><p><strong>label</strong> (<em>str</em>) – The label name.</p></li>
+<li><p><strong>label_column</strong> (<em>str</em>) – The column name associated with the label.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the new column name, source column(s), and the transformation function.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Transformation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="topic_modelling_package.reports.transformations.sentiment_transformation">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.transformations.</span></span><span class="sig-name descname"><span class="pre">sentiment_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/transformations.html#sentiment_transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.transformations.sentiment_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a transformation to calculate the sentiment score of a label within a topic.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>topic</strong> (<em>str</em>) – The topic name.</p></li>
+<li><p><strong>label</strong> (<em>str</em>) – The label name.</p></li>
+<li><p><strong>label_column</strong> (<em>str</em>) – The column name associated with the label.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the new column name, source column(s), and the transformation function.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Transformation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="topic_modelling_package.reports.transformations.stats_transformation">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.transformations.</span></span><span class="sig-name descname"><span class="pre">stats_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/transformations.html#stats_transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.transformations.stats_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a transformation for statistics of a label within a topic.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>topic</strong> (<em>str</em>) – The topic name.</p></li>
+<li><p><strong>label</strong> (<em>str</em>) – The label name.</p></li>
+<li><p><strong>label_column</strong> (<em>str</em>) – The column name associated with the label.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the new column name, source column(s), and the transformation function.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Transformation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="topic_modelling_package.reports.transformations.total_transformation">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.transformations.</span></span><span class="sig-name descname"><span class="pre">total_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/transformations.html#total_transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.transformations.total_transformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a transformation for the total count of a label within a topic.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>topic</strong> (<em>str</em>) – The topic name.</p></li>
+<li><p><strong>label</strong> (<em>str</em>) – The label name.</p></li>
+<li><p><strong>label_column</strong> (<em>str</em>) – The column name associated with the label.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple containing the new column name, source column(s), and the transformation function.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Transformation</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
         </article>
@@ -283,8 +640,37 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Reports</a><ul>
+<li><a class="reference internal" href="#topic_modelling_package.reports.report_generation.create_topic_dict"><code class="docutils literal notranslate"><span class="pre">create_topic_dict()</span></code></a></li>
+<li><a class="reference internal" href="#topic_modelling_package.reports.report_generation.generate_top_matches_report"><code class="docutils literal notranslate"><span class="pre">generate_top_matches_report()</span></code></a></li>
+<li><a class="reference internal" href="#topic_modelling_package.reports.report_generation.generate_topic_report"><code class="docutils literal notranslate"><span class="pre">generate_topic_report()</span></code></a></li>
+<li><a class="reference internal" href="#topic_modelling_package.reports.report_generation.replace_separator_in_dict_words"><code class="docutils literal notranslate"><span class="pre">replace_separator_in_dict_words()</span></code></a></li>
+<li><a class="reference internal" href="#topic_modelling_package.reports.transformations.count_transformation"><code class="docutils literal notranslate"><span class="pre">count_transformation()</span></code></a></li>
+<li><a class="reference internal" href="#topic_modelling_package.reports.transformations.extract_transformation"><code class="docutils literal notranslate"><span class="pre">extract_transformation()</span></code></a></li>
+<li><a class="reference internal" href="#topic_modelling_package.reports.transformations.net_sent_transformation"><code class="docutils literal notranslate"><span class="pre">net_sent_transformation()</span></code></a></li>
+<li><a class="reference internal" href="#topic_modelling_package.reports.transformations.relevance_transformation"><code class="docutils literal notranslate"><span class="pre">relevance_transformation()</span></code></a></li>
+<li><a class="reference internal" href="#topic_modelling_package.reports.transformations.sentiment_transformation"><code class="docutils literal notranslate"><span class="pre">sentiment_transformation()</span></code></a></li>
+<li><a class="reference internal" href="#topic_modelling_package.reports.transformations.stats_transformation"><code class="docutils literal notranslate"><span class="pre">stats_transformation()</span></code></a></li>
+<li><a class="reference internal" href="#topic_modelling_package.reports.transformations.total_transformation"><code class="docutils literal notranslate"><span class="pre">total_transformation()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>

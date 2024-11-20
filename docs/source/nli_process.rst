@@ -1,7 +1,7 @@
 NLI Inferenece
 ==============
 
-.. automodule:: topic_modelling_package.nli_process.snowflake_utils
+.. automodule:: topic_modelling_package.nli_process.data_prep
     :members:
     :undoc-members:
     :show-inheritance:

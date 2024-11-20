@@ -199,7 +199,6 @@ def convert_column_types(
         logger.error(f"Failed to convert column types: {e}")
         raise e
 
-#processing_nested_columns
 def process_nested_columns(
     df: DataFrame,
     nested_columns: List[str],

@@ -10,7 +10,7 @@
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=11203d66" />
     
     
 
@@ -179,7 +179,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -238,14 +238,268 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="processing">
-<h1>Processing<a class="headerlink" href="#processing" title="Permalink to this heading">¶</a></h1>
+          <section id="module-topic_modelling_package.processing.match_operations">
+<span id="processing"></span><h1>Processing<a class="headerlink" href="#module-topic_modelling_package.processing.match_operations" title="Permalink to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="topic_modelling_package.processing.match_operations.count_matches_in_single_sentence">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.processing.match_operations.</span></span><span class="sig-name descname"><span class="pre">count_matches_in_single_sentence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">match_sets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phrases</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suppress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/processing/match_operations.html#count_matches_in_single_sentence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.processing.match_operations.count_matches_in_single_sentence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Counts occurrences of match patterns within a single sentence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>text</strong> (<em>str</em>) – Sentence to process.</p></li>
+<li><p><strong>match_sets</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>) – <p>Dictionary containing match patterns categorized by labels.
+.. rubric:: Example</p>
+<dl class="simple">
+<dt>{</dt><dd><p>‘label1’: {‘unigrams’: {…}, ‘bigrams’: {…}, ‘phrases’: […]},
+‘label2’: {‘unigrams’: {…}, ‘bigrams’: {…}, ‘phrases’: […]},
+…</p>
+</dd>
+</dl>
+<p>}</p>
+</p></li>
+<li><p><strong>phrases</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to include phrase matching. Defaults to True.</p></li>
+<li><p><strong>suppress</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – <p>Words to suppress from matching per label.
+.. rubric:: Example</p>
+<dl class="simple">
+<dt>{</dt><dd><p>‘label1’: [‘word1’, ‘word2’],
+‘label2’: [‘word3’]</p>
+</dd>
+</dl>
+<p>}</p>
+<p>Defaults to None.</p>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl>
+<dt>Dictionary of counts for each match pattern categorized by labels.</dt><dd><dl>
+<dt>Example:</dt><dd><dl>
+<dt>{</dt><dd><dl class="simple">
+<dt>‘label1’: {</dt><dd><p>‘total’: 2,
+‘stats’: {‘unigram1’: 1, ‘bigram1’: 1, …}</p>
+</dd>
+</dl>
+<p>},
+‘label2’: {</p>
+<blockquote>
+<div><p>’total’: 1,
+‘stats’: {‘unigram2’: 1, ‘bigram2’: 0, …}</p>
+</div></blockquote>
+</dd>
+</dl>
+<p>}</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Dict[str, Any]]</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;I love good service and bad support.&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">match_sets</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s1">&#39;positive&#39;</span><span class="p">:</span> <span class="p">{</span>
+<span class="gp">... </span>        <span class="s1">&#39;unigrams&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;good&#39;</span><span class="p">},</span>
+<span class="gp">... </span>        <span class="s1">&#39;bigrams&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;good_service&#39;</span><span class="p">},</span>
+<span class="gp">... </span>        <span class="s1">&#39;phrases&#39;</span><span class="p">:</span> <span class="p">[]</span>
+<span class="gp">... </span>    <span class="p">},</span>
+<span class="gp">... </span>    <span class="s1">&#39;negative&#39;</span><span class="p">:</span> <span class="p">{</span>
+<span class="gp">... </span>        <span class="s1">&#39;unigrams&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;bad&#39;</span><span class="p">},</span>
+<span class="gp">... </span>        <span class="s1">&#39;bigrams&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;bad_support&#39;</span><span class="p">},</span>
+<span class="gp">... </span>        <span class="s1">&#39;phrases&#39;</span><span class="p">:</span> <span class="p">[]</span>
+<span class="gp">... </span>    <span class="p">}</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">suppress</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s1">&#39;positive&#39;</span><span class="p">:</span> <span class="p">[],</span>
+<span class="gp">... </span>    <span class="s1">&#39;negative&#39;</span><span class="p">:</span> <span class="p">[]</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">counts</span> <span class="o">=</span> <span class="n">count_matches_in_single_sentence</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">match_sets</span><span class="p">,</span> <span class="n">phrases</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">suppress</span><span class="o">=</span><span class="n">suppress</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">counts</span><span class="p">)</span>
+<span class="go">{</span>
+<span class="go">    &#39;positive&#39;: {</span>
+<span class="go">        &#39;total&#39;: 2,</span>
+<span class="go">        &#39;stats&#39;: {&#39;good&#39;: 1, &#39;good_service&#39;: 1}</span>
+<span class="go">    },</span>
+<span class="go">    &#39;negative&#39;: {</span>
+<span class="go">        &#39;total&#39;: 2,</span>
+<span class="go">        &#39;stats&#39;: {&#39;bad&#39;: 1, &#39;bad_support&#39;: 1}</span>
+<span class="go">    }</span>
+<span class="go">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="topic_modelling_package.processing.match_operations.count_matches_in_texts">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.processing.match_operations.</span></span><span class="sig-name descname"><span class="pre">count_matches_in_texts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">texts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">match_sets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phrases</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suppress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/processing/match_operations.html#count_matches_in_texts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.processing.match_operations.count_matches_in_texts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Counts occurrences of match patterns (unigrams, bigrams, phrases) within given texts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>texts</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – List of sentences/documents.</p></li>
+<li><p><strong>match_sets</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em><em>]</em>) – <p>Dictionary containing match patterns categorized by labels.
+.. rubric:: Example</p>
+<dl class="simple">
+<dt>{</dt><dd><p>‘label1’: {‘unigrams’: {…}, ‘bigrams’: {…}, ‘phrases’: […]},
+‘label2’: {‘unigrams’: {…}, ‘bigrams’: {…}, ‘phrases’: […]},
+…</p>
+</dd>
+</dl>
+<p>}</p>
+</p></li>
+<li><p><strong>phrases</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to include phrase matching. Defaults to True.</p></li>
+<li><p><strong>suppress</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>[</em><em>str</em><em>, </em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – <p>Words to suppress from matching per label.
+.. rubric:: Example</p>
+<dl class="simple">
+<dt>{</dt><dd><p>‘label1’: [‘word1’, ‘word2’],
+‘label2’: [‘word3’]</p>
+</dd>
+</dl>
+<p>}</p>
+<p>Defaults to None.</p>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl>
+<dt>Dictionary of counts for each match pattern categorized by labels.</dt><dd><dl>
+<dt>Example:</dt><dd><dl>
+<dt>{</dt><dd><dl class="simple">
+<dt>‘label1’: {</dt><dd><p>‘total’: […],
+‘stats’: {‘unigram1’: count, ‘bigram1’: count, …}</p>
+</dd>
+</dl>
+<p>},
+‘label2’: {</p>
+<blockquote>
+<div><p>’total’: […],
+‘stats’: {‘unigram2’: count, ‘bigram2’: count, …}</p>
+</div></blockquote>
+</dd>
+</dl>
+<p>}</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Dict[str, Any]]</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">texts</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;I love good service.&quot;</span><span class="p">,</span> <span class="s2">&quot;Bad service makes me unhappy.&quot;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">match_sets</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s1">&#39;positive&#39;</span><span class="p">:</span> <span class="p">{</span>
+<span class="gp">... </span>        <span class="s1">&#39;unigrams&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;good&#39;</span><span class="p">},</span>
+<span class="gp">... </span>        <span class="s1">&#39;bigrams&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;good_service&#39;</span><span class="p">},</span>
+<span class="gp">... </span>        <span class="s1">&#39;phrases&#39;</span><span class="p">:</span> <span class="p">[]</span>
+<span class="gp">... </span>    <span class="p">},</span>
+<span class="gp">... </span>    <span class="s1">&#39;negative&#39;</span><span class="p">:</span> <span class="p">{</span>
+<span class="gp">... </span>        <span class="s1">&#39;unigrams&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;bad&#39;</span><span class="p">},</span>
+<span class="gp">... </span>        <span class="s1">&#39;bigrams&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;bad_service&#39;</span><span class="p">},</span>
+<span class="gp">... </span>        <span class="s1">&#39;phrases&#39;</span><span class="p">:</span> <span class="p">[]</span>
+<span class="gp">... </span>    <span class="p">}</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">suppress</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s1">&#39;positive&#39;</span><span class="p">:</span> <span class="p">[],</span>
+<span class="gp">... </span>    <span class="s1">&#39;negative&#39;</span><span class="p">:</span> <span class="p">[]</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">counts</span> <span class="o">=</span> <span class="n">count_matches_in_texts</span><span class="p">(</span><span class="n">texts</span><span class="p">,</span> <span class="n">match_sets</span><span class="p">,</span> <span class="n">phrases</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">suppress</span><span class="o">=</span><span class="n">suppress</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">counts</span><span class="p">)</span>
+<span class="go">{</span>
+<span class="go">    &#39;positive&#39;: {</span>
+<span class="go">        &#39;total&#39;: [1, 0],</span>
+<span class="go">        &#39;stats&#39;: {&#39;good&#39;: 1, &#39;good_service&#39;: 1}</span>
+<span class="go">    },</span>
+<span class="go">    &#39;negative&#39;: {</span>
+<span class="go">        &#39;total&#39;: [0, 1],</span>
+<span class="go">        &#39;stats&#39;: {&#39;bad&#39;: 1, &#39;bad_service&#39;: 1}</span>
+<span class="go">    }</span>
+<span class="go">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="topic_modelling_package.processing.match_operations.create_match_patterns">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.processing.match_operations.</span></span><span class="sig-name descname"><span class="pre">create_match_patterns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matches</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/processing/match_operations.html#create_match_patterns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.processing.match_operations.create_match_patterns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a set of match patterns to handle variations in lemmatization and case.</p>
+<p>This function categorizes match phrases into unigrams, bigrams, and phrases.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>matches</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – List of match phrases.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Dictionary containing:</dt><dd><ul class="simple">
+<li><p>’original’: Original list of match phrases.</p></li>
+<li><p>’unigrams’: Set of unigrams.</p></li>
+<li><p>’bigrams’: Set of bigrams.</p></li>
+<li><p>’phrases’: List of phrases longer than two words.</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">topic_modelling_package.processing</span> <span class="kn">import</span> <span class="n">create_match_patterns</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">matches</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Good&quot;</span><span class="p">,</span> <span class="s2">&quot;Bad Service&quot;</span><span class="p">,</span> <span class="s2">&quot;Average Experience&quot;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">patterns</span> <span class="o">=</span> <span class="n">create_match_patterns</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">patterns</span><span class="p">)</span>
+<span class="go">{</span>
+<span class="go">    &#39;original&#39;: [&quot;Good&quot;, &quot;Bad Service&quot;, &quot;Average Experience&quot;],</span>
+<span class="go">    &#39;unigrams&#39;: {&quot;good&quot;},</span>
+<span class="go">    &#39;bigrams&#39;: {&quot;bad_service&quot;, &quot;bad_service&quot;, &quot;average_experience&quot;},</span>
+<span class="go">    &#39;phrases&#39;: [&quot;average experience&quot;]</span>
+<span class="go">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="topic_modelling_package.processing.match_operations.merge_count_dicts">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.processing.match_operations.</span></span><span class="sig-name descname"><span class="pre">merge_count_dicts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">count_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/processing/match_operations.html#merge_count_dicts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.processing.match_operations.merge_count_dicts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merges a list of count dictionaries into a single count dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>List</strong><strong>[</strong><strong>Dict</strong><strong>[</strong><strong>str</strong> (<em>count_list</em>) – </p></li>
+<li><p><strong>int</strong><strong>]</strong> – </p></li>
+<li><p><strong>]</strong><strong>)</strong> – List of dictionaries to merge.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Merged dictionary with aggregated counts.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, int]</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">count_list</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;good&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;bad&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span> <span class="p">{</span><span class="s1">&#39;good&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;average&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">merged</span> <span class="o">=</span> <span class="n">merge_count_dicts</span><span class="p">(</span><span class="n">count_list</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">merged</span><span class="p">)</span>
+<span class="go">{&#39;good&#39;: 4, &#39;bad&#39;: 2, &#39;average&#39;: 1}</span>
+</pre></div>
+</div>
+</dd></dl>
+
 </section>
 
         </article>
@@ -291,8 +545,30 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Processing</a><ul>
+<li><a class="reference internal" href="#topic_modelling_package.processing.match_operations.count_matches_in_single_sentence"><code class="docutils literal notranslate"><span class="pre">count_matches_in_single_sentence()</span></code></a></li>
+<li><a class="reference internal" href="#topic_modelling_package.processing.match_operations.count_matches_in_texts"><code class="docutils literal notranslate"><span class="pre">count_matches_in_texts()</span></code></a></li>
+<li><a class="reference internal" href="#topic_modelling_package.processing.match_operations.create_match_patterns"><code class="docutils literal notranslate"><span class="pre">create_match_patterns()</span></code></a></li>
+<li><a class="reference internal" href="#topic_modelling_package.processing.match_operations.merge_count_dicts"><code class="docutils literal notranslate"><span class="pre">merge_count_dicts()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>

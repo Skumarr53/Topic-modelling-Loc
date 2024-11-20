@@ -13,7 +13,6 @@ from loguru import logger
 
 import re
 
-# get_match_set
 def create_match_patterns(matches: List[str]) -> Dict[str, Any]:
     """
     Creates a set of match patterns to handle variations in lemmatization and case.
@@ -320,7 +319,6 @@ def count_matches_in_single_sentence(
     logger.info("Completed counting matches in single sentence.")
     return result
 
-# merge_count
 def merge_count_dicts(count_list: List[Dict[str, Any]]) -> Dict[str, int]:
     """
     Merges a list of count dictionaries into a single count dictionary.
