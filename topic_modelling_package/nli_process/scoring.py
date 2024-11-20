@@ -8,8 +8,8 @@ from loguru import logger
 
 from centralized_nlp_package.data_processing import create_spark_udf
 
-
-def get_matched_sentences(sentences: List[str], matches: List[int]) -> List[str]:
+# extract_matched_sentences
+def extract_matched_sentences(sentences: List[str], matches: List[int]) -> List[str]:
     """
     Extracts sentences that have a corresponding match flag set to 1.
 
@@ -23,7 +23,7 @@ def get_matched_sentences(sentences: List[str], matches: List[int]) -> List[str]
     Example:
         >>> sentences = ["Sentence one.", "Sentence two.", "Sentence three."]
         >>> matches = [1, 0, 1]
-        >>> get_matched_sentences(sentences, matches)
+        >>> extract_matched_sentences(sentences, matches)
         ['Sentence one.', 'Sentence three.']
     """
     if not sentences or not matches:
@@ -139,7 +139,7 @@ def add_extracted_scores_columns(
         logger.debug(f"Compiled patterns: {compiled_patterns}")
 
         # Define the UDF
-        extract_udf = create_spark_udf(get_matched_sentences, 'arr[str]')
+        extract_udf = create_spark_udf(extract_matched_sentences, 'arr[str]')
         
         # Identify matched columns based on patterns
         matched_columns = [col for col in df.columns if any(pattern.match(col) for pattern in compiled_patterns)]

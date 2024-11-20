@@ -10,7 +10,7 @@
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=11203d66" />
     
     
 
@@ -392,8 +392,8 @@
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="topic_modelling_package.nli_process.scoring.get_matched_sentences">
-<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.nli_process.scoring.</span></span><span class="sig-name descname"><span class="pre">get_matched_sentences</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sentences</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matches</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/nli_process/scoring.html#get_matched_sentences"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.nli_process.scoring.get_matched_sentences" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="topic_modelling_package.nli_process.scoring.extract_matched_sentences">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.nli_process.scoring.</span></span><span class="sig-name descname"><span class="pre">extract_matched_sentences</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sentences</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matches</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/nli_process/scoring.html#extract_matched_sentences"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.nli_process.scoring.extract_matched_sentences" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extracts sentences that have a corresponding match flag set to 1.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -412,10 +412,161 @@
 <p class="rubric">Example</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sentences</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Sentence one.&quot;</span><span class="p">,</span> <span class="s2">&quot;Sentence two.&quot;</span><span class="p">,</span> <span class="s2">&quot;Sentence three.&quot;</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">matches</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">get_matched_sentences</span><span class="p">(</span><span class="n">sentences</span><span class="p">,</span> <span class="n">matches</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">extract_matched_sentences</span><span class="p">(</span><span class="n">sentences</span><span class="p">,</span> <span class="n">matches</span><span class="p">)</span>
 <span class="go">[&#39;Sentence one.&#39;, &#39;Sentence three.&#39;]</span>
 </pre></div>
 </div>
+</dd></dl>
+
+<span class="target" id="module-topic_modelling_package.nli_process.transformation"></span><dl class="py function">
+<dt class="sig sig-object py" id="topic_modelling_package.nli_process.transformation.apply_extract_udf_sections">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.nli_process.transformation.</span></span><span class="sig-name descname"><span class="pre">apply_extract_udf_sections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extract_udf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patterns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['MD',</span> <span class="pre">'QA']</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/nli_process/transformation.html#apply_extract_udf_sections"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.nli_process.transformation.apply_extract_udf_sections" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies a specified UDF to DataFrame columns matching predefined patterns based on provided suffixes.</p>
+<p>This function performs the following operations for each pattern in the provided list:
+1. Identifies all columns in the DataFrame that end with “_TOTAL_FILT_{pattern}”.
+2. For each matched column, replaces the suffix “_TOTAL_FILT_{pattern}” with “_EXTRACT_FILT_{pattern}” to create a new column name.
+3. Applies the provided UDF to create the new column based on a base column “FILT_{pattern}” and the matched column.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>DataFrame</em>) – The input Spark DataFrame to process.</p></li>
+<li><p><strong>extract_udf</strong> (<em>Callable</em><em>[</em><em>[</em><em>Any</em><em>, </em><em>Any</em><em>]</em><em>, </em><em>Any</em><em>]</em>) – The User-Defined Function to apply. It should accept two columns as input.</p></li>
+<li><p><strong>patterns</strong> (<em>List</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – A list of suffixes (e.g., [‘MD’, ‘QA’]) to define column naming patterns. Defaults to [‘MD’, ‘QA’].</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new Spark DataFrame with the newly created columns.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DataFrame</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Exception</strong> – If any error occurs during the processing steps.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p><a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a>python
+from pyspark.sql.types import StringType
+from pyspark.sql.functions import udf</p>
+<p># Define the extract UDF
+def extract_function(base, total_filt):</p>
+<blockquote>
+<div><p># Example implementation of the UDF
+return f”{base}_{total_filt}”</p>
+</div></blockquote>
+<p>extract_udf = udf(extract_function, StringType())</p>
+<p># Define patterns
+patterns = [‘MD’, ‘QA’]</p>
+<p># Apply the function
+processed_df = apply_extract_udf_sections(currdf_spark, extract_udf, patterns)
+<a href="#id5"><span class="problematic" id="id6">``</span></a><a href="#id7"><span class="problematic" id="id8">`</span></a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="topic_modelling_package.nli_process.transformation.convert_column_types">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.nli_process.transformation.</span></span><span class="sig-name descname"><span class="pre">convert_column_types</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float_type_cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">array_type_cols</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/nli_process/transformation.html#convert_column_types"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.nli_process.transformation.convert_column_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts specified columns in a Spark DataFrame to float and array types.</p>
+<p>Currently supports converting columns to ‘double’ and ‘array&lt;double&gt;’ types.
+TODO: Add support for more types and highly customized type conversions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>DataFrame</em>) – The input Spark DataFrame.</p></li>
+<li><p><strong>float_type_cols</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – List of column names to convert to float (double) type.</p></li>
+<li><p><strong>array_type_cols</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – List of column names to convert to array of doubles.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new Spark DataFrame with converted column types.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DataFrame</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Exception</strong> – If any error occurs during the type conversion process.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p><code class="docutils literal notranslate"><span class="pre">`python</span>
+<span class="pre">float_cols</span> <span class="pre">=</span> <span class="pre">['col1',</span> <span class="pre">'col2']</span>
+<span class="pre">array_cols</span> <span class="pre">=</span> <span class="pre">['col3',</span> <span class="pre">'col4']</span>
+<span class="pre">converted_df</span> <span class="pre">=</span> <span class="pre">convert_column_types(df_spark,</span> <span class="pre">float_cols,</span> <span class="pre">array_cols)</span>
+<span class="pre">`</span></code></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="topic_modelling_package.nli_process.transformation.process_nested_columns">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.nli_process.transformation.</span></span><span class="sig-name descname"><span class="pre">process_nested_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nested_columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_columns</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/nli_process/transformation.html#process_nested_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.nli_process.transformation.process_nested_columns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Processes a Spark DataFrame by extracting nested column keys, renaming columns, and selecting specific columns.</p>
+<p>This function performs the following operations:
+1. Extracts keys from specified nested columns and creates new columns for each key.
+2. Drops the original nested columns.
+3. Renames all columns by removing any dots (<cite>.</cite>) in their names.
+4. Selects a subset of columns, including fixed columns and the newly extracted columns.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>DataFrame</em>) – The input Spark DataFrame to process.</p></li>
+<li><p><strong>nested_columns</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – A list of nested column names (as strings) to extract and flatten.</p></li>
+<li><p><strong>fixed_columns</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – A list of column names (as strings) to retain without modification.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new Spark DataFrame with extracted and renamed columns, containing only the specified subset of columns.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DataFrame</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Exception</strong> – If any error occurs during the processing steps.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p><a href="#id9"><span class="problematic" id="id10">``</span></a><a href="#id11"><span class="problematic" id="id12">`</span></a>python
+fixed_cols = [‘ENTITY_ID’, ‘CALL_ID’, ‘VERSION_ID’, ‘DATE’, ‘CALL_NAME’,</p>
+<blockquote>
+<div><p>‘COMPANY_NAME’, ‘LEN_FILT_MD’, ‘LEN_FILT_QA’, ‘FILT_MD’, ‘FILT_QA’]</p>
+</div></blockquote>
+<p>nested_cols = [‘MD_FINAL_SCORE_EXTRACTED’, ‘QA_FINAL_SCORE_EXTRACTED’]</p>
+<p>processed_df = process_nested_columns(currdf_spark, nested_cols, fixed_cols)
+<a href="#id13"><span class="problematic" id="id14">``</span></a><a href="#id15"><span class="problematic" id="id16">`</span></a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="topic_modelling_package.nli_process.transformation.rename_columns_by_label_matching">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.nli_process.transformation.</span></span><span class="sig-name descname"><span class="pre">rename_columns_by_label_matching</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels_mapping</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/nli_process/transformation.html#rename_columns_by_label_matching"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.nli_process.transformation.rename_columns_by_label_matching" title="Permalink to this definition">¶</a></dt>
+<dd><p>Renames columns in a Spark DataFrame based on a provided mapping.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>DataFrame</em>) – The Spark DataFrame whose columns are to be renamed.</p></li>
+<li><p><strong>labels_mapping</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>str</em><em>]</em>) – A dictionary mapping original labels (substrings) to new labels.
+If a column name contains an original label, it will be replaced with the new label.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new Spark DataFrame with renamed columns.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DataFrame</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – If the input DataFrame is not valid or if the labels_mapping is not a dictionary.</p></li>
+<li><p><strong>Exception</strong> – If the renaming process fails for any other reason.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p><a href="#id17"><span class="problematic" id="id18">``</span></a><a href="#id19"><span class="problematic" id="id20">`</span></a>python
+labels_mapping = {</p>
+<blockquote>
+<div><p>“old_label1”: “new_label1”,
+“old_label2”: “new_label2”</p>
+</div></blockquote>
+<p>}
+renamed_df = rename_columns_by_label_matching(df_spark, labels_mapping)
+<a href="#id21"><span class="problematic" id="id22">``</span></a><a href="#id23"><span class="problematic" id="id24">`</span></a></p>
 </dd></dl>
 
 </section>
@@ -480,7 +631,11 @@
 <li><a class="reference internal" href="#topic_modelling_package.nli_process.inference.inference_udf"><code class="docutils literal notranslate"><span class="pre">inference_udf()</span></code></a></li>
 <li><a class="reference internal" href="#topic_modelling_package.nli_process.scoring.add_extracted_scores_columns"><code class="docutils literal notranslate"><span class="pre">add_extracted_scores_columns()</span></code></a></li>
 <li><a class="reference internal" href="#topic_modelling_package.nli_process.scoring.compute_section_metrics"><code class="docutils literal notranslate"><span class="pre">compute_section_metrics()</span></code></a></li>
-<li><a class="reference internal" href="#topic_modelling_package.nli_process.scoring.get_matched_sentences"><code class="docutils literal notranslate"><span class="pre">get_matched_sentences()</span></code></a></li>
+<li><a class="reference internal" href="#topic_modelling_package.nli_process.scoring.extract_matched_sentences"><code class="docutils literal notranslate"><span class="pre">extract_matched_sentences()</span></code></a></li>
+<li><a class="reference internal" href="#topic_modelling_package.nli_process.transformation.apply_extract_udf_sections"><code class="docutils literal notranslate"><span class="pre">apply_extract_udf_sections()</span></code></a></li>
+<li><a class="reference internal" href="#topic_modelling_package.nli_process.transformation.convert_column_types"><code class="docutils literal notranslate"><span class="pre">convert_column_types()</span></code></a></li>
+<li><a class="reference internal" href="#topic_modelling_package.nli_process.transformation.process_nested_columns"><code class="docutils literal notranslate"><span class="pre">process_nested_columns()</span></code></a></li>
+<li><a class="reference internal" href="#topic_modelling_package.nli_process.transformation.rename_columns_by_label_matching"><code class="docutils literal notranslate"><span class="pre">rename_columns_by_label_matching()</span></code></a></li>
 </ul>
 </li>
 </ul>

@@ -1,15 +1,15 @@
 # centralized_nlp_package/processing/__init__.py
 
 from .match_operations import (
-    get_match_set,
-    match_count_lowStat,
-    match_count_lowStat_singleSent,
-    merge_count
+    create_match_patterns,
+    count_matches_in_texts,
+    count_matches_in_single_sentence,
+    merge_count_dicts
 )
 
 __all__ = [
-    'get_match_set',
-    'match_count_lowStat',
-    'match_count_lowStat_singleSent',
-    'merge_count',
+    'create_match_patterns',
+    'count_matches_in_texts',
+    'count_matches_in_single_sentence',
+    'merge_count_dicts',
 ]

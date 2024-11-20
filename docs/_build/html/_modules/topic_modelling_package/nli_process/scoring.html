@@ -9,7 +9,7 @@
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=302659d7" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=11203d66" />
     
     
 
@@ -248,8 +248,8 @@
 
 <span class="kn">from</span> <span class="nn">centralized_nlp_package.data_processing</span> <span class="kn">import</span> <span class="n">create_spark_udf</span>
 
-
-<div class="viewcode-block" id="get_matched_sentences"><a class="viewcode-back" href="../../../source/nli_process.html#topic_modelling_package.nli_process.scoring.get_matched_sentences">[docs]</a><span class="k">def</span> <span class="nf">get_matched_sentences</span><span class="p">(</span><span class="n">sentences</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">matches</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="c1"># extract_matched_sentences</span>
+<div class="viewcode-block" id="extract_matched_sentences"><a class="viewcode-back" href="../../../source/nli_process.html#topic_modelling_package.nli_process.scoring.extract_matched_sentences">[docs]</a><span class="k">def</span> <span class="nf">extract_matched_sentences</span><span class="p">(</span><span class="n">sentences</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">matches</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Extracts sentences that have a corresponding match flag set to 1.</span>
 
@@ -263,7 +263,7 @@
 <span class="sd">    Example:</span>
 <span class="sd">        &gt;&gt;&gt; sentences = [&quot;Sentence one.&quot;, &quot;Sentence two.&quot;, &quot;Sentence three.&quot;]</span>
 <span class="sd">        &gt;&gt;&gt; matches = [1, 0, 1]</span>
-<span class="sd">        &gt;&gt;&gt; get_matched_sentences(sentences, matches)</span>
+<span class="sd">        &gt;&gt;&gt; extract_matched_sentences(sentences, matches)</span>
 <span class="sd">        [&#39;Sentence one.&#39;, &#39;Sentence three.&#39;]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">sentences</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">matches</span><span class="p">:</span>
@@ -379,7 +379,7 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Compiled patterns: </span><span class="si">{</span><span class="n">compiled_patterns</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="c1"># Define the UDF</span>
-        <span class="n">extract_udf</span> <span class="o">=</span> <span class="n">create_spark_udf</span><span class="p">(</span><span class="n">get_matched_sentences</span><span class="p">,</span> <span class="s1">&#39;arr[str]&#39;</span><span class="p">)</span>
+        <span class="n">extract_udf</span> <span class="o">=</span> <span class="n">create_spark_udf</span><span class="p">(</span><span class="n">extract_matched_sentences</span><span class="p">,</span> <span class="s1">&#39;arr[str]&#39;</span><span class="p">)</span>
         
         <span class="c1"># Identify matched columns based on patterns</span>
         <span class="n">matched_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">pattern</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">compiled_patterns</span><span class="p">)]</span>

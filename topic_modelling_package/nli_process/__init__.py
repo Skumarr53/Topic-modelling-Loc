@@ -11,14 +11,14 @@ from .inference import (
 )
 from .scoring import (
     extract_matched_sentences,
-    extract_inf,
-    extract_scores
+    compute_section_metrics,
+    add_extracted_scores_columns
 )
 from .transformation import (
     apply_extract_udf_sections,
     rename_columns_by_label_matching,
     convert_column_types,
-    processing_nested_columns
+    process_nested_columns
 )
 
 __all__ = [
@@ -28,10 +28,10 @@ __all__ = [
     'inference_summary',
     'inference_udf',
     'extract_matched_sentences',
-    'extract_inf',
-    'extract_scores',
+    'compute_section_metrics',
+    'add_extracted_scores_columns',
     'apply_extract_udf_sections',
     'rename_columns_by_label_matching',
     'convert_column_types',
-    'processing_nested_columns',
+    'process_nested_columns',
 ]

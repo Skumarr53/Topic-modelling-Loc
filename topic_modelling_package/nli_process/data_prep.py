@@ -71,11 +71,13 @@ def generate_label_columns(
     """
     Generates a list of column names based on the provided labels, metrics, and secondary filters.
 
+    The order of metrics should always follow: 'COUNT', 'REL', 'SCORE', 'TOTAL', and 'EXTRACT'.
+    Some metrics may be omitted based on the use case, but the order must remain the same.
+
     Args:
         labels (List[str]): Labels such as 'consumer_strength', 'consumer_weakness', etc.
-        metrics (List[str]): Metrics like 'COUNT', 'REL', 'SCORE', etc.
+        metrics (List[str]): Metrics like 'COUNT', 'REL', 'SCORE', etc. Defaults to ['COUNT', 'REL', 'SCORE', 'TOTAL'].
         sec_filters (List[str], optional): Secondary filters like 'FILT_MD', 'FILT_QA'. Defaults to ['FILT_MD', 'FILT_QA'].
-        include_extract (bool, optional): Whether to include columns with '_EXTRACT_'. Defaults to False.
 
     Returns:
         List[str]: An ordered list of generated column names.
@@ -83,14 +85,13 @@ def generate_label_columns(
     Example:
         >>> labels = ['consumer_strength', 'consumer_weakness']
         >>> metrics = ['COUNT', 'REL']
-        >>> generate_label_columns(labels, metrics, include_extract=True)
-        ['consumer_strength_COUNT_FILT_MD', 'consumer_strength_REL_FILT_MD', 'consumer_strength_EXTRACT_FILT_MD',
-         'consumer_strength_COUNT_FILT_QA', 'consumer_strength_REL_FILT_QA', 'consumer_strength_EXTRACT_FILT_QA',
-         'consumer_weakness_COUNT_FILT_MD', 'consumer_weakness_REL_FILT_MD', 'consumer_weakness_EXTRACT_FILT_MD',
-         'consumer_weakness_COUNT_FILT_QA', 'consumer_weakness_REL_FILT_QA', 'consumer_weakness_EXTRACT_FILT_QA']
+        >>> generate_label_columns(labels, metrics)
+        ['consumer_strength_COUNT_FILT_MD', 'consumer_strength_REL_FILT_MD',
+         'consumer_strength_COUNT_FILT_QA', 'consumer_strength_REL_FILT_QA',
+         'consumer_weakness_COUNT_FILT_MD', 'consumer_weakness_REL_FILT_MD',
+         'consumer_weakness_COUNT_FILT_QA', 'consumer_weakness_REL_FILT_QA']
     """
     dynamic_columns = []
-
     for label in labels:
         for sec_filter in sec_filters:
             for metric in metrics:
@@ -98,6 +99,5 @@ def generate_label_columns(
                 column_name = f"{label}_{metric}_{sec_filter}"
                 dynamic_columns.append(column_name)
                 logger.debug(f"Generated column name: {column_name}")
-
     logger.info(f"Generated {len(dynamic_columns)} label columns.")
     return dynamic_columns

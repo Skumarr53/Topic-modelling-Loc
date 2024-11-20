@@ -4,7 +4,7 @@ from typing import Dict, Any, List, Tuple, Optional
 import pandas as pd
 from loguru import logger
 
-from topic_modelling_package.processing.match_operations import get_match_set, match_count_lowStat
+from topic_modelling_package.processing.match_operations import create_match_patterns, count_matches_in_single_sentence
 from centralized_nlp_package.utils.helper import df_apply_transformations
 from topic_modelling_package.reports import STATISTICS_MAP
 
@@ -67,7 +67,7 @@ def create_topic_dict(
         positive_matches = match_df[
             (match_df[label_col] == topic) & (match_df[negate_col] == False)
         ][match_col].values
-        word_set_dict[formatted_topic] = get_match_set(list(positive_matches))
+        word_set_dict[formatted_topic] = create_match_patterns(list(positive_matches))
         
         # Create negate_dict
         negative_matches = match_df[
@@ -211,7 +211,7 @@ def generate_topic_report(
     # Initial transformations: match counts
     labels = ["FILT_MD", "FILT_QA"]
     lab_sec_dict1 = [
-        (f"{label_column}_{lab}", lab, lambda x: match_count_lowStat(x, word_set_dict, suppress=negate_dict))
+        (f"{label_column}_{lab}", lab, lambda x: count_matches_in_single_sentence(x, word_set_dict, suppress=negate_dict))
         for lab in labels
     ]
 
