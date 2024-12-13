@@ -74,7 +74,7 @@ def count_transformation(topic: str, label: str, label_column: str) -> Transform
     """
     return (
         f"{topic}_COUNT_{label}",
-        f"{label_column}_{label}",
+        f"{topic}_TOTAL_{label}",
         lambda x: len([a for a in x if a > 0]) if len(x) > 0 else None,
     )
 
@@ -93,7 +93,7 @@ def extract_transformation(topic: str, label: str, label_column: str) -> Transfo
     return (
         f"{topic}_EXTRACT_{label}",
         [label, f"{topic}_TOTAL_{label}"],
-        lambda x: " ".join([y for y, z in zip(x[0], x[1]) if z > 0]),
+        lambda x: " ".join([y for y, z in zip(x['label'], x[f"{topic}_TOTAL_{label}"]) if z > 0]),
     )
 
 def sentiment_transformation(topic: str, label: str, label_column: str) -> Transformation:
@@ -111,7 +111,7 @@ def sentiment_transformation(topic: str, label: str, label_column: str) -> Trans
     return (
         f"{topic}_SENT_{label}",
         [f"{topic}_TOTAL_{label}", f"SENT_LABELS_{label}"],
-        lambda x: calculate_sentence_score(x[0], x[1], weight=False),
+        lambda x: calculate_sentence_score(x[f"{topic}_TOTAL_{label}"], x[f"SENT_LABELS_{label}"], apply_weight=False),
     )
 
 def net_sent_transformation(topic: str, label: str, label_column: str) -> Transformation:
@@ -129,7 +129,7 @@ def net_sent_transformation(topic: str, label: str, label_column: str) -> Transf
     return (
         f"{topic}_NET_SENT_{label}",
         [f"{topic}_TOTAL_{label}", f"SENT_LABELS_{label}"],
-        lambda x: netscore(x[0], x[1]),
+        lambda x: netscore(x[f"{topic}_TOTAL_{label}"], x[f"SENT_LABELS_{label}"]),
     )
 
 # Mapping of transformation names to their corresponding functions

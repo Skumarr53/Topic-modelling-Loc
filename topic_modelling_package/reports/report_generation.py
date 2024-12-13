@@ -1,16 +1,20 @@
 # topic_modelling_package/reports/report_generation.py
-
+import ast
 from typing import Dict, Any, List, Tuple, Optional
 import pandas as pd
+import spacy
 from loguru import logger
+import dask.dataframe as dd
+from dask.diagnostics import ProgressBar
 
 from topic_modelling_package.processing.match_operations import create_match_patterns, count_matches_in_single_sentence
-from centralized_nlp_package.utils.helper import df_apply_transformations
+from centralized_nlp_package.data_processing import df_apply_transformations
 from topic_modelling_package.reports import STATISTICS_MAP
 
 
 def create_topic_dict(
     match_df: pd.DataFrame,
+    nlp: spacy.Language,
     label_col: str = 'label',
     negate_col: str = 'negate',
     match_col: str = 'match',
@@ -67,7 +71,7 @@ def create_topic_dict(
         positive_matches = match_df[
             (match_df[label_col] == topic) & (match_df[negate_col] == False)
         ][match_col].values
-        word_set_dict[formatted_topic] = create_match_patterns(list(positive_matches))
+        word_set_dict[formatted_topic] = create_match_patterns(list(positive_matches), nlp)
         
         # Create negate_dict
         negative_matches = match_df[
@@ -147,7 +151,9 @@ def generate_topic_report(
     df: pd.DataFrame,
     word_set_dict: Dict[str, Any],
     negate_dict: Dict[str, List[str]],
+    nlp: spacy.Language,
     stats_list: List[str],
+    dask_partitions: int = 4,
     label_column: str = "matches",
 ) -> pd.DataFrame:
     """
@@ -207,19 +213,27 @@ def generate_topic_report(
     unsupported_stats = set(stats_list) - set(STATISTICS_MAP.keys())
     if unsupported_stats:
         raise ValueError(f"Unsupported statistics requested: {unsupported_stats}")
+    
+
+    ## convert to dataframe to Dask dataframe
+    df = dd.from_pandas(df, npartitions = dask_partitions)
 
     # Initial transformations: match counts
     labels = ["FILT_MD", "FILT_QA"]
     lab_sec_dict1 = [
-        (f"{label_column}_{lab}", lab, lambda x: count_matches_in_single_sentence(x, word_set_dict, suppress=negate_dict))
+        (f"{label_column}_{lab}", lab, lambda x: count_matches_in_single_sentence(x, word_set_dict, nlp, suppress=negate_dict))
         for lab in labels
     ]
 
     logger.info("Applying initial match count transformations.")
     df = df_apply_transformations(df, lab_sec_dict1)
 
+    with ProgressBar():
+        df = df.compute()
+
     # Iterate over labels and topics to apply selected statistics
     for label in labels:
+        df['matches_' + label] = df['matches_' + label].apply(ast.literal_eval)
         for topic in word_set_dict.keys():
             lab_sec_dict2 = []
             for stat in stats_list:
