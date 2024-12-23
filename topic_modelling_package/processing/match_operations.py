@@ -20,11 +20,16 @@ def transform_match_keywords_df(match_keywords_df: pd.DataFrame) -> pd.DataFrame
     """
     Processes a DataFrame containing 'Subtopic', 'Refined Keywords', and 'Negation' columns.
     Splits out negation rows, transforms them, and concatenates back with the rest of the data.
-    
-    :param match_keywords_df: A Pandas DataFrame with columns:
-                            ['Subtopic', 'Refined Keywords', 'Negation']
-    :return: A Pandas DataFrame with standardized columns ['label', 'match', 'negate'].
-    :raises ValueError: If the required columns are not present in match_keywords_df.
+
+    Args:
+        match_keywords_df (pd.DataFrame): A Pandas DataFrame with columns:
+            ['Subtopic', 'Refined Keywords', 'Negation'].
+
+    Returns:
+        pd.DataFrame: A Pandas DataFrame with standardized columns ['label', 'match', 'negate'].
+
+    Raises:
+        ValueError: If the required columns are not present in match_keywords_df.
     """
     
     # 1. Validate required columns
