@@ -6,9 +6,8 @@ authors = ["santhosh <skumarr53@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "3.8.20"
-centralized-nlp-package = { url = "https://raw.githubusercontent.com/Skumarr53/cnp/main/dist/centralized_nlp_package-0.1.0-py3-none-any.whl" }
-sphinx-autodoc-typehints = "^2.0"
+python = ">=3.9, <3.12"
+centralized-nlp-package = { git = "https://github.com/Skumarr53/cnp.git", branch = "main" }
 furo = "^2024.8.6"
 
 

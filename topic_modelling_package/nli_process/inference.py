@@ -5,7 +5,7 @@ from typing import Iterator, List, Tuple, Dict, Any
 import pandas as pd
 from loguru import logger
 
-from centralized_nlp_package.nli_utils import initialize_nli_pipeline
+from centralized_nlp_package.nli_utils import initialize_nli_infer_pipeline
 
 
 # Initialize the global nli_pipeline variable
@@ -104,7 +104,7 @@ def inference_udf(
     global nli_pipeline
     if nli_pipeline is None:
         logger.info("Initializing NLI pipeline.")
-        nli_pipeline = initialize_nli_pipeline(enable_quantization=enable_quantization)
+        nli_pipeline = initialize_nli_infer_pipeline(enable_quantization=enable_quantization)
         logger.info("NLI pipeline initialized.")
     
     for batch_num, batch in enumerate(iterator, start=1):

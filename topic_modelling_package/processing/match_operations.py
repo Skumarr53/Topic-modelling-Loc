@@ -1,19 +1,68 @@
 # topic_modelling_package/processing/match_operations.py
 
+import ast
+import pandas as pd
 from collections import Counter
 from typing import List, Dict, Any, Optional
+import spacy 
 
 from centralized_nlp_package.text_processing import generate_ngrams
 from centralized_nlp_package.text_processing import (
     tokenize_matched_words, 
     tokenize_and_lemmatize_text
 )
-from centralized_nlp_package.data_processing import create_spark_udf
+from centralized_nlp_package.data_processing import df_apply_transformations
 from loguru import logger
 
 import re
 
-def create_match_patterns(matches: List[str]) -> Dict[str, Any]:
+def transform_match_keywords_df(match_keywords_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Processes a DataFrame containing 'Subtopic', 'Refined Keywords', and 'Negation' columns.
+    Splits out negation rows, transforms them, and concatenates back with the rest of the data.
+    
+    :param match_keywords_df: A Pandas DataFrame with columns:
+                            ['Subtopic', 'Refined Keywords', 'Negation']
+    :return: A Pandas DataFrame with standardized columns ['label', 'match', 'negate'].
+    :raises ValueError: If the required columns are not present in match_keywords_df.
+    """
+    
+    # 1. Validate required columns
+    required_columns = ["Subtopic", "Refined Keywords", "Negation"]
+    for col in required_columns:
+        if col not in match_keywords_df.columns:
+            raise ValueError(f"Required column '{col}' is missing from input DataFrame.")
+    
+    # 2. Create a reference copy for negation processing
+    match_neg_df = match_keywords_df.copy()
+    
+    # 3. Extract rows containing negations
+    df_negate = match_neg_df[~match_neg_df['Negation'].isna()][['Subtopic', 'Negation']]
+    
+    # 4. Apply transformations to Negation column (assuming df_apply_transformations is available)
+    df_negate = df_apply_transformations(
+        df_negate,
+        transformations=[('Negation', 'Negation', ast.literal_eval)]
+    )
+    
+    # 5. Explode negations into separate rows
+    df_negate = df_negate.explode(column='Negation')
+    df_negate['negate'] = True
+    
+    # 6. Rename columns for standardization
+    df_negate = df_negate.rename(columns={'Subtopic': 'label', 'Negation': 'match'})
+    
+    # 7. Process main DataFrame portion (non-negation)
+    match_neg_df['negate'] = False
+    match_neg_df = match_neg_df.rename(columns={'Subtopic': 'label', 'Refined Keywords': 'match'})
+    
+    # 8. Concatenate negation rows with the main DataFrame
+    df_output = pd.concat([match_neg_df, df_negate], ignore_index=True)
+    
+    return df_output
+
+
+def create_match_patterns(matches: List[str], nlp: spacy.Language) -> Dict[str, Any]:
     """
     Creates a set of match patterns to handle variations in lemmatization and case.
     
@@ -53,7 +102,7 @@ def create_match_patterns(matches: List[str]) -> Dict[str, Any]:
             if len(word.split(' ')) == 2
         ] +
         [
-            '_'.join(tokenize_matched_words(word)) 
+            '_'.join(tokenize_matched_words(word,nlp)) 
             for word in matches 
             if len(word.split(' ')) == 2
         ]
@@ -61,7 +110,7 @@ def create_match_patterns(matches: List[str]) -> Dict[str, Any]:
     
     unigrams = set(
         [
-            tokenize_matched_words(match)[0] 
+            tokenize_matched_words(match, nlp)[0] 
             for match in matches 
             if ('_' not in match) and (len(match.split(' ')) == 1)
         ] +
@@ -82,8 +131,9 @@ def create_match_patterns(matches: List[str]) -> Dict[str, Any]:
 def count_matches_in_texts(
     texts: List[str],
     match_sets: Dict[str, Dict[str, Any]],
+    nlp: spacy.Language,
     phrases: bool = True,
-    suppress: Optional[Dict[str, List[str]]] = None
+    suppress: Optional[Dict[str, List[str]]] = None,
 ) -> Dict[str, Dict[str, Any]]:
     """
     Counts occurrences of match patterns (unigrams, bigrams, phrases) within given texts.
@@ -162,7 +212,7 @@ def count_matches_in_texts(
 
     for text in texts:
         counted: Dict[str, int] = {label: 0 for label in match_sets.keys()}
-        unigrams = tokenize_and_lemmatize_text(text)
+        unigrams = tokenize_and_lemmatize_text(text, nlp)
         bigrams = ['_'.join(g) for g in generate_ngrams(unigrams, 2)]
         
         text_lower = text.lower()
@@ -204,8 +254,9 @@ def count_matches_in_texts(
 
 #  match_count_lowStat_singleSent
 def count_matches_in_single_sentence(
-    text: str,
+    texts: str,
     match_sets: Dict[str, Dict[str, Any]],
+    nlp: spacy.Language,
     phrases: bool = True,
     suppress: Optional[Dict[str, List[str]]] = None
 ) -> Dict[str, Dict[str, Any]]:
@@ -276,48 +327,43 @@ def count_matches_in_single_sentence(
             }
         }
     """
-    count_dict: Dict[str, Dict[str, int]] = {
-        label: {matchw: 0 for matchw in match_set['unigrams'].union(match_set['bigrams'])} 
-        for label, match_set in match_sets.items()
-    }
-    counted: Dict[str, int] = {label: 0 for label in match_sets.keys()}
-    
-    unigrams = tokenize_and_lemmatize_text(text)
-    bigrams = ['_'.join(g) for g in generate_ngrams(unigrams, 2)]
-    text_lower = text.lower()
+    count_dict = {label : {matchw: 0 for matchw in match_set['unigrams'].union(match_set['bigrams']) } for label, match_set in match_sets.items()}
+    total_counts = {label: [] for label in match_sets.keys()}
 
-    for label, match_set in match_sets.items():
-        if suppress and label in suppress:
-            if any(item in text_lower for item in suppress[label]):
-                logger.debug(f"Suppressing label '{label}' for text: {text}")
+    for text in texts:
+        
+        counted = {label: 0 for label in match_sets.keys()}
+        unigrams = tokenize_and_lemmatize_text(text, nlp)
+        bigrams = ['_'.join(g) for g in generate_ngrams(unigrams, 2)]
+        
+        text = text.lower()
+        for label, match_set in match_sets.items(): 
+        
+            if any(item in text for item in suppress[label]):
+                counted[label] += 0
                 continue
-
-        for word in unigrams:
-            if word in match_set['unigrams']:
-                count_dict[label][word] += 1
-                counted[label] += 1
-
-        for word in bigrams:
-            if word in match_set['bigrams']:
-                count_dict[label][word] += 1
-                counted[label] += 1
-
-        if phrases:
-            for phrase in match_set.get('phrases', []):
-                if phrase in text_lower:
+                
+            for word in unigrams:
+                if word in match_set['unigrams']:
+                    count_dict[label][word]+=1
                     counted[label] += 1
-                    logger.debug(f"Phrase '{phrase}' found in text: {text}")
 
-    result = {
-        label: {
-            'total': counted[label],
-            'stats': count_dict[label]
-        } 
-        for label in match_sets.keys()
-    }
+            for word in bigrams:
+                if word in match_set['bigrams']:
+                    count_dict[label][word]+=1
+                    counted[label] += 1
+            
+            if phrases:
+                if any(phrase in text for phrase in match_set['phrases']):
+                    counted[label] += 1
+                    continue
 
-    logger.info("Completed counting matches in single sentence.")
-    return result
+        for label in match_sets.keys():
+        
+            total_counts[label].append(counted[label])
+
+        
+    return {label : {'total': total_counts[label], 'stats' : count_dict[label]} for label in match_sets.keys()}
 
 def merge_count_dicts(count_list: List[Dict[str, Any]]) -> Dict[str, int]:
     """
