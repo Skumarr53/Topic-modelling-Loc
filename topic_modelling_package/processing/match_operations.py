@@ -1,5 +1,7 @@
 # topic_modelling_package/processing/match_operations.py
 
+import ast
+import pandas as pd
 from collections import Counter
 from typing import List, Dict, Any, Optional
 import spacy 
@@ -9,10 +11,56 @@ from centralized_nlp_package.text_processing import (
     tokenize_matched_words, 
     tokenize_and_lemmatize_text
 )
-from centralized_nlp_package.data_processing import create_spark_udf
+from centralized_nlp_package.data_processing import df_apply_transformations
 from loguru import logger
 
 import re
+
+def transform_match_keywords_df(match_keywords_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Processes a DataFrame containing 'Subtopic', 'Refined Keywords', and 'Negation' columns.
+    Splits out negation rows, transforms them, and concatenates back with the rest of the data.
+    
+    :param match_keywords_df: A Pandas DataFrame with columns:
+                            ['Subtopic', 'Refined Keywords', 'Negation']
+    :return: A Pandas DataFrame with standardized columns ['label', 'match', 'negate'].
+    :raises ValueError: If the required columns are not present in match_keywords_df.
+    """
+    
+    # 1. Validate required columns
+    required_columns = ["Subtopic", "Refined Keywords", "Negation"]
+    for col in required_columns:
+        if col not in match_keywords_df.columns:
+            raise ValueError(f"Required column '{col}' is missing from input DataFrame.")
+    
+    # 2. Create a reference copy for negation processing
+    match_neg_df = match_keywords_df.copy()
+    
+    # 3. Extract rows containing negations
+    df_negate = match_neg_df[~match_neg_df['Negation'].isna()][['Subtopic', 'Negation']]
+    
+    # 4. Apply transformations to Negation column (assuming df_apply_transformations is available)
+    df_negate = df_apply_transformations(
+        df_negate,
+        transformations=[('Negation', 'Negation', ast.literal_eval)]
+    )
+    
+    # 5. Explode negations into separate rows
+    df_negate = df_negate.explode(column='Negation')
+    df_negate['negate'] = True
+    
+    # 6. Rename columns for standardization
+    df_negate = df_negate.rename(columns={'Subtopic': 'label', 'Negation': 'match'})
+    
+    # 7. Process main DataFrame portion (non-negation)
+    match_neg_df['negate'] = False
+    match_neg_df = match_neg_df.rename(columns={'Subtopic': 'label', 'Refined Keywords': 'match'})
+    
+    # 8. Concatenate negation rows with the main DataFrame
+    df_output = pd.concat([match_neg_df, df_negate], ignore_index=True)
+    
+    return df_output
+
 
 def create_match_patterns(matches: List[str], nlp: spacy.Language) -> Dict[str, Any]:
     """
