@@ -37,12 +37,13 @@ def transform_match_keywords_df(match_keywords_df: pd.DataFrame) -> pd.DataFrame
     for col in required_columns:
         if col not in match_keywords_df.columns:
             raise ValueError(f"Required column '{col}' is missing from input DataFrame.")
-    
+
     # 2. Create a reference copy for negation processing
+    match_keywords_df = df_apply_transformations(match_keywords_df, [('Refined Keywords', 'Refined Keywords', ast.literal_eval)])
     match_neg_df = match_keywords_df.copy()
-    
+
     # 3. Extract rows containing negations
-    df_negate = match_neg_df[~match_neg_df['Negation'].isna()][['Subtopic', 'Negation']]
+    df_negate = match_keywords_df[~match_keywords_df['Negation'].isna()][['Subtopic', 'Negation']]
     
     # 4. Apply transformations to Negation column (assuming df_apply_transformations is available)
     df_negate = df_apply_transformations(
@@ -58,6 +59,9 @@ def transform_match_keywords_df(match_keywords_df: pd.DataFrame) -> pd.DataFrame
     df_negate = df_negate.rename(columns={'Subtopic': 'label', 'Negation': 'match'})
     
     # 7. Process main DataFrame portion (non-negation)
+
+    match_neg_df = match_keywords_df[['Subtopic','Refined Keywords']].explode(column='Refined Keywords')
+
     match_neg_df['negate'] = False
     match_neg_df = match_neg_df.rename(columns={'Subtopic': 'label', 'Refined Keywords': 'match'})
     
