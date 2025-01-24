@@ -1,6 +1,7 @@
 # topic_modelling_package/nli_process/data_prep.py
 
 import json
+from pyexpat.errors import messages
 from typing import List, Tuple, Union, Callable, Any
 from pyspark.sql import DataFrame
 from loguru import logger
@@ -92,8 +93,8 @@ def generate_label_columns(
          'consumer_weakness_COUNT_FILT_QA', 'consumer_weakness_REL_FILT_QA']
     """
     dynamic_columns = []
-    for label in labels:
-        for sec_filter in sec_filters:
+    for sec_filter in sec_filters:
+        for label in labels:
             for metric in metrics:
                 # Base column
                 column_name = f"{label}_{metric}_{sec_filter}"
@@ -101,3 +102,34 @@ def generate_label_columns(
                 logger.debug(f"Generated column name: {column_name}")
     logger.info(f"Generated {len(dynamic_columns)} label columns.")
     return dynamic_columns
+
+def add_non_entailment_rows(df, shuffle = True):
+    # Get all unique topics
+    all_topics = df['sentence2'].unique()
+    
+    # Create a list to store new rows
+    new_rows = []
+
+    # Group by sentence1 to process each sentence individually
+    grouped = df.groupby('sentence1')
+
+    for sentence, group in grouped:
+        # Get topics already labeled as 'entailment' for this sentence
+        entailment_topics = group[group['label'] == 'entailment']['sentence2'].unique()
+        
+        # Determine missing topics
+        missing_topics = set(all_topics) - set(entailment_topics)
+        
+        # Add a new row for each missing topic with 'non_entailment' label
+        for topic in missing_topics:
+            new_rows.append({'sentence1': sentence, 'sentence2': topic, 'label': 'non_entailment'})
+
+    # Convert new_rows to a DataFrame
+    new_rows_df = pd.DataFrame(new_rows)
+    
+    # Concatenate the new rows with the original DataFrame
+    df = pd.concat([df, new_rows_df], ignore_index=True)
+
+    if shuffle:
+        df = df.sample(frac=1).reset_index(drop=True)
+    return df

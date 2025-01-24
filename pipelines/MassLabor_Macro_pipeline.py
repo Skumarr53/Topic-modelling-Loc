@@ -88,3 +88,5 @@ spark_df = convert_columns_to_timestamp(
                                     )
 tablename_curr = 'YUJING_MASS_LABOR_MACRO_DEV_2'
 write_dataframe_to_snowflake(spark_df, database = 'EDS_PROD', schema = 'QUANT', table_name=tablename_curr)
+
+

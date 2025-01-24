@@ -7,7 +7,8 @@ from typing import List, Dict, Any, Callable
 from pyspark.sql import DataFrame, functions as F, types as T
 from loguru import logger
 
-from centralized_nlp_package.data_processing import create_spark_udf
+from pyspark.sql.functions import udf, col
+from pyspark.sql.types import  FloatType, ArrayType, MapType, DoubleType
 
 
 def apply_extract_udf_sections(
@@ -141,6 +142,12 @@ def rename_columns_by_label_matching(
         raise e
 
 
+def literal_eval_safe(data_str):
+    try:
+        return ast.literal_eval(data_str)
+    except (ValueError, SyntaxError):
+        return None
+
 def convert_column_types(
     df: DataFrame,
     float_type_cols: List[str],
@@ -173,8 +180,8 @@ def convert_column_types(
     # TODO: Add more types and highly customized types
     try:
         # Define UDFs for type conversion
-        array_convert_udf = create_spark_udf(ast.literal_eval, 'arr[double]')
-        float_convert_udf = create_spark_udf(ast.literal_eval, 'double')
+        array_convert_udf = udf(literal_eval_safe, ArrayType(DoubleType()))
+        float_convert_udf = udf(literal_eval_safe, DoubleType())
 
         # Convert float type columns
         for col_name in float_type_cols:
