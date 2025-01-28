@@ -1,10 +1,10 @@
 <!doctype html>
-<html class="no-js" lang="en" data-content_root="">
+<html class="no-js" lang="en" data-content_root="../../../">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2024.08.06 -->
+    <!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 -->
         <title>topic_modelling_package.processing.match_operations - topic-modelling-package documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
@@ -240,20 +240,114 @@
           <h1>Source code for topic_modelling_package.processing.match_operations</h1><div class="highlight"><pre>
 <span></span><span class="c1"># topic_modelling_package/processing/match_operations.py</span>
 
+<span class="kn">import</span> <span class="nn">ast</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">import</span> <span class="nn">spacy</span> 
 
 <span class="kn">from</span> <span class="nn">centralized_nlp_package.text_processing</span> <span class="kn">import</span> <span class="n">generate_ngrams</span>
 <span class="kn">from</span> <span class="nn">centralized_nlp_package.text_processing</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">tokenize_matched_words</span><span class="p">,</span> 
     <span class="n">tokenize_and_lemmatize_text</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">centralized_nlp_package.data_processing</span> <span class="kn">import</span> <span class="n">create_spark_udf</span>
+<span class="kn">from</span> <span class="nn">centralized_nlp_package.data_processing</span> <span class="kn">import</span> <span class="n">df_apply_transformations</span>
 <span class="kn">from</span> <span class="nn">loguru</span> <span class="kn">import</span> <span class="n">logger</span>
 
 <span class="kn">import</span> <span class="nn">re</span>
 
-<div class="viewcode-block" id="create_match_patterns"><a class="viewcode-back" href="../../../source/processing.html#topic_modelling_package.processing.match_operations.create_match_patterns">[docs]</a><span class="k">def</span> <span class="nf">create_match_patterns</span><span class="p">(</span><span class="n">matches</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<div class="viewcode-block" id="transform_match_keywords_df">
+<a class="viewcode-back" href="../../../source/processing.html#topic_modelling_package.processing.match_operations.transform_match_keywords_df">[docs]</a>
+<span class="k">def</span> <span class="nf">transform_match_keywords_df</span><span class="p">(</span><span class="n">match_keywords_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Transforms a DataFrame containing &#39;Subtopic&#39;, &#39;Refined Keywords&#39;, and &#39;Negation&#39; columns.</span>
+<span class="sd">    This function splits out negation rows, processes them, and concatenates them back with</span>
+<span class="sd">    the non-negation data to produce a standardized DataFrame with [&#39;label&#39;, &#39;match&#39;, &#39;negate&#39;] columns.</span>
+<span class="sd">    </span>
+<span class="sd">    The transformation involves:</span>
+<span class="sd">        1. Validating the presence of required columns.</span>
+<span class="sd">        2. Parsing &#39;Refined Keywords&#39; and &#39;Negation&#39; columns from string representations to Python objects.</span>
+<span class="sd">        3. Separating negation entries and processing them.</span>
+<span class="sd">        4. Exploding lists of matches into individual rows.</span>
+<span class="sd">        5. Standardizing column names and concatenating negation and non-negation data.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        match_keywords_df (pd.DataFrame): A Pandas DataFrame with the following columns:</span>
+<span class="sd">            - &#39;Subtopic&#39;: The topic label.</span>
+<span class="sd">            - &#39;Refined Keywords&#39;: A string representation of a list of keywords.</span>
+<span class="sd">            - &#39;Negation&#39;: A string representation of a list of negated keywords (optional).</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: A transformed DataFrame with standardized columns [&#39;label&#39;, &#39;match&#39;, &#39;negate&#39;].</span>
+<span class="sd">    </span>
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If any of the required columns are missing from the input DataFrame.</span>
+<span class="sd">        Exception: If any error occurs during the transformation process.</span>
+<span class="sd">    </span>
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; import pandas as pd</span>
+<span class="sd">        &gt;&gt;&gt; data = {</span>
+<span class="sd">        ...     &#39;Subtopic&#39;: [&#39;Positive&#39;, &#39;Positive&#39;, &#39;Negative&#39;],</span>
+<span class="sd">        ...     &#39;Refined Keywords&#39;: [&#39;[&quot;good&quot;, &quot;excellent&quot;]&#39;, &#39;[&quot;great&quot;]&#39;, &#39;[&quot;bad&quot;, &quot;poor&quot;]&#39;],</span>
+<span class="sd">        ...     &#39;Negation&#39;: [&#39;[&quot;not good&quot;]&#39;, None, &#39;[&quot;not bad&quot;]&#39;]</span>
+<span class="sd">        ... }</span>
+<span class="sd">        &gt;&gt;&gt; df = pd.DataFrame(data)</span>
+<span class="sd">        &gt;&gt;&gt; transformed_df = transform_match_keywords_df(df)</span>
+<span class="sd">        &gt;&gt;&gt; print(transformed_df)</span>
+<span class="sd">              label         match  negate</span>
+<span class="sd">        0  POSITIVE           good   False</span>
+<span class="sd">        1  POSITIVE      excellent   False</span>
+<span class="sd">        2  POSITIVE          great   False</span>
+<span class="sd">        3  POSITIVE      not good    True</span>
+<span class="sd">        4  NEGATIVE            bad   False</span>
+<span class="sd">        5  NEGATIVE           poor   False</span>
+<span class="sd">        6  NEGATIVE       not bad    True</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1"># 1. Validate required columns</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting transformation of match_keywords_df.&quot;</span><span class="p">)</span>
+    <span class="n">required_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Subtopic&quot;</span><span class="p">,</span> <span class="s2">&quot;Refined Keywords&quot;</span><span class="p">,</span> <span class="s2">&quot;Negation&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">required_columns</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">match_keywords_df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Required column &#39;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">&#39; is missing from input DataFrame.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># 2. Create a reference copy for negation processing</span>
+    <span class="n">match_keywords_df</span> <span class="o">=</span> <span class="n">df_apply_transformations</span><span class="p">(</span><span class="n">match_keywords_df</span><span class="p">,</span> <span class="p">[(</span><span class="s1">&#39;Refined Keywords&#39;</span><span class="p">,</span> <span class="s1">&#39;Refined Keywords&#39;</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">)])</span>
+    <span class="n">match_neg_df</span> <span class="o">=</span> <span class="n">match_keywords_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1"># 3. Extract rows containing negations</span>
+    <span class="n">df_negate</span> <span class="o">=</span> <span class="n">match_keywords_df</span><span class="p">[</span><span class="o">~</span><span class="n">match_keywords_df</span><span class="p">[</span><span class="s1">&#39;Negation&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()][[</span><span class="s1">&#39;Subtopic&#39;</span><span class="p">,</span> <span class="s1">&#39;Negation&#39;</span><span class="p">]]</span>
+    
+    <span class="c1"># 4. Apply transformations to Negation column (assuming df_apply_transformations is available)</span>
+    <span class="n">df_negate</span> <span class="o">=</span> <span class="n">df_apply_transformations</span><span class="p">(</span>
+        <span class="n">df_negate</span><span class="p">,</span>
+        <span class="n">transformations</span><span class="o">=</span><span class="p">[(</span><span class="s1">&#39;Negation&#39;</span><span class="p">,</span> <span class="s1">&#39;Negation&#39;</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">)]</span>
+    <span class="p">)</span>
+    
+    <span class="c1"># 5. Explode negations into separate rows</span>
+    <span class="n">df_negate</span> <span class="o">=</span> <span class="n">df_negate</span><span class="o">.</span><span class="n">explode</span><span class="p">(</span><span class="n">column</span><span class="o">=</span><span class="s1">&#39;Negation&#39;</span><span class="p">)</span>
+    <span class="n">df_negate</span><span class="p">[</span><span class="s1">&#39;negate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    
+    <span class="c1"># 6. Rename columns for standardization</span>
+    <span class="n">df_negate</span> <span class="o">=</span> <span class="n">df_negate</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Subtopic&#39;</span><span class="p">:</span> <span class="s1">&#39;label&#39;</span><span class="p">,</span> <span class="s1">&#39;Negation&#39;</span><span class="p">:</span> <span class="s1">&#39;match&#39;</span><span class="p">})</span>
+    
+    <span class="c1"># 7. Process main DataFrame portion (non-negation)</span>
+
+    <span class="n">match_neg_df</span> <span class="o">=</span> <span class="n">match_keywords_df</span><span class="p">[[</span><span class="s1">&#39;Subtopic&#39;</span><span class="p">,</span><span class="s1">&#39;Refined Keywords&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">explode</span><span class="p">(</span><span class="n">column</span><span class="o">=</span><span class="s1">&#39;Refined Keywords&#39;</span><span class="p">)</span>
+
+    <span class="n">match_neg_df</span><span class="p">[</span><span class="s1">&#39;negate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">match_neg_df</span> <span class="o">=</span> <span class="n">match_neg_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Subtopic&#39;</span><span class="p">:</span> <span class="s1">&#39;label&#39;</span><span class="p">,</span> <span class="s1">&#39;Refined Keywords&#39;</span><span class="p">:</span> <span class="s1">&#39;match&#39;</span><span class="p">})</span>
+    
+    <span class="c1"># 8. Concatenate negation rows with the main DataFrame</span>
+    <span class="n">df_output</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">match_neg_df</span><span class="p">,</span> <span class="n">df_negate</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">df_output</span></div>
+
+
+
+<div class="viewcode-block" id="create_match_patterns">
+<a class="viewcode-back" href="../../../source/processing.html#topic_modelling_package.processing.match_operations.create_match_patterns">[docs]</a>
+<span class="k">def</span> <span class="nf">create_match_patterns</span><span class="p">(</span><span class="n">matches</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">nlp</span><span class="p">:</span> <span class="n">spacy</span><span class="o">.</span><span class="n">Language</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Creates a set of match patterns to handle variations in lemmatization and case.</span>
 <span class="sd">    </span>
@@ -293,7 +387,7 @@
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">word</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">))</span> <span class="o">==</span> <span class="mi">2</span>
         <span class="p">]</span> <span class="o">+</span>
         <span class="p">[</span>
-            <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tokenize_matched_words</span><span class="p">(</span><span class="n">word</span><span class="p">))</span> 
+            <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tokenize_matched_words</span><span class="p">(</span><span class="n">word</span><span class="p">,</span><span class="n">nlp</span><span class="p">))</span> 
             <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">matches</span> 
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">word</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">))</span> <span class="o">==</span> <span class="mi">2</span>
         <span class="p">]</span>
@@ -301,7 +395,7 @@
     
     <span class="n">unigrams</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
         <span class="p">[</span>
-            <span class="n">tokenize_matched_words</span><span class="p">(</span><span class="n">match</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> 
+            <span class="n">tokenize_matched_words</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="n">nlp</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> 
             <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">matches</span> 
             <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;_&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">match</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
         <span class="p">]</span> <span class="o">+</span>
@@ -318,12 +412,16 @@
     <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;original&#39;</span><span class="p">:</span> <span class="n">matches</span><span class="p">,</span> <span class="s1">&#39;unigrams&#39;</span><span class="p">:</span> <span class="n">unigrams</span><span class="p">,</span> <span class="s1">&#39;bigrams&#39;</span><span class="p">:</span> <span class="n">bigrams</span><span class="p">,</span> <span class="s1">&#39;phrases&#39;</span><span class="p">:</span> <span class="n">phrases</span><span class="p">}</span></div>
 
 
+
 <span class="c1"># match_count_lowStat</span>
-<div class="viewcode-block" id="count_matches_in_texts"><a class="viewcode-back" href="../../../source/processing.html#topic_modelling_package.processing.match_operations.count_matches_in_texts">[docs]</a><span class="k">def</span> <span class="nf">count_matches_in_texts</span><span class="p">(</span>
+<div class="viewcode-block" id="count_matches_in_texts">
+<a class="viewcode-back" href="../../../source/processing.html#topic_modelling_package.processing.match_operations.count_matches_in_texts">[docs]</a>
+<span class="k">def</span> <span class="nf">count_matches_in_texts</span><span class="p">(</span>
     <span class="n">texts</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">match_sets</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span>
+    <span class="n">nlp</span><span class="p">:</span> <span class="n">spacy</span><span class="o">.</span><span class="n">Language</span><span class="p">,</span>
     <span class="n">phrases</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="n">suppress</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">suppress</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Counts occurrences of match patterns (unigrams, bigrams, phrases) within given texts.</span>
@@ -331,35 +429,13 @@
 <span class="sd">    Args:</span>
 <span class="sd">        texts (List[str]): List of sentences/documents.</span>
 <span class="sd">        match_sets (Dict[str, Dict[str, Any]]): Dictionary containing match patterns categorized by labels.</span>
-<span class="sd">            Example:</span>
-<span class="sd">                {</span>
-<span class="sd">                    &#39;label1&#39;: {&#39;unigrams&#39;: {...}, &#39;bigrams&#39;: {...}, &#39;phrases&#39;: [...]},</span>
-<span class="sd">                    &#39;label2&#39;: {&#39;unigrams&#39;: {...}, &#39;bigrams&#39;: {...}, &#39;phrases&#39;: [...]},</span>
-<span class="sd">                    ...</span>
-<span class="sd">                }</span>
 <span class="sd">        phrases (bool, optional): Whether to include phrase matching. Defaults to True.</span>
 <span class="sd">        suppress (Optional[Dict[str, List[str]]], optional): Words to suppress from matching per label. </span>
-<span class="sd">            Example:</span>
-<span class="sd">                {</span>
-<span class="sd">                    &#39;label1&#39;: [&#39;word1&#39;, &#39;word2&#39;],</span>
-<span class="sd">                    &#39;label2&#39;: [&#39;word3&#39;]</span>
-<span class="sd">                }</span>
+
 <span class="sd">            Defaults to None.</span>
 <span class="sd">    </span>
 <span class="sd">    Returns:</span>
 <span class="sd">        Dict[str, Dict[str, Any]]: Dictionary of counts for each match pattern categorized by labels.</span>
-<span class="sd">            Example:</span>
-<span class="sd">                {</span>
-<span class="sd">                    &#39;label1&#39;: {</span>
-<span class="sd">                        &#39;total&#39;: [...],</span>
-<span class="sd">                        &#39;stats&#39;: {&#39;unigram1&#39;: count, &#39;bigram1&#39;: count, ...}</span>
-<span class="sd">                    },</span>
-<span class="sd">                    &#39;label2&#39;: {</span>
-<span class="sd">                        &#39;total&#39;: [...],</span>
-<span class="sd">                        &#39;stats&#39;: {&#39;unigram2&#39;: count, &#39;bigram2&#39;: count, ...}</span>
-<span class="sd">                    },</span>
-<span class="sd">                    ...</span>
-<span class="sd">                }</span>
 <span class="sd">    </span>
 <span class="sd">    Example:</span>
 <span class="sd">        &gt;&gt;&gt; texts = [&quot;I love good service.&quot;, &quot;Bad service makes me unhappy.&quot;]</span>
@@ -402,7 +478,7 @@
 
     <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">texts</span><span class="p">:</span>
         <span class="n">counted</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">label</span><span class="p">:</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">match_sets</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
-        <span class="n">unigrams</span> <span class="o">=</span> <span class="n">tokenize_and_lemmatize_text</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">unigrams</span> <span class="o">=</span> <span class="n">tokenize_and_lemmatize_text</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">nlp</span><span class="p">)</span>
         <span class="n">bigrams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">g</span><span class="p">)</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">generate_ngrams</span><span class="p">(</span><span class="n">unigrams</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]</span>
         
         <span class="n">text_lower</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
@@ -442,10 +518,14 @@
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Completed counting matches in texts.&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">result</span></div>
 
+
 <span class="c1">#  match_count_lowStat_singleSent</span>
-<div class="viewcode-block" id="count_matches_in_single_sentence"><a class="viewcode-back" href="../../../source/processing.html#topic_modelling_package.processing.match_operations.count_matches_in_single_sentence">[docs]</a><span class="k">def</span> <span class="nf">count_matches_in_single_sentence</span><span class="p">(</span>
-    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<div class="viewcode-block" id="count_matches_in_single_sentence">
+<a class="viewcode-back" href="../../../source/processing.html#topic_modelling_package.processing.match_operations.count_matches_in_single_sentence">[docs]</a>
+<span class="k">def</span> <span class="nf">count_matches_in_single_sentence</span><span class="p">(</span>
+    <span class="n">texts</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">match_sets</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span>
+    <span class="n">nlp</span><span class="p">:</span> <span class="n">spacy</span><span class="o">.</span><span class="n">Language</span><span class="p">,</span>
     <span class="n">phrases</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">suppress</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
@@ -455,35 +535,13 @@
 <span class="sd">    Args:</span>
 <span class="sd">        text (str): Sentence to process.</span>
 <span class="sd">        match_sets (Dict[str, Dict[str, Any]]): Dictionary containing match patterns categorized by labels.</span>
-<span class="sd">            Example:</span>
-<span class="sd">                {</span>
-<span class="sd">                    &#39;label1&#39;: {&#39;unigrams&#39;: {...}, &#39;bigrams&#39;: {...}, &#39;phrases&#39;: [...]},</span>
-<span class="sd">                    &#39;label2&#39;: {&#39;unigrams&#39;: {...}, &#39;bigrams&#39;: {...}, &#39;phrases&#39;: [...]},</span>
-<span class="sd">                    ...</span>
-<span class="sd">                }</span>
 <span class="sd">        phrases (bool, optional): Whether to include phrase matching. Defaults to True.</span>
 <span class="sd">        suppress (Optional[Dict[str, List[str]]], optional): Words to suppress from matching per label. </span>
-<span class="sd">            Example:</span>
-<span class="sd">                {</span>
-<span class="sd">                    &#39;label1&#39;: [&#39;word1&#39;, &#39;word2&#39;],</span>
-<span class="sd">                    &#39;label2&#39;: [&#39;word3&#39;]</span>
-<span class="sd">                }</span>
+
 <span class="sd">            Defaults to None.</span>
 <span class="sd">    </span>
 <span class="sd">    Returns:</span>
 <span class="sd">        Dict[str, Dict[str, Any]]: Dictionary of counts for each match pattern categorized by labels.</span>
-<span class="sd">            Example:</span>
-<span class="sd">                {</span>
-<span class="sd">                    &#39;label1&#39;: {</span>
-<span class="sd">                        &#39;total&#39;: 2,</span>
-<span class="sd">                        &#39;stats&#39;: {&#39;unigram1&#39;: 1, &#39;bigram1&#39;: 1, ...}</span>
-<span class="sd">                    },</span>
-<span class="sd">                    &#39;label2&#39;: {</span>
-<span class="sd">                        &#39;total&#39;: 1,</span>
-<span class="sd">                        &#39;stats&#39;: {&#39;unigram2&#39;: 1, &#39;bigram2&#39;: 0, ...}</span>
-<span class="sd">                    },</span>
-<span class="sd">                    ...</span>
-<span class="sd">                }</span>
 <span class="sd">    </span>
 <span class="sd">    Example:</span>
 <span class="sd">        &gt;&gt;&gt; text = &quot;I love good service and bad support.&quot;</span>
@@ -516,50 +574,48 @@
 <span class="sd">            }</span>
 <span class="sd">        }</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">count_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">label</span><span class="p">:</span> <span class="p">{</span><span class="n">matchw</span><span class="p">:</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">matchw</span> <span class="ow">in</span> <span class="n">match_set</span><span class="p">[</span><span class="s1">&#39;unigrams&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">match_set</span><span class="p">[</span><span class="s1">&#39;bigrams&#39;</span><span class="p">])}</span> 
-        <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">match_set</span> <span class="ow">in</span> <span class="n">match_sets</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-    <span class="p">}</span>
-    <span class="n">counted</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">label</span><span class="p">:</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">match_sets</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
-    
-    <span class="n">unigrams</span> <span class="o">=</span> <span class="n">tokenize_and_lemmatize_text</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
-    <span class="n">bigrams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">g</span><span class="p">)</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">generate_ngrams</span><span class="p">(</span><span class="n">unigrams</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]</span>
-    <span class="n">text_lower</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="n">count_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">label</span> <span class="p">:</span> <span class="p">{</span><span class="n">matchw</span><span class="p">:</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">matchw</span> <span class="ow">in</span> <span class="n">match_set</span><span class="p">[</span><span class="s1">&#39;unigrams&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">match_set</span><span class="p">[</span><span class="s1">&#39;bigrams&#39;</span><span class="p">])</span> <span class="p">}</span> <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">match_set</span> <span class="ow">in</span> <span class="n">match_sets</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="n">total_counts</span> <span class="o">=</span> <span class="p">{</span><span class="n">label</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">match_sets</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
 
-    <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">match_set</span> <span class="ow">in</span> <span class="n">match_sets</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="k">if</span> <span class="n">suppress</span> <span class="ow">and</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">suppress</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">item</span> <span class="ow">in</span> <span class="n">text_lower</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">suppress</span><span class="p">[</span><span class="n">label</span><span class="p">]):</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Suppressing label &#39;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&#39; for text: </span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">texts</span><span class="p">:</span>
+        
+        <span class="n">counted</span> <span class="o">=</span> <span class="p">{</span><span class="n">label</span><span class="p">:</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">match_sets</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
+        <span class="n">unigrams</span> <span class="o">=</span> <span class="n">tokenize_and_lemmatize_text</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">nlp</span><span class="p">)</span>
+        <span class="n">bigrams</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">g</span><span class="p">)</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">generate_ngrams</span><span class="p">(</span><span class="n">unigrams</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]</span>
+        
+        <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">match_set</span> <span class="ow">in</span> <span class="n">match_sets</span><span class="o">.</span><span class="n">items</span><span class="p">():</span> 
+        
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">item</span> <span class="ow">in</span> <span class="n">text</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">suppress</span><span class="p">[</span><span class="n">label</span><span class="p">]):</span>
+                <span class="n">counted</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">0</span>
                 <span class="k">continue</span>
-
-        <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">unigrams</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">match_set</span><span class="p">[</span><span class="s1">&#39;unigrams&#39;</span><span class="p">]:</span>
-                <span class="n">count_dict</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="n">word</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="n">counted</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-
-        <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">bigrams</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">match_set</span><span class="p">[</span><span class="s1">&#39;bigrams&#39;</span><span class="p">]:</span>
-                <span class="n">count_dict</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="n">word</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="n">counted</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-
-        <span class="k">if</span> <span class="n">phrases</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">phrase</span> <span class="ow">in</span> <span class="n">match_set</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;phrases&#39;</span><span class="p">,</span> <span class="p">[]):</span>
-                <span class="k">if</span> <span class="n">phrase</span> <span class="ow">in</span> <span class="n">text_lower</span><span class="p">:</span>
+                
+            <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">unigrams</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">match_set</span><span class="p">[</span><span class="s1">&#39;unigrams&#39;</span><span class="p">]:</span>
+                    <span class="n">count_dict</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="n">word</span><span class="p">]</span><span class="o">+=</span><span class="mi">1</span>
                     <span class="n">counted</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Phrase &#39;</span><span class="si">{</span><span class="n">phrase</span><span class="si">}</span><span class="s2">&#39; found in text: </span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-    <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">label</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s1">&#39;total&#39;</span><span class="p">:</span> <span class="n">counted</span><span class="p">[</span><span class="n">label</span><span class="p">],</span>
-            <span class="s1">&#39;stats&#39;</span><span class="p">:</span> <span class="n">count_dict</span><span class="p">[</span><span class="n">label</span><span class="p">]</span>
-        <span class="p">}</span> 
-        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">match_sets</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-    <span class="p">}</span>
+            <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">bigrams</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">match_set</span><span class="p">[</span><span class="s1">&#39;bigrams&#39;</span><span class="p">]:</span>
+                    <span class="n">count_dict</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="n">word</span><span class="p">]</span><span class="o">+=</span><span class="mi">1</span>
+                    <span class="n">counted</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            
+            <span class="k">if</span> <span class="n">phrases</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">phrase</span> <span class="ow">in</span> <span class="n">text</span> <span class="k">for</span> <span class="n">phrase</span> <span class="ow">in</span> <span class="n">match_set</span><span class="p">[</span><span class="s1">&#39;phrases&#39;</span><span class="p">]):</span>
+                    <span class="n">counted</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">continue</span>
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Completed counting matches in single sentence.&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">result</span></div>
+        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">match_sets</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        
+            <span class="n">total_counts</span><span class="p">[</span><span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">counted</span><span class="p">[</span><span class="n">label</span><span class="p">])</span>
 
-<div class="viewcode-block" id="merge_count_dicts"><a class="viewcode-back" href="../../../source/processing.html#topic_modelling_package.processing.match_operations.merge_count_dicts">[docs]</a><span class="k">def</span> <span class="nf">merge_count_dicts</span><span class="p">(</span><span class="n">count_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+        
+    <span class="k">return</span> <span class="p">{</span><span class="n">label</span> <span class="p">:</span> <span class="p">{</span><span class="s1">&#39;total&#39;</span><span class="p">:</span> <span class="n">total_counts</span><span class="p">[</span><span class="n">label</span><span class="p">],</span> <span class="s1">&#39;stats&#39;</span> <span class="p">:</span> <span class="n">count_dict</span><span class="p">[</span><span class="n">label</span><span class="p">]}</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">match_sets</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span></div>
+
+
+<div class="viewcode-block" id="merge_count_dicts">
+<a class="viewcode-back" href="../../../source/processing.html#topic_modelling_package.processing.match_operations.merge_count_dicts">[docs]</a>
+<span class="k">def</span> <span class="nf">merge_count_dicts</span><span class="p">(</span><span class="n">count_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Merges a list of count dictionaries into a single count dictionary.</span>
 <span class="sd">    </span>
@@ -594,6 +650,7 @@
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to merge count dictionaries: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;ERROR&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span></div>
+
 </pre></div>
         </article>
       </div>
@@ -626,9 +683,9 @@
       
     </aside>
   </div>
-</div><script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=b3ba4146"></script>
-    <script src="../../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
+</div><script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>
     </body>
 </html>

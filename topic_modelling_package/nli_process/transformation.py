@@ -36,23 +36,21 @@ def apply_extract_udf_sections(
         Exception: If any error occurs during the processing steps.
 
     Example:
-        ```python
-        from pyspark.sql.types import StringType
-        from pyspark.sql.functions import udf
+        >>> from pyspark.sql.types import StringType
+        >>> from pyspark.sql.functions import udf
+        
+        ... # Define the extract UDF
+        >>> def extract_function(base, total_filt):
+        ... # Example implementation of the UDF
+        ... return f"{base}_{total_filt}"
 
-        # Define the extract UDF
-        def extract_function(base, total_filt):
-            # Example implementation of the UDF
-            return f"{base}_{total_filt}"
+        >>> extract_udf = udf(extract_function, StringType())
 
-        extract_udf = udf(extract_function, StringType())
+        ... # Define patterns
+        >>> patterns = ['MD', 'QA']
 
-        # Define patterns
-        patterns = ['MD', 'QA']
-
-        # Apply the function
-        processed_df = apply_extract_udf_sections(currdf_spark, extract_udf, patterns)
-        ```
+        ... # Apply the function
+        >>> processed_df = apply_extract_udf_sections(currdf_spark, extract_udf, patterns)
     """
     try:
         for pattern in patterns:
@@ -106,13 +104,11 @@ def rename_columns_by_label_matching(
         Exception: If the renaming process fails for any other reason.
 
     Example:
-        ```python
-        labels_mapping = {
-            "old_label1": "new_label1",
-            "old_label2": "new_label2"
-        }
-        renamed_df = rename_columns_by_label_matching(df_spark, labels_mapping)
-        ```
+        >>> labels_mapping = {
+        ...    "old_label1": "new_label1",
+        ...    "old_label2": "new_label2"
+        ... }
+        >>> renamed_df = rename_columns_by_label_matching(df_spark, labels_mapping)
     """
     if not isinstance(df, DataFrame):
         raise ValueError("The provided input is not a valid Spark DataFrame.")
@@ -171,11 +167,9 @@ def convert_column_types(
         Exception: If any error occurs during the type conversion process.
 
     Example:
-        ```python
-        float_cols = ['col1', 'col2']
-        array_cols = ['col3', 'col4']
-        converted_df = convert_column_types(df_spark, float_cols, array_cols)
-        ```
+        >>> float_cols = ['col1', 'col2']
+        >>> array_cols = ['col3', 'col4']
+        >>> converted_df = convert_column_types(df_spark, float_cols, array_cols)
     """
     # TODO: Add more types and highly customized types
     try:
@@ -232,13 +226,10 @@ def process_nested_columns(
         Exception: If any error occurs during the processing steps.
 
     Example:
-        ```python
-        fixed_cols = ['ENTITY_ID', 'CALL_ID', 'VERSION_ID', 'DATE', 'CALL_NAME', 
-                      'COMPANY_NAME', 'LEN_FILT_MD', 'LEN_FILT_QA', 'FILT_MD', 'FILT_QA']
-        nested_cols = ['MD_FINAL_SCORE_EXTRACTED', 'QA_FINAL_SCORE_EXTRACTED']
-
-        processed_df = process_nested_columns(currdf_spark, nested_cols, fixed_cols)
-        ```
+        >>> fixed_cols = ['ENTITY_ID', 'CALL_ID', 'VERSION_ID', 'DATE', 'CALL_NAME', 
+        ...           'COMPANY_NAME', 'LEN_FILT_MD', 'LEN_FILT_QA', 'FILT_MD', 'FILT_QA']
+        >>> nested_cols = ['MD_FINAL_SCORE_EXTRACTED', 'QA_FINAL_SCORE_EXTRACTED']
+        >>> processed_df = process_nested_columns(currdf_spark, nested_cols, fixed_cols)
     """
     try:
         # Step 1: Extract keys from nested columns and create new columns

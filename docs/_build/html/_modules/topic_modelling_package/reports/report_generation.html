@@ -1,10 +1,10 @@
 <!doctype html>
-<html class="no-js" lang="en" data-content_root="">
+<html class="no-js" lang="en" data-content_root="../../../">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2024.08.06 -->
+    <!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 -->
         <title>topic_modelling_package.reports.report_generation - topic-modelling-package documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
@@ -239,18 +239,24 @@
         <article role="main" id="furo-main-content">
           <h1>Source code for topic_modelling_package.reports.report_generation</h1><div class="highlight"><pre>
 <span></span><span class="c1"># topic_modelling_package/reports/report_generation.py</span>
-
+<span class="kn">import</span> <span class="nn">ast</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Optional</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">spacy</span>
 <span class="kn">from</span> <span class="nn">loguru</span> <span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">import</span> <span class="nn">dask.dataframe</span> <span class="k">as</span> <span class="nn">dd</span>
+<span class="kn">from</span> <span class="nn">dask.diagnostics</span> <span class="kn">import</span> <span class="n">ProgressBar</span>
 
 <span class="kn">from</span> <span class="nn">topic_modelling_package.processing.match_operations</span> <span class="kn">import</span> <span class="n">create_match_patterns</span><span class="p">,</span> <span class="n">count_matches_in_single_sentence</span>
-<span class="kn">from</span> <span class="nn">centralized_nlp_package.utils.helper</span> <span class="kn">import</span> <span class="n">df_apply_transformations</span>
+<span class="kn">from</span> <span class="nn">centralized_nlp_package.data_processing</span> <span class="kn">import</span> <span class="n">df_apply_transformations</span>
 <span class="kn">from</span> <span class="nn">topic_modelling_package.reports</span> <span class="kn">import</span> <span class="n">STATISTICS_MAP</span>
 
 
-<div class="viewcode-block" id="create_topic_dict"><a class="viewcode-back" href="../../../source/reports.html#topic_modelling_package.reports.report_generation.create_topic_dict">[docs]</a><span class="k">def</span> <span class="nf">create_topic_dict</span><span class="p">(</span>
+<div class="viewcode-block" id="create_topic_dict">
+<a class="viewcode-back" href="../../../source/reports.html#topic_modelling_package.reports.report_generation.create_topic_dict">[docs]</a>
+<span class="k">def</span> <span class="nf">create_topic_dict</span><span class="p">(</span>
     <span class="n">match_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">nlp</span><span class="p">:</span> <span class="n">spacy</span><span class="o">.</span><span class="n">Language</span><span class="p">,</span>
     <span class="n">label_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;label&#39;</span><span class="p">,</span>
     <span class="n">negate_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;negate&#39;</span><span class="p">,</span>
     <span class="n">match_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;match&#39;</span><span class="p">,</span>
@@ -307,7 +313,7 @@
         <span class="n">positive_matches</span> <span class="o">=</span> <span class="n">match_df</span><span class="p">[</span>
             <span class="p">(</span><span class="n">match_df</span><span class="p">[</span><span class="n">label_col</span><span class="p">]</span> <span class="o">==</span> <span class="n">topic</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">match_df</span><span class="p">[</span><span class="n">negate_col</span><span class="p">]</span> <span class="o">==</span> <span class="kc">False</span><span class="p">)</span>
         <span class="p">][</span><span class="n">match_col</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-        <span class="n">word_set_dict</span><span class="p">[</span><span class="n">formatted_topic</span><span class="p">]</span> <span class="o">=</span> <span class="n">create_match_patterns</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">positive_matches</span><span class="p">))</span>
+        <span class="n">word_set_dict</span><span class="p">[</span><span class="n">formatted_topic</span><span class="p">]</span> <span class="o">=</span> <span class="n">create_match_patterns</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">positive_matches</span><span class="p">),</span> <span class="n">nlp</span><span class="p">)</span>
         
         <span class="c1"># Create negate_dict</span>
         <span class="n">negative_matches</span> <span class="o">=</span> <span class="n">match_df</span><span class="p">[</span>
@@ -325,7 +331,10 @@
     <span class="k">return</span> <span class="n">word_set_dict</span><span class="p">,</span> <span class="n">negate_dict</span></div>
 
 
-<div class="viewcode-block" id="replace_separator_in_dict_words"><a class="viewcode-back" href="../../../source/reports.html#topic_modelling_package.reports.report_generation.replace_separator_in_dict_words">[docs]</a><span class="k">def</span> <span class="nf">replace_separator_in_dict_words</span><span class="p">(</span>
+
+<div class="viewcode-block" id="replace_separator_in_dict_words">
+<a class="viewcode-back" href="../../../source/reports.html#topic_modelling_package.reports.report_generation.replace_separator_in_dict_words">[docs]</a>
+<span class="k">def</span> <span class="nf">replace_separator_in_dict_words</span><span class="p">(</span>
     <span class="n">input_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
     <span class="n">split_char</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;_&#39;</span><span class="p">,</span>
     <span class="n">separator</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="p">,</span>
@@ -383,11 +392,16 @@
     <span class="k">return</span> <span class="n">transformed_dict</span></div>
 
 
-<div class="viewcode-block" id="generate_topic_report"><a class="viewcode-back" href="../../../source/reports.html#topic_modelling_package.reports.report_generation.generate_topic_report">[docs]</a><span class="k">def</span> <span class="nf">generate_topic_report</span><span class="p">(</span>
+
+<div class="viewcode-block" id="generate_topic_report">
+<a class="viewcode-back" href="../../../source/reports.html#topic_modelling_package.reports.report_generation.generate_topic_report">[docs]</a>
+<span class="k">def</span> <span class="nf">generate_topic_report</span><span class="p">(</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">word_set_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
     <span class="n">negate_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+    <span class="n">nlp</span><span class="p">:</span> <span class="n">spacy</span><span class="o">.</span><span class="n">Language</span><span class="p">,</span>
     <span class="n">stats_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">dask_partitions</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
     <span class="n">label_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;matches&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -447,19 +461,27 @@
     <span class="n">unsupported_stats</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">stats_list</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">STATISTICS_MAP</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
     <span class="k">if</span> <span class="n">unsupported_stats</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported statistics requested: </span><span class="si">{</span><span class="n">unsupported_stats</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+
+    <span class="c1">## convert to dataframe to Dask dataframe</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">dd</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">npartitions</span> <span class="o">=</span> <span class="n">dask_partitions</span><span class="p">)</span>
 
     <span class="c1"># Initial transformations: match counts</span>
     <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;FILT_MD&quot;</span><span class="p">,</span> <span class="s2">&quot;FILT_QA&quot;</span><span class="p">]</span>
     <span class="n">lab_sec_dict1</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label_column</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">lab</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">lab</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">count_matches_in_single_sentence</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">word_set_dict</span><span class="p">,</span> <span class="n">suppress</span><span class="o">=</span><span class="n">negate_dict</span><span class="p">))</span>
+        <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label_column</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">lab</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">lab</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">count_matches_in_single_sentence</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">word_set_dict</span><span class="p">,</span> <span class="n">nlp</span><span class="p">,</span> <span class="n">suppress</span><span class="o">=</span><span class="n">negate_dict</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">lab</span> <span class="ow">in</span> <span class="n">labels</span>
     <span class="p">]</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Applying initial match count transformations.&quot;</span><span class="p">)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df_apply_transformations</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">lab_sec_dict1</span><span class="p">)</span>
 
+    <span class="k">with</span> <span class="n">ProgressBar</span><span class="p">():</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+
     <span class="c1"># Iterate over labels and topics to apply selected statistics</span>
     <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;matches_&#39;</span> <span class="o">+</span> <span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;matches_&#39;</span> <span class="o">+</span> <span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">topic</span> <span class="ow">in</span> <span class="n">word_set_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="n">lab_sec_dict2</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">stat</span> <span class="ow">in</span> <span class="n">stats_list</span><span class="p">:</span>
@@ -480,7 +502,10 @@
     <span class="k">return</span> <span class="n">df</span></div>
 
 
-<div class="viewcode-block" id="generate_top_matches_report"><a class="viewcode-back" href="../../../source/reports.html#topic_modelling_package.reports.report_generation.generate_top_matches_report">[docs]</a><span class="k">def</span> <span class="nf">generate_top_matches_report</span><span class="p">(</span>
+
+<div class="viewcode-block" id="generate_top_matches_report">
+<a class="viewcode-back" href="../../../source/reports.html#topic_modelling_package.reports.report_generation.generate_top_matches_report">[docs]</a>
+<span class="k">def</span> <span class="nf">generate_top_matches_report</span><span class="p">(</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -554,6 +579,7 @@
 
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generated top </span><span class="si">{</span><span class="n">top_n</span><span class="si">}</span><span class="s2"> matches report for topic &#39;</span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2">&#39; and label &#39;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">report_df</span></div>
+
 </pre></div>
         </article>
       </div>
@@ -586,9 +612,9 @@
       
     </aside>
   </div>
-</div><script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=b3ba4146"></script>
-    <script src="../../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
+</div><script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>
     </body>
 </html>

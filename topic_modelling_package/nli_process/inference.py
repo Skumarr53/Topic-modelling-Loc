@@ -150,6 +150,54 @@ def inference_run(
             yield pd.Series([[] for _ in batch])
 
 def extract_inf(row, section_len, section, threshold):
+    """
+    Extracts sentiment information from a row of scores based on a specified threshold.
+
+    This function processes a dictionary of sentiment scores, applying a threshold to determine binary classifications. It calculates counts, relative frequencies, and rounded scores for each sentiment type within a specified section. If the section length is zero, it handles the division by zero by assigning `None` or empty lists accordingly.
+
+    Args:
+        row (Dict[str, Any]):
+            A dictionary where keys are sentiment types (e.g., 'happy', 'sad') and values are lists of sentiment scores (floats) for each instance.
+        section_len (int):
+            The total number of instances or sentences in the section being analyzed.
+        section (str):
+            The identifier for the current section (e.g., 'FILT_MD', 'FILT_QA').
+        threshold (float):
+            The threshold value above which a sentiment score is considered positive (e.g., 0.8).
+
+    Returns:
+        Dict[str, Any]:
+            A dictionary containing the following keys for each sentiment type:
+                - "{sentiment}_TOTAL_{section}" (List[float]): Binary list indicating whether each score exceeds the threshold.
+                - "{sentiment}_COUNT_{section}" (float): Total count of scores exceeding the threshold.
+                - "{sentiment}_REL_{section}" (float): Relative frequency of scores exceeding the threshold (count divided by section length).
+                - "{sentiment}_SCORE_{section}" (List[float]): List of scores rounded to four decimal places.
+            
+            Additionally includes:
+                - "len" (int): Total number of words in the input.
+                - "raw_len" (int): Raw word count based on splitting by spaces.
+                - "filt" (str): The original input text.
+
+    Raises:
+        None. The function handles potential errors internally and assigns `None` or empty lists where appropriate.
+
+    Example:
+        >>> row = {'happy': [0.9, 0.7, 0.85], 'sad': [0.2, 0.1, 0.05]}
+        >>> extract_inf(row, section_len=3, section='FILT_MD', threshold=0.8)
+        {
+            'happy_TOTAL_FILT_MD': [1.0, 0.0, 1.0],
+            'happy_COUNT_FILT_MD': 2.0,
+            'happy_REL_FILT_MD': 0.6666666666666666,
+            'happy_SCORE_FILT_MD': [0.9, 0.7, 0.85],
+            'sad_TOTAL_FILT_MD': [0.0, 0.0, 0.0],
+            'sad_COUNT_FILT_MD': 0.0,
+            'sad_REL_FILT_MD': 0.0,
+            'sad_SCORE_FILT_MD': [0.2, 0.1, 0.05],
+            'len': 0,  # Assuming len is calculated elsewhere
+            'raw_len': 0,  # Assuming raw_len is calculated elsewhere
+            'filt': ''
+        }
+    """
     count_col = {}
     rel_col = {}
     score_col = {}
@@ -179,10 +227,59 @@ def get_section_extract_udf(section, threshold):
 def processing_nested_columns(spark_df,
                               fixed_columns = ['ENTITY_ID', 'CALL_ID', 'VERSION_ID', 'DATE', 'CALL_NAME', 'COMPANY_NAME','LEN_FILT_MD', 'LEN_FILT_QA', 'FILT_MD', 'FILT_QA', 'SENT_LABELS_FILT_MD', 'SENT_LABELS_FILT_QA'],
                                threshold=0.8):
-  
-    # extract_inf_partial = 
-    # extract_inf_udf = udf(partial(extract_inf, threshold = threshold), MapType(StringType(), StringType()))
+    """
+    Processes nested sentiment score columns in a Spark DataFrame and extracts relevant statistics.
 
+    This function performs the following operations:
+        1. Generates UDFs for each sentiment section ('FILT_MD', 'FILT_QA') based on the provided threshold.
+        2. Applies these UDFs to extract sentiment information.
+        3. Extracts individual sentiment statistics from the resulting nested columns.
+        4. Renames columns to remove periods.
+        5. Selects and reorders the final set of columns based on predefined fixed columns and extracted sentiment statistics.
+
+    Args:
+        spark_df (DataFrame):
+            The input Spark DataFrame containing nested sentiment score columns (e.g., 'MD_FINAL_SCORE', 'QA_FINAL_SCORE').
+        fixed_columns (List[str], optional):
+            A list of columns to retain in the final DataFrame. Defaults to [
+                'ENTITY_ID', 'CALL_ID', 'VERSION_ID', 'DATE', 
+                'CALL_NAME', 'COMPANY_NAME', 'LEN_FILT_MD', 
+                'LEN_FILT_QA', 'FILT_MD', 'FILT_QA', 
+                'SENT_LABELS_FILT_MD', 'SENT_LABELS_FILT_QA'
+            ].
+        threshold (float, optional):
+            The threshold value above which a sentiment score is considered positive. Defaults to 0.8.
+
+    Returns:
+        DataFrame:
+            The processed Spark DataFrame with extracted sentiment statistics as individual columns, and with only the specified fixed columns and sentiment statistics retained.
+
+    Raises:
+        Exception:
+            If there are issues during UDF application, column extraction, or DataFrame transformations.
+
+    Example:
+        >>> from pyspark.sql import SparkSession
+        >>> spark = SparkSession.builder.getOrCreate()
+        >>> data = [
+        ...     {
+        ...         'ENTITY_ID': 'E1', 'CALL_ID': 'C1', 'VERSION_ID': 'V1', 'DATE': '2021-01-01',
+        ...         'CALL_NAME': 'Call1', 'COMPANY_NAME': 'CompanyA', 'LEN_FILT_MD': 10, 
+        ...         'LEN_FILT_QA': 8, 'FILT_MD': ['filter1', 'filter2'], 'FILT_QA': ['filter3'],
+        ...         'SENT_LABELS_FILT_MD': [[1, 0, 1], [0, 1, 0]], 'SENT_LABELS_FILT_QA': [[1], [0]],
+        ...         'MD_FINAL_SCORE': {'happy': [0.9, 0.7, 0.85], 'sad': [0.2, 0.1, 0.05]},
+        ...         'QA_FINAL_SCORE': {'joyful': [0.95], 'angry': [0.1]}
+        ...     }
+        ... ]
+        >>> spark_df = spark.createDataFrame(data)
+        >>> processed_df = processing_nested_columns(spark_df, threshold=0.8)
+        >>> processed_df.show(truncate=False)
+        +---------+-------+----------+----------+----------+-------------+----------+----------+--------+--------+-----------------------+-----------------------+-------------------------+----------------------+------------------------+------------------------+-------------------------+--------------------------+
+        |ENTITY_ID|CALL_ID|VERSION_ID|DATE      |CALL_NAME |COMPANY_NAME |LEN_FILT_MD|LEN_FILT_QA|FILT_MD |FILT_QA |SENT_LABELS_FILT_MD    |SENT_LABELS_FILT_QA    |happy_TOTAL_FILT_MD      |sad_TOTAL_FILT_MD    |happy_REL_FILT_MD       |sad_REL_FILT_MD       |happy_SCORE_FILT_MD     |sad_SCORE_FILT_MD         |
+        +---------+-------+----------+----------+----------+-------------+----------+----------+--------+--------+-----------------------+-----------------------+-------------------------+----------------------+------------------------+------------------------+-------------------------+--------------------------+
+        |E1       |C1     |V1        |2021-01-01|Call1     |CompanyA     |10        |8         |filter1 |filter3 |[1, 0, 1]              |[1, 0]                 |[1.0, 0.0, 1.0]          |[0.0, 0.0, 0.0]      |0.6666666666666666       |0.0                    |[0.9, 0.7, 0.85]        |[0.2, 0.1, 0.05]           |
+        +---------+-------+----------+----------+----------+-------------+----------+----------+--------+--------+-----------------------+-----------------------+-------------------------+----------------------+------------------------+------------------------+-------------------------+--------------------------+
+    """
     extract_tranformations = [(f"{ent}_FINAL_SCORE_EXTRACTED", [f"{ent}_FINAL_SCORE",f"LEN_FILT_{ent}"], get_section_extract_udf(f"FILT_{ent}", threshold)) for ent in ['MD', 'QA']]
 
     spark_df = sparkdf_apply_transformations(spark_df, extract_tranformations)

@@ -1,11 +1,11 @@
 <!doctype html>
-<html class="no-js" lang="en" data-content_root="">
+<html class="no-js" lang="en" data-content_root="./">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="NLI Inferenece" href="source/nli_process.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2024.08.06 -->
+    <!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 -->
         <title>topic-modelling-package documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
@@ -245,18 +245,26 @@
         </div>
         <article role="main" id="furo-main-content">
           <section id="welcome-to-topic-modelling-package-s-documentation">
-<h1>Welcome to topic-modelling-package’s documentation!<a class="headerlink" href="#welcome-to-topic-modelling-package-s-documentation" title="Permalink to this heading">¶</a></h1>
+<h1>Welcome to topic-modelling-package’s documentation!<a class="headerlink" href="#welcome-to-topic-modelling-package-s-documentation" title="Link to this heading">¶</a></h1>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="source/nli_process.html">NLI Inferenece</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="source/nli_process.html#topic_modelling_package.nli_process.data_prep.add_non_entailment_rows"><code class="docutils literal notranslate"><span class="pre">add_non_entailment_rows()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/nli_process.html#topic_modelling_package.nli_process.data_prep.create_text_pairs"><code class="docutils literal notranslate"><span class="pre">create_text_pairs()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/nli_process.html#topic_modelling_package.nli_process.data_prep.generate_label_columns"><code class="docutils literal notranslate"><span class="pre">generate_label_columns()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/nli_process.html#topic_modelling_package.nli_process.data_prep.parse_json_list"><code class="docutils literal notranslate"><span class="pre">parse_json_list()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/nli_process.html#topic_modelling_package.nli_process.inference.extract_inf"><code class="docutils literal notranslate"><span class="pre">extract_inf()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/nli_process.html#topic_modelling_package.nli_process.inference.get_section_extract_udf"><code class="docutils literal notranslate"><span class="pre">get_section_extract_udf()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/nli_process.html#topic_modelling_package.nli_process.inference.inference_run"><code class="docutils literal notranslate"><span class="pre">inference_run()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="source/nli_process.html#topic_modelling_package.nli_process.inference.inference_summary"><code class="docutils literal notranslate"><span class="pre">inference_summary()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="source/nli_process.html#topic_modelling_package.nli_process.inference.inference_udf"><code class="docutils literal notranslate"><span class="pre">inference_udf()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/nli_process.html#topic_modelling_package.nli_process.inference.processing_nested_columns"><code class="docutils literal notranslate"><span class="pre">processing_nested_columns()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="source/nli_process.html#topic_modelling_package.nli_process.scoring.add_extracted_scores_columns"><code class="docutils literal notranslate"><span class="pre">add_extracted_scores_columns()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="source/nli_process.html#topic_modelling_package.nli_process.scoring.compute_section_metrics"><code class="docutils literal notranslate"><span class="pre">compute_section_metrics()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="source/nli_process.html#topic_modelling_package.nli_process.scoring.extract_matched_sentences"><code class="docutils literal notranslate"><span class="pre">extract_matched_sentences()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="source/nli_process.html#topic_modelling_package.nli_process.transformation.apply_extract_udf_sections"><code class="docutils literal notranslate"><span class="pre">apply_extract_udf_sections()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="source/nli_process.html#topic_modelling_package.nli_process.transformation.convert_column_types"><code class="docutils literal notranslate"><span class="pre">convert_column_types()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/nli_process.html#topic_modelling_package.nli_process.transformation.literal_eval_safe"><code class="docutils literal notranslate"><span class="pre">literal_eval_safe()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="source/nli_process.html#topic_modelling_package.nli_process.transformation.process_nested_columns"><code class="docutils literal notranslate"><span class="pre">process_nested_columns()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="source/nli_process.html#topic_modelling_package.nli_process.transformation.rename_columns_by_label_matching"><code class="docutils literal notranslate"><span class="pre">rename_columns_by_label_matching()</span></code></a></li>
 </ul>
@@ -266,6 +274,7 @@
 <li class="toctree-l2"><a class="reference internal" href="source/processing.html#topic_modelling_package.processing.match_operations.count_matches_in_texts"><code class="docutils literal notranslate"><span class="pre">count_matches_in_texts()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="source/processing.html#topic_modelling_package.processing.match_operations.create_match_patterns"><code class="docutils literal notranslate"><span class="pre">create_match_patterns()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="source/processing.html#topic_modelling_package.processing.match_operations.merge_count_dicts"><code class="docutils literal notranslate"><span class="pre">merge_count_dicts()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="source/processing.html#topic_modelling_package.processing.match_operations.transform_match_keywords_df"><code class="docutils literal notranslate"><span class="pre">transform_match_keywords_df()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="source/reports.html">Reports</a><ul>
@@ -286,7 +295,7 @@
 </div>
 </section>
 <section id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading">¶</a></h1>
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading">¶</a></h1>
 <ul class="simple">
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
@@ -333,9 +342,9 @@
       
     </aside>
   </div>
-</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=b3ba4146"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
-    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+</div><script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>
     </body>
 </html>

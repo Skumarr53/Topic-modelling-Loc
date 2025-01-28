@@ -18,21 +18,52 @@ import re
 
 def transform_match_keywords_df(match_keywords_df: pd.DataFrame) -> pd.DataFrame:
     """
-    Processes a DataFrame containing 'Subtopic', 'Refined Keywords', and 'Negation' columns.
-    Splits out negation rows, transforms them, and concatenates back with the rest of the data.
-
+    Transforms a DataFrame containing 'Subtopic', 'Refined Keywords', and 'Negation' columns.
+    This function splits out negation rows, processes them, and concatenates them back with
+    the non-negation data to produce a standardized DataFrame with ['label', 'match', 'negate'] columns.
+    
+    The transformation involves:
+        1. Validating the presence of required columns.
+        2. Parsing 'Refined Keywords' and 'Negation' columns from string representations to Python objects.
+        3. Separating negation entries and processing them.
+        4. Exploding lists of matches into individual rows.
+        5. Standardizing column names and concatenating negation and non-negation data.
+    
     Args:
-        match_keywords_df (pd.DataFrame): A Pandas DataFrame with columns:
-            ['Subtopic', 'Refined Keywords', 'Negation'].
-
+        match_keywords_df (pd.DataFrame): A Pandas DataFrame with the following columns:
+            - 'Subtopic': The topic label.
+            - 'Refined Keywords': A string representation of a list of keywords.
+            - 'Negation': A string representation of a list of negated keywords (optional).
+    
     Returns:
-        pd.DataFrame: A Pandas DataFrame with standardized columns ['label', 'match', 'negate'].
-
+        pd.DataFrame: A transformed DataFrame with standardized columns ['label', 'match', 'negate'].
+    
     Raises:
-        ValueError: If the required columns are not present in match_keywords_df.
+        ValueError: If any of the required columns are missing from the input DataFrame.
+        Exception: If any error occurs during the transformation process.
+    
+    Example:
+        >>> import pandas as pd
+        >>> data = {
+        ...     'Subtopic': ['Positive', 'Positive', 'Negative'],
+        ...     'Refined Keywords': ['["good", "excellent"]', '["great"]', '["bad", "poor"]'],
+        ...     'Negation': ['["not good"]', None, '["not bad"]']
+        ... }
+        >>> df = pd.DataFrame(data)
+        >>> transformed_df = transform_match_keywords_df(df)
+        >>> print(transformed_df)
+              label         match  negate
+        0  POSITIVE           good   False
+        1  POSITIVE      excellent   False
+        2  POSITIVE          great   False
+        3  POSITIVE      not good    True
+        4  NEGATIVE            bad   False
+        5  NEGATIVE           poor   False
+        6  NEGATIVE       not bad    True
     """
     
     # 1. Validate required columns
+    logger.info("Starting transformation of match_keywords_df.")
     required_columns = ["Subtopic", "Refined Keywords", "Negation"]
     for col in required_columns:
         if col not in match_keywords_df.columns:
@@ -150,35 +181,13 @@ def count_matches_in_texts(
     Args:
         texts (List[str]): List of sentences/documents.
         match_sets (Dict[str, Dict[str, Any]]): Dictionary containing match patterns categorized by labels.
-            Example:
-                {
-                    'label1': {'unigrams': {...}, 'bigrams': {...}, 'phrases': [...]},
-                    'label2': {'unigrams': {...}, 'bigrams': {...}, 'phrases': [...]},
-                    ...
-                }
         phrases (bool, optional): Whether to include phrase matching. Defaults to True.
         suppress (Optional[Dict[str, List[str]]], optional): Words to suppress from matching per label. 
-            Example:
-                {
-                    'label1': ['word1', 'word2'],
-                    'label2': ['word3']
-                }
+
             Defaults to None.
     
     Returns:
         Dict[str, Dict[str, Any]]: Dictionary of counts for each match pattern categorized by labels.
-            Example:
-                {
-                    'label1': {
-                        'total': [...],
-                        'stats': {'unigram1': count, 'bigram1': count, ...}
-                    },
-                    'label2': {
-                        'total': [...],
-                        'stats': {'unigram2': count, 'bigram2': count, ...}
-                    },
-                    ...
-                }
     
     Example:
         >>> texts = ["I love good service.", "Bad service makes me unhappy."]
@@ -275,35 +284,13 @@ def count_matches_in_single_sentence(
     Args:
         text (str): Sentence to process.
         match_sets (Dict[str, Dict[str, Any]]): Dictionary containing match patterns categorized by labels.
-            Example:
-                {
-                    'label1': {'unigrams': {...}, 'bigrams': {...}, 'phrases': [...]},
-                    'label2': {'unigrams': {...}, 'bigrams': {...}, 'phrases': [...]},
-                    ...
-                }
         phrases (bool, optional): Whether to include phrase matching. Defaults to True.
         suppress (Optional[Dict[str, List[str]]], optional): Words to suppress from matching per label. 
-            Example:
-                {
-                    'label1': ['word1', 'word2'],
-                    'label2': ['word3']
-                }
+
             Defaults to None.
     
     Returns:
         Dict[str, Dict[str, Any]]: Dictionary of counts for each match pattern categorized by labels.
-            Example:
-                {
-                    'label1': {
-                        'total': 2,
-                        'stats': {'unigram1': 1, 'bigram1': 1, ...}
-                    },
-                    'label2': {
-                        'total': 1,
-                        'stats': {'unigram2': 1, 'bigram2': 0, ...}
-                    },
-                    ...
-                }
     
     Example:
         >>> text = "I love good service and bad support."
