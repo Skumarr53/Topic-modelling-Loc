@@ -4,9 +4,10 @@ from typing import List, Dict, Any, Tuple
 import json
 
 from pyspark.sql import DataFrame, functions as F, types as T
+from pyspark.sql.types import ArrayType, StringType
 from loguru import logger
 
-from centralized_nlp_package.data_processing import create_spark_udf
+# from centralized_nlp_package.data_processing import create_spark_udf
 
 # extract_matched_sentences
 def extract_matched_sentences(sentences: List[str], matches: List[int]) -> List[str]:
@@ -139,7 +140,7 @@ def add_extracted_scores_columns(
         logger.debug(f"Compiled patterns: {compiled_patterns}")
 
         # Define the UDF
-        extract_udf = create_spark_udf(extract_matched_sentences, 'arr[str]')
+        extract_udf = F.udf(extract_matched_sentences, ArrayType(StringType()))
         
         # Identify matched columns based on patterns
         matched_columns = [col for col in df.columns if any(pattern.match(col) for pattern in compiled_patterns)]

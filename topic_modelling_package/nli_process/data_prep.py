@@ -57,9 +57,9 @@ def create_text_pairs(filters: List[str], labels: List[str]) -> List[str]:
     text_pairs = []
     for filter_item in filters:
         for label in labels:
-            combined_text = f"{filter_item}</s></s>{label}."
-            text_pairs.append(combined_text)
-            logger.debug(f"Created text pair: {combined_text}")
+            pair_dict = {"text": filter_item, "topic": label}
+            text_pairs.append(pair_dict)
+            logger.debug(f"Created text pair: {pair_dict}")
     logger.info(f"Generated {len(text_pairs)} text pairs from filters and labels.")
     return text_pairs
 

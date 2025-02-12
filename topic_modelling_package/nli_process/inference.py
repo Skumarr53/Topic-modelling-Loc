@@ -49,15 +49,15 @@ def inference_summary(
         >>> print(scores)
         {'positive.': [0.9], 'negative.': [0.7]}
     """
-    score_dict: Dict[str, List[float]] = {label+ '.': [] for label in labels}
-    total_dict: Dict[str, List[int]] = {label+ '.': [] for label in labels}
+    score_dict: Dict[str, List[float]] = {label: [] for label in labels}
+    total_dict: Dict[str, List[int]] = {label: [] for label in labels}
     
     for text_pair, inference in zip(texts, inference_result):
         if not text_pair:
             logger.warning("Empty text pair encountered. Skipping.")
             continue
         try:
-            text1, text2_label = text_pair.split('</s></s>')
+            text1, text2_label = text_pair['text'], text_pair['topic']
         except ValueError as e:
             logger.error(f"Error splitting text pair '{text_pair}': {e}")
             continue
@@ -111,7 +111,7 @@ def inference_run(
         try:
             # Flatten the list of text pairs in the batch
             batch = batch.tolist()
-            flat_text_pairs = [pair for sublist in batch for pair in sublist]
+            flat_text_pairs = [dict(text=pair['text'], text_pair=pair['topic']) for sublist in batch for pair in sublist]
             logger.debug(f"Batch {batch_num}: Total text pairs to infer: {len(flat_text_pairs)}")
             
             if flat_text_pairs:

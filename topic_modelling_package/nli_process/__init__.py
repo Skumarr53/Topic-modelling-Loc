@@ -21,7 +21,8 @@ from .transformation import (
     apply_extract_udf_sections,
     rename_columns_by_label_matching,
     convert_column_types,
-    process_nested_columns
+    process_nested_columns,
+    literal_eval_safe
 )
 
 __all__ = [
@@ -40,4 +41,5 @@ __all__ = [
     'rename_columns_by_label_matching',
     'convert_column_types',
     'process_nested_columns',
+    'literal_eval_safe'
 ]
