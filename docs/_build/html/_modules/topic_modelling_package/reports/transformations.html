@@ -1,10 +1,10 @@
 <!doctype html>
-<html class="no-js" lang="en" data-content_root="">
+<html class="no-js" lang="en" data-content_root="../../../">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2024.08.06 -->
+    <!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 -->
         <title>topic_modelling_package.reports.transformations - topic-modelling-package documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
@@ -240,23 +240,39 @@
           <h1>Source code for topic_modelling_package.reports.transformations</h1><div class="highlight"><pre>
 <span></span><span class="c1"># topic_modelling_package/utils/transformation.py</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
-<span class="kn">from</span> <span class="nn">centralized_nlp_package.text_processing</span> <span class="kn">import</span> <span class="n">calculate_sentence_score</span><span class="p">,</span> <span class="n">netscore</span>
+<span class="kn">from</span> <span class="nn">centralized_nlp_package.text_processing</span> <span class="kn">import</span> <span class="n">calculate_sentence_score</span><span class="p">,</span> <span class="n">calculate_net_score</span>
 
 
 
 <span class="n">Transformation</span> <span class="o">=</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="n">Callable</span><span class="p">]</span>
 
-<div class="viewcode-block" id="total_transformation"><a class="viewcode-back" href="../../../source/reports.html#topic_modelling_package.reports.transformations.total_transformation">[docs]</a><span class="k">def</span> <span class="nf">total_transformation</span><span class="p">(</span><span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Transformation</span><span class="p">:</span>
+<div class="viewcode-block" id="total_transformation">
+<a class="viewcode-back" href="../../../source/reports.html#topic_modelling_package.reports.transformations.total_transformation">[docs]</a>
+<span class="k">def</span> <span class="nf">total_transformation</span><span class="p">(</span><span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Transformation</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Creates a transformation for the total count of a label within a topic.</span>
 
+<span class="sd">    This function generates a transformation tuple that specifies how to extract the total count of a particular label within a given topic. The transformation includes the new column name, the source column from which to extract data, and a lambda function that defines the extraction logic.</span>
+
 <span class="sd">    Args:</span>
-<span class="sd">        topic (str): The topic name.</span>
-<span class="sd">        label (str): The label name.</span>
-<span class="sd">        label_column (str): The column name associated with the label.</span>
+<span class="sd">        topic (str):</span>
+<span class="sd">            The topic name (e.g., &#39;consumer_strength&#39;, &#39;consumer_weakness&#39;).</span>
+<span class="sd">        label (str):</span>
+<span class="sd">            The label name associated with the topic (e.g., &#39;COUNT&#39;, &#39;REL&#39;).</span>
+<span class="sd">        label_column (str):</span>
+<span class="sd">            The column name in the DataFrame that contains the label data (e.g., &#39;FILT_MD&#39;, &#39;FILT_QA&#39;).</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Transformation: A tuple containing the new column name, source column(s), and the transformation function.</span>
+<span class="sd">        Transformation:</span>
+<span class="sd">            A tuple containing:</span>
+<span class="sd">                - str: The new column name in the format &quot;{topic}_TOTAL_{label}&quot;.</span>
+<span class="sd">                - Union[str, List[str]]: The source column(s) from which to extract data.</span>
+<span class="sd">                - Callable: A lambda function that extracts the total count from the source data.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; transformation = total_transformation(&#39;consumer_strength&#39;, &#39;COUNT&#39;, &#39;FILT_MD&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; print(transformation)</span>
+<span class="sd">        (&#39;consumer_strength_TOTAL_COUNT&#39;, &#39;FILT_MD_COUNT&#39;, &lt;function total_transformation.&lt;locals&gt;.&lt;lambda&gt; at 0x7f9c8c3e1d30&gt;)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">(</span>
         <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2">_TOTAL_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
@@ -264,17 +280,34 @@
         <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="n">topic</span><span class="p">][</span><span class="s2">&quot;total&quot;</span><span class="p">],</span>
     <span class="p">)</span></div>
 
-<div class="viewcode-block" id="stats_transformation"><a class="viewcode-back" href="../../../source/reports.html#topic_modelling_package.reports.transformations.stats_transformation">[docs]</a><span class="k">def</span> <span class="nf">stats_transformation</span><span class="p">(</span><span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Transformation</span><span class="p">:</span>
+
+<div class="viewcode-block" id="stats_transformation">
+<a class="viewcode-back" href="../../../source/reports.html#topic_modelling_package.reports.transformations.stats_transformation">[docs]</a>
+<span class="k">def</span> <span class="nf">stats_transformation</span><span class="p">(</span><span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Transformation</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Creates a transformation for statistics of a label within a topic.</span>
 
+<span class="sd">    This function generates a transformation tuple that specifies how to extract statistical data of a particular label within a given topic. The transformation includes the new column name, the source column from which to extract data, and a lambda function that defines the extraction logic.</span>
+
 <span class="sd">    Args:</span>
-<span class="sd">        topic (str): The topic name.</span>
-<span class="sd">        label (str): The label name.</span>
-<span class="sd">        label_column (str): The column name associated with the label.</span>
+<span class="sd">        topic (str):</span>
+<span class="sd">            The topic name (e.g., &#39;consumer_strength&#39;, &#39;consumer_weakness&#39;).</span>
+<span class="sd">        label (str):</span>
+<span class="sd">            The label name associated with the topic (e.g., &#39;COUNT&#39;, &#39;REL&#39;).</span>
+<span class="sd">        label_column (str):</span>
+<span class="sd">            The column name in the DataFrame that contains the label data (e.g., &#39;FILT_MD&#39;, &#39;FILT_QA&#39;).</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Transformation: A tuple containing the new column name, source column(s), and the transformation function.</span>
+<span class="sd">        Transformation:</span>
+<span class="sd">            A tuple containing:</span>
+<span class="sd">                - str: The new column name in the format &quot;{topic}_STATS_{label}&quot;.</span>
+<span class="sd">                - Union[str, List[str]]: The source column(s) from which to extract data.</span>
+<span class="sd">                - Callable: A lambda function that extracts the statistical data from the source data.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; transformation = stats_transformation(&#39;consumer_strength&#39;, &#39;STATS&#39;, &#39;FILT_MD&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; print(transformation)</span>
+<span class="sd">        (&#39;consumer_strength_STATS_STATS&#39;, &#39;FILT_MD_STATS&#39;, &lt;function stats_transformation.&lt;locals&gt;.&lt;lambda&gt; at 0x7f9c8c3e1e50&gt;)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">(</span>
         <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2">_STATS_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
@@ -282,17 +315,34 @@
         <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="n">topic</span><span class="p">][</span><span class="s2">&quot;stats&quot;</span><span class="p">],</span>
     <span class="p">)</span></div>
 
-<div class="viewcode-block" id="relevance_transformation"><a class="viewcode-back" href="../../../source/reports.html#topic_modelling_package.reports.transformations.relevance_transformation">[docs]</a><span class="k">def</span> <span class="nf">relevance_transformation</span><span class="p">(</span><span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Transformation</span><span class="p">:</span>
+
+<div class="viewcode-block" id="relevance_transformation">
+<a class="viewcode-back" href="../../../source/reports.html#topic_modelling_package.reports.transformations.relevance_transformation">[docs]</a>
+<span class="k">def</span> <span class="nf">relevance_transformation</span><span class="p">(</span><span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Transformation</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Creates a transformation for the relevance score of a label within a topic.</span>
 
+<span class="sd">    This function generates a transformation tuple that calculates the relevance score of a particular label within a given topic. The relevance score is determined by the proportion of positive occurrences relative to the total number of instances in the section.</span>
+
 <span class="sd">    Args:</span>
-<span class="sd">        topic (str): The topic name.</span>
-<span class="sd">        label (str): The label name.</span>
-<span class="sd">        label_column (str): The column name associated with the label.</span>
+<span class="sd">        topic (str):</span>
+<span class="sd">            The topic name (e.g., &#39;consumer_strength&#39;, &#39;consumer_weakness&#39;).</span>
+<span class="sd">        label (str):</span>
+<span class="sd">            The label name associated with the topic (e.g., &#39;COUNT&#39;, &#39;REL&#39;).</span>
+<span class="sd">        label_column (str):</span>
+<span class="sd">            The column name in the DataFrame that contains the label data (e.g., &#39;FILT_MD&#39;, &#39;FILT_QA&#39;).</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Transformation: A tuple containing the new column name, source column(s), and the transformation function.</span>
+<span class="sd">        Transformation:</span>
+<span class="sd">            A tuple containing:</span>
+<span class="sd">                - str: The new column name in the format &quot;{topic}_REL_{label}&quot;.</span>
+<span class="sd">                - Union[str, List[str]]: The source column(s) from which to extract data.</span>
+<span class="sd">                - Callable: A lambda function that calculates the relevance score.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; transformation = relevance_transformation(&#39;consumer_strength&#39;, &#39;REL&#39;, &#39;FILT_MD&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; print(transformation)</span>
+<span class="sd">        (&#39;consumer_strength_REL_REL&#39;, &#39;consumer_strength_TOTAL_REL&#39;, &lt;function relevance_transformation.&lt;locals&gt;.&lt;lambda&gt; at 0x7f9c8c3e1f70&gt;)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">(</span>
         <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2">_REL_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
@@ -300,77 +350,146 @@
         <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">len</span><span class="p">([</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">x</span> <span class="k">if</span> <span class="n">a</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span></div>
 
-<div class="viewcode-block" id="count_transformation"><a class="viewcode-back" href="../../../source/reports.html#topic_modelling_package.reports.transformations.count_transformation">[docs]</a><span class="k">def</span> <span class="nf">count_transformation</span><span class="p">(</span><span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Transformation</span><span class="p">:</span>
+
+<div class="viewcode-block" id="count_transformation">
+<a class="viewcode-back" href="../../../source/reports.html#topic_modelling_package.reports.transformations.count_transformation">[docs]</a>
+<span class="k">def</span> <span class="nf">count_transformation</span><span class="p">(</span><span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Transformation</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Creates a transformation for counting positive occurrences of a label within a topic.</span>
 
+<span class="sd">    This function generates a transformation tuple that counts the number of positive occurrences (values greater than zero) of a particular label within a given topic.</span>
+
 <span class="sd">    Args:</span>
-<span class="sd">        topic (str): The topic name.</span>
-<span class="sd">        label (str): The label name.</span>
-<span class="sd">        label_column (str): The column name associated with the label.</span>
+<span class="sd">        topic (str):</span>
+<span class="sd">            The topic name (e.g., &#39;consumer_strength&#39;, &#39;consumer_weakness&#39;).</span>
+<span class="sd">        label (str):</span>
+<span class="sd">            The label name associated with the topic (e.g., &#39;COUNT&#39;, &#39;REL&#39;).</span>
+<span class="sd">        label_column (str):</span>
+<span class="sd">            The column name in the DataFrame that contains the label data (e.g., &#39;FILT_MD&#39;, &#39;FILT_QA&#39;).</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Transformation: A tuple containing the new column name, source column(s), and the transformation function.</span>
+<span class="sd">        Transformation:</span>
+<span class="sd">            A tuple containing:</span>
+<span class="sd">                - str: The new column name in the format &quot;{topic}_COUNT_{label}&quot;.</span>
+<span class="sd">                - Union[str, List[str]]: The source column(s) from which to extract data.</span>
+<span class="sd">                - Callable: A lambda function that counts the number of positive occurrences.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; transformation = count_transformation(&#39;consumer_strength&#39;, &#39;COUNT&#39;, &#39;FILT_MD&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; print(transformation)</span>
+<span class="sd">        (&#39;consumer_strength_COUNT_COUNT&#39;, &#39;consumer_strength_TOTAL_COUNT&#39;, &lt;function count_transformation.&lt;locals&gt;.&lt;lambda&gt; at 0x7f9c8c3e2040&gt;)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">(</span>
         <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2">_COUNT_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label_column</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2">_TOTAL_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">len</span><span class="p">([</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">x</span> <span class="k">if</span> <span class="n">a</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span></div>
 
-<div class="viewcode-block" id="extract_transformation"><a class="viewcode-back" href="../../../source/reports.html#topic_modelling_package.reports.transformations.extract_transformation">[docs]</a><span class="k">def</span> <span class="nf">extract_transformation</span><span class="p">(</span><span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Transformation</span><span class="p">:</span>
+
+<div class="viewcode-block" id="extract_transformation">
+<a class="viewcode-back" href="../../../source/reports.html#topic_modelling_package.reports.transformations.extract_transformation">[docs]</a>
+<span class="k">def</span> <span class="nf">extract_transformation</span><span class="p">(</span><span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Transformation</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Creates a transformation to extract relevant matches based on a label within a topic.</span>
 
+<span class="sd">    This function generates a transformation tuple that extracts relevant matched text segments based on the label within a given topic. It concatenates the matched labels where the corresponding total count exceeds zero.</span>
+
 <span class="sd">    Args:</span>
-<span class="sd">        topic (str): The topic name.</span>
-<span class="sd">        label (str): The label name.</span>
-<span class="sd">        label_column (str): The column name associated with the label.</span>
+<span class="sd">        topic (str):</span>
+<span class="sd">            The topic name (e.g., &#39;consumer_strength&#39;, &#39;consumer_weakness&#39;).</span>
+<span class="sd">        label (str):</span>
+<span class="sd">            The label name associated with the topic (e.g., &#39;EXTRACT&#39;, &#39;REL&#39;).</span>
+<span class="sd">        label_column (str):</span>
+<span class="sd">            The column name in the DataFrame that contains the label data (e.g., &#39;FILT_MD&#39;, &#39;FILT_QA&#39;).</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Transformation: A tuple containing the new column name, source column(s), and the transformation function.</span>
+<span class="sd">        Transformation:</span>
+<span class="sd">            A tuple containing:</span>
+<span class="sd">                - str: The new column name in the format &quot;{topic}_EXTRACT_{label}&quot;.</span>
+<span class="sd">                - Union[str, List[str]]: The source column(s) from which to extract data.</span>
+<span class="sd">                - Callable: A lambda function that extracts and concatenates relevant matches.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; transformation = extract_transformation(&#39;consumer_strength&#39;, &#39;EXTRACT&#39;, &#39;FILT_MD&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; print(transformation)</span>
+<span class="sd">        (&#39;consumer_strength_EXTRACT_EXTRACT&#39;, [&#39;FILT_MD&#39;, &#39;consumer_strength_TOTAL_EXTRACT&#39;], &lt;function extract_transformation.&lt;locals&gt;.&lt;lambda&gt; at 0x7f9c8c3e21d0&gt;)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">(</span>
         <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2">_EXTRACT_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="p">[</span><span class="n">label</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2">_TOTAL_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">],</span>
-        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">y</span> <span class="k">for</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="n">z</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]),</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">y</span> <span class="k">for</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2">_TOTAL_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="n">z</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]),</span>
     <span class="p">)</span></div>
 
-<div class="viewcode-block" id="sentiment_transformation"><a class="viewcode-back" href="../../../source/reports.html#topic_modelling_package.reports.transformations.sentiment_transformation">[docs]</a><span class="k">def</span> <span class="nf">sentiment_transformation</span><span class="p">(</span><span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Transformation</span><span class="p">:</span>
+
+<div class="viewcode-block" id="sentiment_transformation">
+<a class="viewcode-back" href="../../../source/reports.html#topic_modelling_package.reports.transformations.sentiment_transformation">[docs]</a>
+<span class="k">def</span> <span class="nf">sentiment_transformation</span><span class="p">(</span><span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Transformation</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Creates a transformation to calculate the sentiment score of a label within a topic.</span>
 
+<span class="sd">    This function generates a transformation tuple that calculates the sentiment score for a particular label within a given topic. It utilizes external functions `calculate_sentence_score` to compute the score based on total counts and sentiment labels.</span>
+
 <span class="sd">    Args:</span>
-<span class="sd">        topic (str): The topic name.</span>
-<span class="sd">        label (str): The label name.</span>
-<span class="sd">        label_column (str): The column name associated with the label.</span>
+<span class="sd">        topic (str):</span>
+<span class="sd">            The topic name (e.g., &#39;consumer_strength&#39;, &#39;consumer_weakness&#39;).</span>
+<span class="sd">        label (str):</span>
+<span class="sd">            The label name associated with the topic (e.g., &#39;SENT&#39;, &#39;REL&#39;).</span>
+<span class="sd">        label_column (str):</span>
+<span class="sd">            The column name in the DataFrame that contains the label data (e.g., &#39;FILT_MD&#39;, &#39;FILT_QA&#39;).</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Transformation: A tuple containing the new column name, source column(s), and the transformation function.</span>
+<span class="sd">        Transformation:</span>
+<span class="sd">            A tuple containing:</span>
+<span class="sd">                - str: The new column name in the format &quot;{topic}_SENT_{label}&quot;.</span>
+<span class="sd">                - Union[str, List[str]]: The source column(s) from which to extract data.</span>
+<span class="sd">                - Callable: A lambda function that calculates the sentiment score.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; transformation = sentiment_transformation(&#39;consumer_strength&#39;, &#39;SENT&#39;, &#39;FILT_MD&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; print(transformation)</span>
+<span class="sd">        (&#39;consumer_strength_SENT_SENT&#39;, [&#39;consumer_strength_TOTAL_SENT&#39;, &#39;SENT_LABELS_SENT&#39;], &lt;function sentiment_transformation.&lt;locals&gt;.&lt;lambda&gt; at 0x7f9c8c3e2370&gt;)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">(</span>
         <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2">_SENT_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2">_TOTAL_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;SENT_LABELS_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">],</span>
-        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">calculate_sentence_score</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">weight</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">calculate_sentence_score</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2">_TOTAL_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;SENT_LABELS_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">],</span> <span class="n">apply_weight</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
     <span class="p">)</span></div>
 
-<div class="viewcode-block" id="net_sent_transformation"><a class="viewcode-back" href="../../../source/reports.html#topic_modelling_package.reports.transformations.net_sent_transformation">[docs]</a><span class="k">def</span> <span class="nf">net_sent_transformation</span><span class="p">(</span><span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Transformation</span><span class="p">:</span>
+
+<div class="viewcode-block" id="net_sent_transformation">
+<a class="viewcode-back" href="../../../source/reports.html#topic_modelling_package.reports.transformations.net_sent_transformation">[docs]</a>
+<span class="k">def</span> <span class="nf">net_sent_transformation</span><span class="p">(</span><span class="n">topic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Transformation</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Creates a transformation to calculate the net sentiment score of a label within a topic.</span>
 
+<span class="sd">    This function generates a transformation tuple that calculates the net sentiment score for a particular label within a given topic. It utilizes external functions `calculate_net_score` to compute the score based on total counts and sentiment labels.</span>
+
 <span class="sd">    Args:</span>
-<span class="sd">        topic (str): The topic name.</span>
-<span class="sd">        label (str): The label name.</span>
-<span class="sd">        label_column (str): The column name associated with the label.</span>
+<span class="sd">        topic (str):</span>
+<span class="sd">            The topic name (e.g., &#39;consumer_strength&#39;, &#39;consumer_weakness&#39;).</span>
+<span class="sd">        label (str):</span>
+<span class="sd">            The label name associated with the topic (e.g., &#39;NET_SENT&#39;, &#39;REL&#39;).</span>
+<span class="sd">        label_column (str):</span>
+<span class="sd">            The column name in the DataFrame that contains the label data (e.g., &#39;FILT_MD&#39;, &#39;FILT_QA&#39;).</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Transformation: A tuple containing the new column name, source column(s), and the transformation function.</span>
+<span class="sd">        Transformation:</span>
+<span class="sd">            A tuple containing:</span>
+<span class="sd">                - str: The new column name in the format &quot;{topic}_NET_SENT_{label}&quot;.</span>
+<span class="sd">                - Union[str, List[str]]: The source column(s) from which to extract data.</span>
+<span class="sd">                - Callable: A lambda function that calculates the net sentiment score.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; transformation = net_sent_transformation(&#39;consumer_strength&#39;, &#39;NET_SENT&#39;, &#39;FILT_MD&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; print(transformation)</span>
+<span class="sd">        (&#39;consumer_strength_NET_SENT_NET_SENT&#39;, [&#39;consumer_strength_TOTAL_NET_SENT&#39;, &#39;SENT_LABELS_NET_SENT&#39;], &lt;function net_sent_transformation.&lt;locals&gt;.&lt;lambda&gt; at 0x7f9c8c3e24f0&gt;)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">(</span>
         <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2">_NET_SENT_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2">_TOTAL_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;SENT_LABELS_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">],</span>
-        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">netscore</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">calculate_net_score</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2">_TOTAL_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;SENT_LABELS_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]),</span>
     <span class="p">)</span></div>
+
 
 <span class="c1"># Mapping of transformation names to their corresponding functions</span>
 <span class="n">STATISTICS_MAP</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">Transformation</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
@@ -414,9 +533,9 @@
       
     </aside>
   </div>
-</div><script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=b3ba4146"></script>
-    <script src="../../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
+</div><script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>
     </body>
 </html>

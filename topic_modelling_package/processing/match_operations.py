@@ -18,21 +18,52 @@ import re
 
 def transform_match_keywords_df(match_keywords_df: pd.DataFrame) -> pd.DataFrame:
     """
-    Processes a DataFrame containing 'Subtopic', 'Refined Keywords', and 'Negation' columns.
-    Splits out negation rows, transforms them, and concatenates back with the rest of the data.
-
+    Transforms a DataFrame containing 'Subtopic', 'Refined Keywords', and 'Negation' columns.
+    This function splits out negation rows, processes them, and concatenates them back with
+    the non-negation data to produce a standardized DataFrame with ['label', 'match', 'negate'] columns.
+    
+    The transformation involves:
+        1. Validating the presence of required columns.
+        2. Parsing 'Refined Keywords' and 'Negation' columns from string representations to Python objects.
+        3. Separating negation entries and processing them.
+        4. Exploding lists of matches into individual rows.
+        5. Standardizing column names and concatenating negation and non-negation data.
+    
     Args:
-        match_keywords_df (pd.DataFrame): A Pandas DataFrame with columns:
-            ['Subtopic', 'Refined Keywords', 'Negation'].
-
+        match_keywords_df (pd.DataFrame): A Pandas DataFrame with the following columns:
+            - 'Subtopic': The topic label.
+            - 'Refined Keywords': A string representation of a list of keywords.
+            - 'Negation': A string representation of a list of negated keywords (optional).
+    
     Returns:
-        pd.DataFrame: A Pandas DataFrame with standardized columns ['label', 'match', 'negate'].
-
+        pd.DataFrame: A transformed DataFrame with standardized columns ['label', 'match', 'negate'].
+    
     Raises:
-        ValueError: If the required columns are not present in match_keywords_df.
+        ValueError: If any of the required columns are missing from the input DataFrame.
+        Exception: If any error occurs during the transformation process.
+    
+    Example:
+        >>> import pandas as pd
+        >>> data = {
+        ...     'Subtopic': ['Positive', 'Positive', 'Negative'],
+        ...     'Refined Keywords': ['["good", "excellent"]', '["great"]', '["bad", "poor"]'],
+        ...     'Negation': ['["not good"]', None, '["not bad"]']
+        ... }
+        >>> df = pd.DataFrame(data)
+        >>> transformed_df = transform_match_keywords_df(df)
+        >>> print(transformed_df)
+              label         match  negate
+        0  POSITIVE           good   False
+        1  POSITIVE      excellent   False
+        2  POSITIVE          great   False
+        3  POSITIVE      not good    True
+        4  NEGATIVE            bad   False
+        5  NEGATIVE           poor   False
+        6  NEGATIVE       not bad    True
     """
     
     # 1. Validate required columns
+    logger.info("Starting transformation of match_keywords_df.")
     required_columns = ["Subtopic", "Refined Keywords", "Negation"]
     for col in required_columns:
         if col not in match_keywords_df.columns:
@@ -150,35 +181,13 @@ def count_matches_in_texts(
     Args:
         texts (List[str]): List of sentences/documents.
         match_sets (Dict[str, Dict[str, Any]]): Dictionary containing match patterns categorized by labels.
-            Example:
-                {
-                    'label1': {'unigrams': {...}, 'bigrams': {...}, 'phrases': [...]},
-                    'label2': {'unigrams': {...}, 'bigrams': {...}, 'phrases': [...]},
-                    ...
-                }
         phrases (bool, optional): Whether to include phrase matching. Defaults to True.
         suppress (Optional[Dict[str, List[str]]], optional): Words to suppress from matching per label. 
-            Example:
-                {
-                    'label1': ['word1', 'word2'],
-                    'label2': ['word3']
-                }
+
             Defaults to None.
     
     Returns:
         Dict[str, Dict[str, Any]]: Dictionary of counts for each match pattern categorized by labels.
-            Example:
-                {
-                    'label1': {
-                        'total': [...],
-                        'stats': {'unigram1': count, 'bigram1': count, ...}
-                    },
-                    'label2': {
-                        'total': [...],
-                        'stats': {'unigram2': count, 'bigram2': count, ...}
-                    },
-                    ...
-                }
     
     Example:
         >>> texts = ["I love good service.", "Bad service makes me unhappy."]
@@ -275,35 +284,13 @@ def count_matches_in_single_sentence(
     Args:
         text (str): Sentence to process.
         match_sets (Dict[str, Dict[str, Any]]): Dictionary containing match patterns categorized by labels.
-            Example:
-                {
-                    'label1': {'unigrams': {...}, 'bigrams': {...}, 'phrases': [...]},
-                    'label2': {'unigrams': {...}, 'bigrams': {...}, 'phrases': [...]},
-                    ...
-                }
         phrases (bool, optional): Whether to include phrase matching. Defaults to True.
         suppress (Optional[Dict[str, List[str]]], optional): Words to suppress from matching per label. 
-            Example:
-                {
-                    'label1': ['word1', 'word2'],
-                    'label2': ['word3']
-                }
+
             Defaults to None.
     
     Returns:
         Dict[str, Dict[str, Any]]: Dictionary of counts for each match pattern categorized by labels.
-            Example:
-                {
-                    'label1': {
-                        'total': 2,
-                        'stats': {'unigram1': 1, 'bigram1': 1, ...}
-                    },
-                    'label2': {
-                        'total': 1,
-                        'stats': {'unigram2': 1, 'bigram2': 0, ...}
-                    },
-                    ...
-                }
     
     Example:
         >>> text = "I love good service and bad support."
@@ -373,6 +360,85 @@ def count_matches_in_single_sentence(
 
         
     return {label : {'total': total_counts[label], 'stats' : count_dict[label]} for label in match_sets.keys()}
+
+def calculate_binary_match_flags(
+    texts: List[str],
+    match_sets: Dict[str, Dict[str, Any]],
+    suppress: Optional[Dict[str, List[str]]] = None
+) -> Dict[str, List[int]]:
+    """
+    Calculates binary match counts for each label across multiple texts.
+    
+    For each text, this function tokenizes it into unigrams and bigrams, then checks for 
+    the presence of any tokens or phrases from the provided match_sets. A match is recorded 
+    as 1 if any unigram, bigram, or phrase is found *and* none of the suppression tokens 
+    are present in the text; otherwise, a 0 is recorded.
+    
+    Args:
+      texts (List[str]): List of texts to analyze.
+      match_sets (Dict[str, Dict[str, Any]]): A dictionary where each key is a label and each 
+          value is a dictionary with the following keys:
+            - 'unigrams': A set or list of unigram tokens.
+            - 'bigrams': A set or list of bigram tokens.
+            - 'phrases': A list of phrase strings.
+      suppress (Optional[Dict[str, List[str]]]): A dictionary where each key is a label and 
+          each value is a list of tokens that, if present in the text, will suppress a match.
+          If None, no suppression is applied.
+          
+    Returns:
+      Dict[str, List[int]]: A dictionary mapping each label to a list of binary values (1 for 
+          match, 0 otherwise) corresponding to each input text.
+    
+    Example:
+      >>> texts = ["This is a sample text", "Another text with match"]
+      >>> match_sets = {
+      ...     "label1": {
+      ...         "unigrams": {"sample", "match"}, 
+      ...         "bigrams": {"this_is"}, 
+      ...         "phrases": ["sample text"]
+      ...     }
+      ... }
+      >>> suppress = {"label1": ["not"]}
+      >>> match_count_lowStat_negation(texts, match_sets, suppress)
+      {'label1': [1, 1]}
+    """
+    
+    # If suppress is not provided, assign an empty list for each label.
+    if suppress is None:
+        suppress = {label: [] for label in match_sets.keys()}
+    
+    total_counts = {label: [] for label in match_sets.keys()}
+    
+    for text in texts:
+        # Standardize text to lowercase for uniform matching.
+        text_lower = text.lower()
+        # Tokenize the text into unigrams.
+        unigrams = tokenize_and_lemmatize_text(text_lower)
+        # Generate bigrams by joining tokens with an underscore.
+        bigrams = ['_'.join(gram) for gram in generate_ngrams(unigrams, 2)]
+        
+        for label, word_set in match_sets.items():
+            # Ensure that tokens are in set form for faster lookups.
+            unigrams_set = set(word_set.get('unigrams', []))
+            bigrams_set = set(word_set.get('bigrams', []))
+            phrases_list = word_set.get('phrases', [])
+            suppress_list = suppress.get(label, [])
+            
+            # Check if any suppression token is present in the text.
+            suppression_triggered = any(s_token in text_lower for s_token in suppress_list)
+            
+            # Check for matches in unigrams, bigrams, and phrases.
+            match_unigrams = bool(set(unigrams) & unigrams_set)
+            match_bigrams = bool(set(bigrams) & bigrams_set)
+            match_phrases = any(phrase in text_lower for phrase in phrases_list)
+            
+            # If there's a match and no suppression, record a 1; otherwise, record a 0.
+            if (match_unigrams or match_bigrams or match_phrases) and not suppression_triggered:
+                total_counts[label].append(1)
+            else:
+                total_counts[label].append(0)
+                
+    return total_counts
 
 def merge_count_dicts(count_list: List[Dict[str, Any]]) -> Dict[str, int]:
     """

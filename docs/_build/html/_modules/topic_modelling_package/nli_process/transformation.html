@@ -1,10 +1,10 @@
 <!doctype html>
-<html class="no-js" lang="en" data-content_root="">
+<html class="no-js" lang="en" data-content_root="../../../">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2024.08.06 -->
+    <!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 -->
         <title>topic_modelling_package.nli_process.transformation - topic-modelling-package documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
@@ -247,10 +247,13 @@
 <span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">functions</span> <span class="k">as</span> <span class="n">F</span><span class="p">,</span> <span class="n">types</span> <span class="k">as</span> <span class="n">T</span>
 <span class="kn">from</span> <span class="nn">loguru</span> <span class="kn">import</span> <span class="n">logger</span>
 
-<span class="kn">from</span> <span class="nn">centralized_nlp_package.data_processing</span> <span class="kn">import</span> <span class="n">create_spark_udf</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="kn">import</span> <span class="n">udf</span><span class="p">,</span> <span class="n">col</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="kn">import</span>  <span class="n">FloatType</span><span class="p">,</span> <span class="n">ArrayType</span><span class="p">,</span> <span class="n">MapType</span><span class="p">,</span> <span class="n">DoubleType</span>
 
 
-<div class="viewcode-block" id="apply_extract_udf_sections"><a class="viewcode-back" href="../../../source/nli_process.html#topic_modelling_package.nli_process.transformation.apply_extract_udf_sections">[docs]</a><span class="k">def</span> <span class="nf">apply_extract_udf_sections</span><span class="p">(</span>
+<div class="viewcode-block" id="apply_extract_udf_sections">
+<a class="viewcode-back" href="../../../source/nli_process.html#topic_modelling_package.nli_process.transformation.apply_extract_udf_sections">[docs]</a>
+<span class="k">def</span> <span class="nf">apply_extract_udf_sections</span><span class="p">(</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">extract_udf</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">],</span>
     <span class="n">patterns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;MD&#39;</span><span class="p">,</span> <span class="s1">&#39;QA&#39;</span><span class="p">]</span>
@@ -275,23 +278,21 @@
 <span class="sd">        Exception: If any error occurs during the processing steps.</span>
 
 <span class="sd">    Example:</span>
-<span class="sd">        ```python</span>
-<span class="sd">        from pyspark.sql.types import StringType</span>
-<span class="sd">        from pyspark.sql.functions import udf</span>
+<span class="sd">        &gt;&gt;&gt; from pyspark.sql.types import StringType</span>
+<span class="sd">        &gt;&gt;&gt; from pyspark.sql.functions import udf</span>
+<span class="sd">        </span>
+<span class="sd">        ... # Define the extract UDF</span>
+<span class="sd">        &gt;&gt;&gt; def extract_function(base, total_filt):</span>
+<span class="sd">        ... # Example implementation of the UDF</span>
+<span class="sd">        ... return f&quot;{base}_{total_filt}&quot;</span>
 
-<span class="sd">        # Define the extract UDF</span>
-<span class="sd">        def extract_function(base, total_filt):</span>
-<span class="sd">            # Example implementation of the UDF</span>
-<span class="sd">            return f&quot;{base}_{total_filt}&quot;</span>
+<span class="sd">        &gt;&gt;&gt; extract_udf = udf(extract_function, StringType())</span>
 
-<span class="sd">        extract_udf = udf(extract_function, StringType())</span>
+<span class="sd">        ... # Define patterns</span>
+<span class="sd">        &gt;&gt;&gt; patterns = [&#39;MD&#39;, &#39;QA&#39;]</span>
 
-<span class="sd">        # Define patterns</span>
-<span class="sd">        patterns = [&#39;MD&#39;, &#39;QA&#39;]</span>
-
-<span class="sd">        # Apply the function</span>
-<span class="sd">        processed_df = apply_extract_udf_sections(currdf_spark, extract_udf, patterns)</span>
-<span class="sd">        ```</span>
+<span class="sd">        ... # Apply the function</span>
+<span class="sd">        &gt;&gt;&gt; processed_df = apply_extract_udf_sections(currdf_spark, extract_udf, patterns)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">patterns</span><span class="p">:</span>
@@ -325,7 +326,10 @@
         <span class="k">raise</span> <span class="n">e</span></div>
 
 
-<div class="viewcode-block" id="rename_columns_by_label_matching"><a class="viewcode-back" href="../../../source/nli_process.html#topic_modelling_package.nli_process.transformation.rename_columns_by_label_matching">[docs]</a><span class="k">def</span> <span class="nf">rename_columns_by_label_matching</span><span class="p">(</span>
+
+<div class="viewcode-block" id="rename_columns_by_label_matching">
+<a class="viewcode-back" href="../../../source/nli_process.html#topic_modelling_package.nli_process.transformation.rename_columns_by_label_matching">[docs]</a>
+<span class="k">def</span> <span class="nf">rename_columns_by_label_matching</span><span class="p">(</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">labels_mapping</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span><span class="p">:</span>
@@ -345,13 +349,11 @@
 <span class="sd">        Exception: If the renaming process fails for any other reason.</span>
 
 <span class="sd">    Example:</span>
-<span class="sd">        ```python</span>
-<span class="sd">        labels_mapping = {</span>
-<span class="sd">            &quot;old_label1&quot;: &quot;new_label1&quot;,</span>
-<span class="sd">            &quot;old_label2&quot;: &quot;new_label2&quot;</span>
-<span class="sd">        }</span>
-<span class="sd">        renamed_df = rename_columns_by_label_matching(df_spark, labels_mapping)</span>
-<span class="sd">        ```</span>
+<span class="sd">        &gt;&gt;&gt; labels_mapping = {</span>
+<span class="sd">        ...    &quot;old_label1&quot;: &quot;new_label1&quot;,</span>
+<span class="sd">        ...    &quot;old_label2&quot;: &quot;new_label2&quot;</span>
+<span class="sd">        ... }</span>
+<span class="sd">        &gt;&gt;&gt; renamed_df = rename_columns_by_label_matching(df_spark, labels_mapping)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">DataFrame</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The provided input is not a valid Spark DataFrame.&quot;</span><span class="p">)</span>
@@ -381,7 +383,19 @@
         <span class="k">raise</span> <span class="n">e</span></div>
 
 
-<div class="viewcode-block" id="convert_column_types"><a class="viewcode-back" href="../../../source/nli_process.html#topic_modelling_package.nli_process.transformation.convert_column_types">[docs]</a><span class="k">def</span> <span class="nf">convert_column_types</span><span class="p">(</span>
+
+<div class="viewcode-block" id="literal_eval_safe">
+<a class="viewcode-back" href="../../../source/nli_process.html#topic_modelling_package.nli_process.transformation.literal_eval_safe">[docs]</a>
+<span class="k">def</span> <span class="nf">literal_eval_safe</span><span class="p">(</span><span class="n">data_str</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">data_str</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">SyntaxError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="convert_column_types">
+<a class="viewcode-back" href="../../../source/nli_process.html#topic_modelling_package.nli_process.transformation.convert_column_types">[docs]</a>
+<span class="k">def</span> <span class="nf">convert_column_types</span><span class="p">(</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">float_type_cols</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">array_type_cols</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
@@ -404,17 +418,15 @@
 <span class="sd">        Exception: If any error occurs during the type conversion process.</span>
 
 <span class="sd">    Example:</span>
-<span class="sd">        ```python</span>
-<span class="sd">        float_cols = [&#39;col1&#39;, &#39;col2&#39;]</span>
-<span class="sd">        array_cols = [&#39;col3&#39;, &#39;col4&#39;]</span>
-<span class="sd">        converted_df = convert_column_types(df_spark, float_cols, array_cols)</span>
-<span class="sd">        ```</span>
+<span class="sd">        &gt;&gt;&gt; float_cols = [&#39;col1&#39;, &#39;col2&#39;]</span>
+<span class="sd">        &gt;&gt;&gt; array_cols = [&#39;col3&#39;, &#39;col4&#39;]</span>
+<span class="sd">        &gt;&gt;&gt; converted_df = convert_column_types(df_spark, float_cols, array_cols)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># TODO: Add more types and highly customized types</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="c1"># Define UDFs for type conversion</span>
-        <span class="n">array_convert_udf</span> <span class="o">=</span> <span class="n">create_spark_udf</span><span class="p">(</span><span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">,</span> <span class="s1">&#39;arr[double]&#39;</span><span class="p">)</span>
-        <span class="n">float_convert_udf</span> <span class="o">=</span> <span class="n">create_spark_udf</span><span class="p">(</span><span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">,</span> <span class="s1">&#39;double&#39;</span><span class="p">)</span>
+        <span class="n">array_convert_udf</span> <span class="o">=</span> <span class="n">udf</span><span class="p">(</span><span class="n">literal_eval_safe</span><span class="p">,</span> <span class="n">ArrayType</span><span class="p">(</span><span class="n">DoubleType</span><span class="p">()))</span>
+        <span class="n">float_convert_udf</span> <span class="o">=</span> <span class="n">udf</span><span class="p">(</span><span class="n">literal_eval_safe</span><span class="p">,</span> <span class="n">DoubleType</span><span class="p">())</span>
 
         <span class="c1"># Convert float type columns</span>
         <span class="k">for</span> <span class="n">col_name</span> <span class="ow">in</span> <span class="n">float_type_cols</span><span class="p">:</span>
@@ -439,8 +451,10 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to convert column types: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">raise</span> <span class="n">e</span></div>
 
-<span class="c1">#processing_nested_columns</span>
-<div class="viewcode-block" id="process_nested_columns"><a class="viewcode-back" href="../../../source/nli_process.html#topic_modelling_package.nli_process.transformation.process_nested_columns">[docs]</a><span class="k">def</span> <span class="nf">process_nested_columns</span><span class="p">(</span>
+
+<div class="viewcode-block" id="process_nested_columns">
+<a class="viewcode-back" href="../../../source/nli_process.html#topic_modelling_package.nli_process.transformation.process_nested_columns">[docs]</a>
+<span class="k">def</span> <span class="nf">process_nested_columns</span><span class="p">(</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">nested_columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">fixed_columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
@@ -466,13 +480,10 @@
 <span class="sd">        Exception: If any error occurs during the processing steps.</span>
 
 <span class="sd">    Example:</span>
-<span class="sd">        ```python</span>
-<span class="sd">        fixed_cols = [&#39;ENTITY_ID&#39;, &#39;CALL_ID&#39;, &#39;VERSION_ID&#39;, &#39;DATE&#39;, &#39;CALL_NAME&#39;, </span>
-<span class="sd">                      &#39;COMPANY_NAME&#39;, &#39;LEN_FILT_MD&#39;, &#39;LEN_FILT_QA&#39;, &#39;FILT_MD&#39;, &#39;FILT_QA&#39;]</span>
-<span class="sd">        nested_cols = [&#39;MD_FINAL_SCORE_EXTRACTED&#39;, &#39;QA_FINAL_SCORE_EXTRACTED&#39;]</span>
-
-<span class="sd">        processed_df = process_nested_columns(currdf_spark, nested_cols, fixed_cols)</span>
-<span class="sd">        ```</span>
+<span class="sd">        &gt;&gt;&gt; fixed_cols = [&#39;ENTITY_ID&#39;, &#39;CALL_ID&#39;, &#39;VERSION_ID&#39;, &#39;DATE&#39;, &#39;CALL_NAME&#39;, </span>
+<span class="sd">        ...           &#39;COMPANY_NAME&#39;, &#39;LEN_FILT_MD&#39;, &#39;LEN_FILT_QA&#39;, &#39;FILT_MD&#39;, &#39;FILT_QA&#39;]</span>
+<span class="sd">        &gt;&gt;&gt; nested_cols = [&#39;MD_FINAL_SCORE_EXTRACTED&#39;, &#39;QA_FINAL_SCORE_EXTRACTED&#39;]</span>
+<span class="sd">        &gt;&gt;&gt; processed_df = process_nested_columns(currdf_spark, nested_cols, fixed_cols)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="c1"># Step 1: Extract keys from nested columns and create new columns</span>
@@ -545,6 +556,7 @@
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to process DataFrame: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">raise</span> <span class="n">e</span></div>
+
 </pre></div>
         </article>
       </div>
@@ -577,9 +589,9 @@
       
     </aside>
   </div>
-</div><script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js?v=b3ba4146"></script>
-    <script src="../../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../../_static/sphinx_highlight.js?v=4825356b"></script>
+</div><script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>
     </body>
 </html>

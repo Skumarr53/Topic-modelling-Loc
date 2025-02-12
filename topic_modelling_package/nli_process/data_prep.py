@@ -104,6 +104,43 @@ def generate_label_columns(
     return dynamic_columns
 
 def add_non_entailment_rows(df, shuffle = True):
+    """
+    Adds 'non_entailment' rows for missing topics in each premise sentence.
+
+    This function ensures that for every premise sentence (`sentence1`), there is a corresponding 'non_entailment' label for each possible topic (`sentence2`) that hasn't been labeled as 'entailment'. This is crucial for balanced datasets, especially in classification tasks where the absence of a label needs to be explicitly represented.
+
+    Args:
+        df (pd.DataFrame):
+            The input DataFrame containing at least the following columns:
+                - 'sentence1': The premise or source sentence.
+                - 'sentence2': The hypothesis or target sentence.
+                - 'label': The true label indicating entailment ('entailment') or non-entailment.
+        shuffle (bool, optional):
+            Whether to shuffle the DataFrame after adding the new rows. Defaults to True.
+
+    Returns:
+        pd.DataFrame:
+            The updated DataFrame with additional 'non_entailment' rows for missing topics. If `shuffle` is True, the DataFrame is shuffled before being returned.
+
+    Raises:
+        None. The function assumes that `df` contains the required columns.
+
+    Example:
+        >>> import pandas as pd
+        >>> data = {
+        ...     'sentence1': ["I love programming", "Python is great"],
+        ...     'sentence2': ["programming is fun", "Python is easy", "I enjoy coding"],
+        ...     'label': ["entailment", "entailment", "entailment"]
+        ... }
+        >>> df = pd.DataFrame(data)
+        >>> updated_df = add_non_entailment_rows(df, shuffle=False)
+        >>> print(updated_df)
+              sentence1            sentence2          label
+        0  I love programming  programming is fun    entailment
+        1         Python is great      Python is easy    entailment
+        2  I love programming      I enjoy coding    non_entailment
+        3         Python is great  I enjoy coding    non_entailment
+    """
     # Get all unique topics
     all_topics = df['sentence2'].unique()
     

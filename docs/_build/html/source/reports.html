@@ -1,11 +1,11 @@
 <!doctype html>
-<html class="no-js" lang="en" data-content_root="">
+<html class="no-js" lang="en" data-content_root="../">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="prev" title="Processing" href="processing.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2024.08.06 -->
+    <!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 -->
         <title>Reports - topic-modelling-package documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
@@ -245,10 +245,10 @@
         </div>
         <article role="main" id="furo-main-content">
           <section id="module-topic_modelling_package.reports.report_generation">
-<span id="reports"></span><h1>Reports<a class="headerlink" href="#module-topic_modelling_package.reports.report_generation" title="Permalink to this heading">¶</a></h1>
+<span id="reports"></span><h1>Reports<a class="headerlink" href="#module-topic_modelling_package.reports.report_generation" title="Link to this heading">¶</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="topic_modelling_package.reports.report_generation.create_topic_dict">
-<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.report_generation.</span></span><span class="sig-name descname"><span class="pre">create_topic_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">match_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'label'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negate_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'negate'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">match_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'match'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/report_generation.html#create_topic_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.report_generation.create_topic_dict" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.report_generation.</span></span><span class="sig-name descname"><span class="pre">create_topic_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">match_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nlp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'label'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negate_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'negate'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">match_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'match'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/report_generation.html#create_topic_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.report_generation.create_topic_dict" title="Link to this definition">¶</a></dt>
 <dd><p>Creates dictionaries for positive and negative match patterns per topic.</p>
 <p>This function generates two dictionaries:
 1. <cite>word_set_dict</cite>: Contains positive match sets for each formatted topic.
@@ -302,7 +302,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="topic_modelling_package.reports.report_generation.generate_top_matches_report">
-<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.report_generation.</span></span><span class="sig-name descname"><span class="pre">generate_top_matches_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_by</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta_cols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/report_generation.html#generate_top_matches_report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.report_generation.generate_top_matches_report" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.report_generation.</span></span><span class="sig-name descname"><span class="pre">generate_top_matches_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_by</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta_cols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/report_generation.html#generate_top_matches_report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.report_generation.generate_top_matches_report" title="Link to this definition">¶</a></dt>
 <dd><p>Generates a report based on top matches for a given topic.</p>
 <p>This function sorts the DataFrame based on a specified column, selects the top N matches,
 and retains only the relevant metadata and match information.</p>
@@ -347,7 +347,7 @@ Defaults to [‘ENTITY_ID’, ‘CALL_NAME’, ‘EVENT_DATETIME_UTC’, ‘COMP
 
 <dl class="py function">
 <dt class="sig sig-object py" id="topic_modelling_package.reports.report_generation.generate_topic_report">
-<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.report_generation.</span></span><span class="sig-name descname"><span class="pre">generate_topic_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">word_set_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negate_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'matches'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/report_generation.html#generate_topic_report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.report_generation.generate_topic_report" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.report_generation.</span></span><span class="sig-name descname"><span class="pre">generate_topic_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">word_set_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negate_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nlp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dask_partitions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'matches'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/report_generation.html#generate_topic_report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.report_generation.generate_topic_report" title="Link to this definition">¶</a></dt>
 <dd><p>Generates topic-specific columns for selected statistics.</p>
 <p>This function applies transformations to the DataFrame based on the provided statistics list.
 Supported statistics include:</p>
@@ -414,7 +414,7 @@ Supported statistics include:</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="topic_modelling_package.reports.report_generation.replace_separator_in_dict_words">
-<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.report_generation.</span></span><span class="sig-name descname"><span class="pre">replace_separator_in_dict_words</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_char</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'_'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'</span> <span class="pre">'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">required_splits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/report_generation.html#replace_separator_in_dict_words"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.report_generation.replace_separator_in_dict_words" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.report_generation.</span></span><span class="sig-name descname"><span class="pre">replace_separator_in_dict_words</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_char</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'_'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'</span> <span class="pre">'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">required_splits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/report_generation.html#replace_separator_in_dict_words"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.report_generation.replace_separator_in_dict_words" title="Link to this definition">¶</a></dt>
 <dd><p>Transforms the input dictionary by replacing a specified separator in words that split into exactly a given number of parts.</p>
 <p>For each word in the lists associated with each key:
 - If the word contains exactly ‘required_splits’ parts when split by ‘split_char’,</p>
@@ -456,151 +456,256 @@ Defaults to 2.</p></li>
 </div>
 </dd></dl>
 
-<span class="target" id="module-topic_modelling_package.reports.transformations"></span><dl class="py function">
+<dl class="py function" id="module-topic_modelling_package.reports.transformations">
 <dt class="sig sig-object py" id="topic_modelling_package.reports.transformations.count_transformation">
-<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.transformations.</span></span><span class="sig-name descname"><span class="pre">count_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/transformations.html#count_transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.transformations.count_transformation" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.transformations.</span></span><span class="sig-name descname"><span class="pre">count_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/transformations.html#count_transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.transformations.count_transformation" title="Link to this definition">¶</a></dt>
 <dd><p>Creates a transformation for counting positive occurrences of a label within a topic.</p>
+<p>This function generates a transformation tuple that counts the number of positive occurrences (values greater than zero) of a particular label within a given topic.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>topic</strong> (<em>str</em>) – The topic name.</p></li>
-<li><p><strong>label</strong> (<em>str</em>) – The label name.</p></li>
-<li><p><strong>label_column</strong> (<em>str</em>) – The column name associated with the label.</p></li>
+<li><p><strong>topic</strong> (<em>str</em>) – The topic name (e.g., ‘consumer_strength’, ‘consumer_weakness’).</p></li>
+<li><p><strong>label</strong> (<em>str</em>) – The label name associated with the topic (e.g., ‘COUNT’, ‘REL’).</p></li>
+<li><p><strong>label_column</strong> (<em>str</em>) – The column name in the DataFrame that contains the label data (e.g., ‘FILT_MD’, ‘FILT_QA’).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A tuple containing the new column name, source column(s), and the transformation function.</p>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing:</dt><dd><ul class="simple">
+<li><p>str: The new column name in the format “{topic}_COUNT_{label}”.</p></li>
+<li><p>Union[str, List[str]]: The source column(s) from which to extract data.</p></li>
+<li><p>Callable: A lambda function that counts the number of positive occurrences.</p></li>
+</ul>
+</dd>
+</dl>
+</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Transformation</p>
 </dd>
 </dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">transformation</span> <span class="o">=</span> <span class="n">count_transformation</span><span class="p">(</span><span class="s1">&#39;consumer_strength&#39;</span><span class="p">,</span> <span class="s1">&#39;COUNT&#39;</span><span class="p">,</span> <span class="s1">&#39;FILT_MD&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">transformation</span><span class="p">)</span>
+<span class="go">(&#39;consumer_strength_COUNT_COUNT&#39;, &#39;consumer_strength_TOTAL_COUNT&#39;, &lt;function count_transformation.&lt;locals&gt;.&lt;lambda&gt; at 0x7f9c8c3e2040&gt;)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="topic_modelling_package.reports.transformations.extract_transformation">
-<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.transformations.</span></span><span class="sig-name descname"><span class="pre">extract_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/transformations.html#extract_transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.transformations.extract_transformation" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.transformations.</span></span><span class="sig-name descname"><span class="pre">extract_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/transformations.html#extract_transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.transformations.extract_transformation" title="Link to this definition">¶</a></dt>
 <dd><p>Creates a transformation to extract relevant matches based on a label within a topic.</p>
+<p>This function generates a transformation tuple that extracts relevant matched text segments based on the label within a given topic. It concatenates the matched labels where the corresponding total count exceeds zero.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>topic</strong> (<em>str</em>) – The topic name.</p></li>
-<li><p><strong>label</strong> (<em>str</em>) – The label name.</p></li>
-<li><p><strong>label_column</strong> (<em>str</em>) – The column name associated with the label.</p></li>
+<li><p><strong>topic</strong> (<em>str</em>) – The topic name (e.g., ‘consumer_strength’, ‘consumer_weakness’).</p></li>
+<li><p><strong>label</strong> (<em>str</em>) – The label name associated with the topic (e.g., ‘EXTRACT’, ‘REL’).</p></li>
+<li><p><strong>label_column</strong> (<em>str</em>) – The column name in the DataFrame that contains the label data (e.g., ‘FILT_MD’, ‘FILT_QA’).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A tuple containing the new column name, source column(s), and the transformation function.</p>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing:</dt><dd><ul class="simple">
+<li><p>str: The new column name in the format “{topic}_EXTRACT_{label}”.</p></li>
+<li><p>Union[str, List[str]]: The source column(s) from which to extract data.</p></li>
+<li><p>Callable: A lambda function that extracts and concatenates relevant matches.</p></li>
+</ul>
+</dd>
+</dl>
+</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Transformation</p>
 </dd>
 </dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">transformation</span> <span class="o">=</span> <span class="n">extract_transformation</span><span class="p">(</span><span class="s1">&#39;consumer_strength&#39;</span><span class="p">,</span> <span class="s1">&#39;EXTRACT&#39;</span><span class="p">,</span> <span class="s1">&#39;FILT_MD&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">transformation</span><span class="p">)</span>
+<span class="go">(&#39;consumer_strength_EXTRACT_EXTRACT&#39;, [&#39;FILT_MD&#39;, &#39;consumer_strength_TOTAL_EXTRACT&#39;], &lt;function extract_transformation.&lt;locals&gt;.&lt;lambda&gt; at 0x7f9c8c3e21d0&gt;)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="topic_modelling_package.reports.transformations.net_sent_transformation">
-<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.transformations.</span></span><span class="sig-name descname"><span class="pre">net_sent_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/transformations.html#net_sent_transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.transformations.net_sent_transformation" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.transformations.</span></span><span class="sig-name descname"><span class="pre">net_sent_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/transformations.html#net_sent_transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.transformations.net_sent_transformation" title="Link to this definition">¶</a></dt>
 <dd><p>Creates a transformation to calculate the net sentiment score of a label within a topic.</p>
+<p>This function generates a transformation tuple that calculates the net sentiment score for a particular label within a given topic. It utilizes external functions <cite>calculate_net_score</cite> to compute the score based on total counts and sentiment labels.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>topic</strong> (<em>str</em>) – The topic name.</p></li>
-<li><p><strong>label</strong> (<em>str</em>) – The label name.</p></li>
-<li><p><strong>label_column</strong> (<em>str</em>) – The column name associated with the label.</p></li>
+<li><p><strong>topic</strong> (<em>str</em>) – The topic name (e.g., ‘consumer_strength’, ‘consumer_weakness’).</p></li>
+<li><p><strong>label</strong> (<em>str</em>) – The label name associated with the topic (e.g., ‘NET_SENT’, ‘REL’).</p></li>
+<li><p><strong>label_column</strong> (<em>str</em>) – The column name in the DataFrame that contains the label data (e.g., ‘FILT_MD’, ‘FILT_QA’).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A tuple containing the new column name, source column(s), and the transformation function.</p>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing:</dt><dd><ul class="simple">
+<li><p>str: The new column name in the format “{topic}_NET_SENT_{label}”.</p></li>
+<li><p>Union[str, List[str]]: The source column(s) from which to extract data.</p></li>
+<li><p>Callable: A lambda function that calculates the net sentiment score.</p></li>
+</ul>
+</dd>
+</dl>
+</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Transformation</p>
 </dd>
 </dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">transformation</span> <span class="o">=</span> <span class="n">net_sent_transformation</span><span class="p">(</span><span class="s1">&#39;consumer_strength&#39;</span><span class="p">,</span> <span class="s1">&#39;NET_SENT&#39;</span><span class="p">,</span> <span class="s1">&#39;FILT_MD&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">transformation</span><span class="p">)</span>
+<span class="go">(&#39;consumer_strength_NET_SENT_NET_SENT&#39;, [&#39;consumer_strength_TOTAL_NET_SENT&#39;, &#39;SENT_LABELS_NET_SENT&#39;], &lt;function net_sent_transformation.&lt;locals&gt;.&lt;lambda&gt; at 0x7f9c8c3e24f0&gt;)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="topic_modelling_package.reports.transformations.relevance_transformation">
-<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.transformations.</span></span><span class="sig-name descname"><span class="pre">relevance_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/transformations.html#relevance_transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.transformations.relevance_transformation" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.transformations.</span></span><span class="sig-name descname"><span class="pre">relevance_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/transformations.html#relevance_transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.transformations.relevance_transformation" title="Link to this definition">¶</a></dt>
 <dd><p>Creates a transformation for the relevance score of a label within a topic.</p>
+<p>This function generates a transformation tuple that calculates the relevance score of a particular label within a given topic. The relevance score is determined by the proportion of positive occurrences relative to the total number of instances in the section.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>topic</strong> (<em>str</em>) – The topic name.</p></li>
-<li><p><strong>label</strong> (<em>str</em>) – The label name.</p></li>
-<li><p><strong>label_column</strong> (<em>str</em>) – The column name associated with the label.</p></li>
+<li><p><strong>topic</strong> (<em>str</em>) – The topic name (e.g., ‘consumer_strength’, ‘consumer_weakness’).</p></li>
+<li><p><strong>label</strong> (<em>str</em>) – The label name associated with the topic (e.g., ‘COUNT’, ‘REL’).</p></li>
+<li><p><strong>label_column</strong> (<em>str</em>) – The column name in the DataFrame that contains the label data (e.g., ‘FILT_MD’, ‘FILT_QA’).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A tuple containing the new column name, source column(s), and the transformation function.</p>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing:</dt><dd><ul class="simple">
+<li><p>str: The new column name in the format “{topic}_REL_{label}”.</p></li>
+<li><p>Union[str, List[str]]: The source column(s) from which to extract data.</p></li>
+<li><p>Callable: A lambda function that calculates the relevance score.</p></li>
+</ul>
+</dd>
+</dl>
+</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Transformation</p>
 </dd>
 </dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">transformation</span> <span class="o">=</span> <span class="n">relevance_transformation</span><span class="p">(</span><span class="s1">&#39;consumer_strength&#39;</span><span class="p">,</span> <span class="s1">&#39;REL&#39;</span><span class="p">,</span> <span class="s1">&#39;FILT_MD&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">transformation</span><span class="p">)</span>
+<span class="go">(&#39;consumer_strength_REL_REL&#39;, &#39;consumer_strength_TOTAL_REL&#39;, &lt;function relevance_transformation.&lt;locals&gt;.&lt;lambda&gt; at 0x7f9c8c3e1f70&gt;)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="topic_modelling_package.reports.transformations.sentiment_transformation">
-<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.transformations.</span></span><span class="sig-name descname"><span class="pre">sentiment_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/transformations.html#sentiment_transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.transformations.sentiment_transformation" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.transformations.</span></span><span class="sig-name descname"><span class="pre">sentiment_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/transformations.html#sentiment_transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.transformations.sentiment_transformation" title="Link to this definition">¶</a></dt>
 <dd><p>Creates a transformation to calculate the sentiment score of a label within a topic.</p>
+<p>This function generates a transformation tuple that calculates the sentiment score for a particular label within a given topic. It utilizes external functions <cite>calculate_sentence_score</cite> to compute the score based on total counts and sentiment labels.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>topic</strong> (<em>str</em>) – The topic name.</p></li>
-<li><p><strong>label</strong> (<em>str</em>) – The label name.</p></li>
-<li><p><strong>label_column</strong> (<em>str</em>) – The column name associated with the label.</p></li>
+<li><p><strong>topic</strong> (<em>str</em>) – The topic name (e.g., ‘consumer_strength’, ‘consumer_weakness’).</p></li>
+<li><p><strong>label</strong> (<em>str</em>) – The label name associated with the topic (e.g., ‘SENT’, ‘REL’).</p></li>
+<li><p><strong>label_column</strong> (<em>str</em>) – The column name in the DataFrame that contains the label data (e.g., ‘FILT_MD’, ‘FILT_QA’).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A tuple containing the new column name, source column(s), and the transformation function.</p>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing:</dt><dd><ul class="simple">
+<li><p>str: The new column name in the format “{topic}_SENT_{label}”.</p></li>
+<li><p>Union[str, List[str]]: The source column(s) from which to extract data.</p></li>
+<li><p>Callable: A lambda function that calculates the sentiment score.</p></li>
+</ul>
+</dd>
+</dl>
+</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Transformation</p>
 </dd>
 </dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">transformation</span> <span class="o">=</span> <span class="n">sentiment_transformation</span><span class="p">(</span><span class="s1">&#39;consumer_strength&#39;</span><span class="p">,</span> <span class="s1">&#39;SENT&#39;</span><span class="p">,</span> <span class="s1">&#39;FILT_MD&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">transformation</span><span class="p">)</span>
+<span class="go">(&#39;consumer_strength_SENT_SENT&#39;, [&#39;consumer_strength_TOTAL_SENT&#39;, &#39;SENT_LABELS_SENT&#39;], &lt;function sentiment_transformation.&lt;locals&gt;.&lt;lambda&gt; at 0x7f9c8c3e2370&gt;)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="topic_modelling_package.reports.transformations.stats_transformation">
-<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.transformations.</span></span><span class="sig-name descname"><span class="pre">stats_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/transformations.html#stats_transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.transformations.stats_transformation" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.transformations.</span></span><span class="sig-name descname"><span class="pre">stats_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/transformations.html#stats_transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.transformations.stats_transformation" title="Link to this definition">¶</a></dt>
 <dd><p>Creates a transformation for statistics of a label within a topic.</p>
+<p>This function generates a transformation tuple that specifies how to extract statistical data of a particular label within a given topic. The transformation includes the new column name, the source column from which to extract data, and a lambda function that defines the extraction logic.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>topic</strong> (<em>str</em>) – The topic name.</p></li>
-<li><p><strong>label</strong> (<em>str</em>) – The label name.</p></li>
-<li><p><strong>label_column</strong> (<em>str</em>) – The column name associated with the label.</p></li>
+<li><p><strong>topic</strong> (<em>str</em>) – The topic name (e.g., ‘consumer_strength’, ‘consumer_weakness’).</p></li>
+<li><p><strong>label</strong> (<em>str</em>) – The label name associated with the topic (e.g., ‘COUNT’, ‘REL’).</p></li>
+<li><p><strong>label_column</strong> (<em>str</em>) – The column name in the DataFrame that contains the label data (e.g., ‘FILT_MD’, ‘FILT_QA’).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A tuple containing the new column name, source column(s), and the transformation function.</p>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing:</dt><dd><ul class="simple">
+<li><p>str: The new column name in the format “{topic}_STATS_{label}”.</p></li>
+<li><p>Union[str, List[str]]: The source column(s) from which to extract data.</p></li>
+<li><p>Callable: A lambda function that extracts the statistical data from the source data.</p></li>
+</ul>
+</dd>
+</dl>
+</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Transformation</p>
 </dd>
 </dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">transformation</span> <span class="o">=</span> <span class="n">stats_transformation</span><span class="p">(</span><span class="s1">&#39;consumer_strength&#39;</span><span class="p">,</span> <span class="s1">&#39;STATS&#39;</span><span class="p">,</span> <span class="s1">&#39;FILT_MD&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">transformation</span><span class="p">)</span>
+<span class="go">(&#39;consumer_strength_STATS_STATS&#39;, &#39;FILT_MD_STATS&#39;, &lt;function stats_transformation.&lt;locals&gt;.&lt;lambda&gt; at 0x7f9c8c3e1e50&gt;)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="topic_modelling_package.reports.transformations.total_transformation">
-<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.transformations.</span></span><span class="sig-name descname"><span class="pre">total_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/transformations.html#total_transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.transformations.total_transformation" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.reports.transformations.</span></span><span class="sig-name descname"><span class="pre">total_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_column</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/reports/transformations.html#total_transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.reports.transformations.total_transformation" title="Link to this definition">¶</a></dt>
 <dd><p>Creates a transformation for the total count of a label within a topic.</p>
+<p>This function generates a transformation tuple that specifies how to extract the total count of a particular label within a given topic. The transformation includes the new column name, the source column from which to extract data, and a lambda function that defines the extraction logic.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>topic</strong> (<em>str</em>) – The topic name.</p></li>
-<li><p><strong>label</strong> (<em>str</em>) – The label name.</p></li>
-<li><p><strong>label_column</strong> (<em>str</em>) – The column name associated with the label.</p></li>
+<li><p><strong>topic</strong> (<em>str</em>) – The topic name (e.g., ‘consumer_strength’, ‘consumer_weakness’).</p></li>
+<li><p><strong>label</strong> (<em>str</em>) – The label name associated with the topic (e.g., ‘COUNT’, ‘REL’).</p></li>
+<li><p><strong>label_column</strong> (<em>str</em>) – The column name in the DataFrame that contains the label data (e.g., ‘FILT_MD’, ‘FILT_QA’).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A tuple containing the new column name, source column(s), and the transformation function.</p>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing:</dt><dd><ul class="simple">
+<li><p>str: The new column name in the format “{topic}_TOTAL_{label}”.</p></li>
+<li><p>Union[str, List[str]]: The source column(s) from which to extract data.</p></li>
+<li><p>Callable: A lambda function that extracts the total count from the source data.</p></li>
+</ul>
+</dd>
+</dl>
+</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Transformation</p>
 </dd>
 </dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">transformation</span> <span class="o">=</span> <span class="n">total_transformation</span><span class="p">(</span><span class="s1">&#39;consumer_strength&#39;</span><span class="p">,</span> <span class="s1">&#39;COUNT&#39;</span><span class="p">,</span> <span class="s1">&#39;FILT_MD&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">transformation</span><span class="p">)</span>
+<span class="go">(&#39;consumer_strength_TOTAL_COUNT&#39;, &#39;FILT_MD_COUNT&#39;, &lt;function total_transformation.&lt;locals&gt;.&lt;lambda&gt; at 0x7f9c8c3e1d30&gt;)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </section>
@@ -675,9 +780,9 @@ Defaults to 2.</p></li>
       
     </aside>
   </div>
-</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=b3ba4146"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+</div><script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
     </body>
 </html>

@@ -1,11 +1,11 @@
 <!doctype html>
-<html class="no-js" lang="en" data-content_root="">
+<html class="no-js" lang="en" data-content_root="../">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Processing" href="processing.html" /><link rel="prev" title="Welcome to topic-modelling-package’s documentation!" href="../index.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2024.08.06 -->
+    <!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 -->
         <title>NLI Inferenece - topic-modelling-package documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
@@ -244,11 +244,239 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="module-topic_modelling_package.nli_process.inference">
-<span id="nli-inferenece"></span><h1>NLI Inferenece<a class="headerlink" href="#module-topic_modelling_package.nli_process.inference" title="Permalink to this heading">¶</a></h1>
+          <section id="module-topic_modelling_package.nli_process.data_prep">
+<span id="nli-inferenece"></span><h1>NLI Inferenece<a class="headerlink" href="#module-topic_modelling_package.nli_process.data_prep" title="Link to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="topic_modelling_package.nli_process.data_prep.add_non_entailment_rows">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.nli_process.data_prep.</span></span><span class="sig-name descname"><span class="pre">add_non_entailment_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/nli_process/data_prep.html#add_non_entailment_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.nli_process.data_prep.add_non_entailment_rows" title="Link to this definition">¶</a></dt>
+<dd><p>Adds ‘non_entailment’ rows for missing topics in each premise sentence.</p>
+<p>This function ensures that for every premise sentence (<cite>sentence1</cite>), there is a corresponding ‘non_entailment’ label for each possible topic (<cite>sentence2</cite>) that hasn’t been labeled as ‘entailment’. This is crucial for balanced datasets, especially in classification tasks where the absence of a label needs to be explicitly represented.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – <dl class="simple">
+<dt>The input DataFrame containing at least the following columns:</dt><dd><ul>
+<li><p>’sentence1’: The premise or source sentence.</p></li>
+<li><p>’sentence2’: The hypothesis or target sentence.</p></li>
+<li><p>’label’: The true label indicating entailment (‘entailment’) or non-entailment.</p></li>
+</ul>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>shuffle</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to shuffle the DataFrame after adding the new rows. Defaults to True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The updated DataFrame with additional ‘non_entailment’ rows for missing topics. If <cite>shuffle</cite> is True, the DataFrame is shuffled before being returned.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>None. The function assumes that df contains the required columns.</strong> – </p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s1">&#39;sentence1&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;I love programming&quot;</span><span class="p">,</span> <span class="s2">&quot;Python is great&quot;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;sentence2&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;programming is fun&quot;</span><span class="p">,</span> <span class="s2">&quot;Python is easy&quot;</span><span class="p">,</span> <span class="s2">&quot;I enjoy coding&quot;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;entailment&quot;</span><span class="p">,</span> <span class="s2">&quot;entailment&quot;</span><span class="p">,</span> <span class="s2">&quot;entailment&quot;</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">updated_df</span> <span class="o">=</span> <span class="n">add_non_entailment_rows</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">updated_df</span><span class="p">)</span>
+<span class="go">      sentence1            sentence2          label</span>
+<span class="go">0  I love programming  programming is fun    entailment</span>
+<span class="go">1         Python is great      Python is easy    entailment</span>
+<span class="go">2  I love programming      I enjoy coding    non_entailment</span>
+<span class="go">3         Python is great  I enjoy coding    non_entailment</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="topic_modelling_package.nli_process.data_prep.create_text_pairs">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.nli_process.data_prep.</span></span><span class="sig-name descname"><span class="pre">create_text_pairs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/nli_process/data_prep.html#create_text_pairs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.nli_process.data_prep.create_text_pairs" title="Link to this definition">¶</a></dt>
+<dd><p>Creates text pairs by combining each filter with each label using a specific separator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filters</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – A list of filter strings.</p></li>
+<li><p><strong>labels</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – A list of label strings.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of combined text pairs in the format “filter&lt;/s&gt;&lt;/s&gt;label.”.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[str]</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">create_text_pairs</span><span class="p">([</span><span class="s1">&#39;filter1&#39;</span><span class="p">,</span> <span class="s1">&#39;filter2&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;labelA&#39;</span><span class="p">,</span> <span class="s1">&#39;labelB&#39;</span><span class="p">])</span>
+<span class="go">[&#39;filter1&lt;/s&gt;&lt;/s&gt;labelA.&#39;, &#39;filter1&lt;/s&gt;&lt;/s&gt;labelB.&#39;, &#39;filter2&lt;/s&gt;&lt;/s&gt;labelA.&#39;, &#39;filter2&lt;/s&gt;&lt;/s&gt;labelB.&#39;]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="topic_modelling_package.nli_process.data_prep.generate_label_columns">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.nli_process.data_prep.</span></span><span class="sig-name descname"><span class="pre">generate_label_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['COUNT',</span> <span class="pre">'REL',</span> <span class="pre">'SCORE',</span> <span class="pre">'TOTAL']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sec_filters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['FILT_MD',</span> <span class="pre">'FILT_QA']</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/nli_process/data_prep.html#generate_label_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.nli_process.data_prep.generate_label_columns" title="Link to this definition">¶</a></dt>
+<dd><p>Generates a list of column names based on the provided labels, metrics, and secondary filters.</p>
+<p>The order of metrics should always follow: ‘COUNT’, ‘REL’, ‘SCORE’, ‘TOTAL’, and ‘EXTRACT’.
+Some metrics may be omitted based on the use case, but the order must remain the same.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>labels</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – Labels such as ‘consumer_strength’, ‘consumer_weakness’, etc.</p></li>
+<li><p><strong>metrics</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – Metrics like ‘COUNT’, ‘REL’, ‘SCORE’, etc. Defaults to [‘COUNT’, ‘REL’, ‘SCORE’, ‘TOTAL’].</p></li>
+<li><p><strong>sec_filters</strong> (<em>List</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Secondary filters like ‘FILT_MD’, ‘FILT_QA’. Defaults to [‘FILT_MD’, ‘FILT_QA’].</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An ordered list of generated column names.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[str]</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;consumer_strength&#39;</span><span class="p">,</span> <span class="s1">&#39;consumer_weakness&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">metrics</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;COUNT&#39;</span><span class="p">,</span> <span class="s1">&#39;REL&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">generate_label_columns</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">metrics</span><span class="p">)</span>
+<span class="go">[&#39;consumer_strength_COUNT_FILT_MD&#39;, &#39;consumer_strength_REL_FILT_MD&#39;,</span>
+<span class="go"> &#39;consumer_strength_COUNT_FILT_QA&#39;, &#39;consumer_strength_REL_FILT_QA&#39;,</span>
+<span class="go"> &#39;consumer_weakness_COUNT_FILT_MD&#39;, &#39;consumer_weakness_REL_FILT_MD&#39;,</span>
+<span class="go"> &#39;consumer_weakness_COUNT_FILT_QA&#39;, &#39;consumer_weakness_REL_FILT_QA&#39;]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="topic_modelling_package.nli_process.data_prep.parse_json_list">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.nli_process.data_prep.</span></span><span class="sig-name descname"><span class="pre">parse_json_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">json_str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/nli_process/data_prep.html#parse_json_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.nli_process.data_prep.parse_json_list" title="Link to this definition">¶</a></dt>
+<dd><p>Parses a JSON-formatted string into a Python list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>json_str</strong> (<em>str</em>) – A JSON-formatted string representing a list.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The parsed list from the JSON string. Returns an empty list if parsing fails.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Any]</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parse_json_list</span><span class="p">(</span><span class="s1">&#39;[&quot;apple&quot;, &quot;banana&quot;, &quot;cherry&quot;]&#39;</span><span class="p">)</span>
+<span class="go">[&#39;apple&#39;, &#39;banana&#39;, &#39;cherry&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parse_json_list</span><span class="p">(</span><span class="s1">&#39;invalid json&#39;</span><span class="p">)</span>
+<span class="go">[]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function" id="module-topic_modelling_package.nli_process.inference">
+<dt class="sig sig-object py" id="topic_modelling_package.nli_process.inference.extract_inf">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.nli_process.inference.</span></span><span class="sig-name descname"><span class="pre">extract_inf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">section_len</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">section</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/nli_process/inference.html#extract_inf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.nli_process.inference.extract_inf" title="Link to this definition">¶</a></dt>
+<dd><p>Extracts sentiment information from a row of scores based on a specified threshold.</p>
+<p>This function processes a dictionary of sentiment scores, applying a threshold to determine binary classifications. It calculates counts, relative frequencies, and rounded scores for each sentiment type within a specified section. If the section length is zero, it handles the division by zero by assigning <cite>None</cite> or empty lists accordingly.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>row</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – A dictionary where keys are sentiment types (e.g., ‘happy’, ‘sad’) and values are lists of sentiment scores (floats) for each instance.</p></li>
+<li><p><strong>section_len</strong> (<em>int</em>) – The total number of instances or sentences in the section being analyzed.</p></li>
+<li><p><strong>section</strong> (<em>str</em>) – The identifier for the current section (e.g., ‘FILT_MD’, ‘FILT_QA’).</p></li>
+<li><p><strong>threshold</strong> (<em>float</em>) – The threshold value above which a sentiment score is considered positive (e.g., 0.8).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A dictionary containing the following keys for each sentiment type:</dt><dd><ul class="simple">
+<li><p>”{sentiment}_TOTAL_{section}” (List[float]): Binary list indicating whether each score exceeds the threshold.</p></li>
+<li><p>”{sentiment}_COUNT_{section}” (float): Total count of scores exceeding the threshold.</p></li>
+<li><p>”{sentiment}_REL_{section}” (float): Relative frequency of scores exceeding the threshold (count divided by section length).</p></li>
+<li><p>”{sentiment}_SCORE_{section}” (List[float]): List of scores rounded to four decimal places.</p></li>
+</ul>
+</dd>
+<dt>Additionally includes:</dt><dd><ul class="simple">
+<li><p>”len” (int): Total number of words in the input.</p></li>
+<li><p>”raw_len” (int): Raw word count based on splitting by spaces.</p></li>
+<li><p>”filt” (str): The original input text.</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>None. The function handles potential errors internally and assigns None</strong><strong> or </strong><strong>empty lists where appropriate.</strong> – </p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">row</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;happy&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.85</span><span class="p">],</span> <span class="s1">&#39;sad&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">]}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">extract_inf</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">section_len</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">section</span><span class="o">=</span><span class="s1">&#39;FILT_MD&#39;</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+<span class="go">{</span>
+<span class="go">    &#39;happy_TOTAL_FILT_MD&#39;: [1.0, 0.0, 1.0],</span>
+<span class="go">    &#39;happy_COUNT_FILT_MD&#39;: 2.0,</span>
+<span class="go">    &#39;happy_REL_FILT_MD&#39;: 0.6666666666666666,</span>
+<span class="go">    &#39;happy_SCORE_FILT_MD&#39;: [0.9, 0.7, 0.85],</span>
+<span class="go">    &#39;sad_TOTAL_FILT_MD&#39;: [0.0, 0.0, 0.0],</span>
+<span class="go">    &#39;sad_COUNT_FILT_MD&#39;: 0.0,</span>
+<span class="go">    &#39;sad_REL_FILT_MD&#39;: 0.0,</span>
+<span class="go">    &#39;sad_SCORE_FILT_MD&#39;: [0.2, 0.1, 0.05],</span>
+<span class="go">    &#39;len&#39;: 0,  # Assuming len is calculated elsewhere</span>
+<span class="go">    &#39;raw_len&#39;: 0,  # Assuming raw_len is calculated elsewhere</span>
+<span class="go">    &#39;filt&#39;: &#39;&#39;</span>
+<span class="go">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="topic_modelling_package.nli_process.inference.get_section_extract_udf">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.nli_process.inference.</span></span><span class="sig-name descname"><span class="pre">get_section_extract_udf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">section</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/nli_process/inference.html#get_section_extract_udf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.nli_process.inference.get_section_extract_udf" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="topic_modelling_package.nli_process.inference.inference_run">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.nli_process.inference.</span></span><span class="sig-name descname"><span class="pre">inference_run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iterator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nli_pipeline</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">512</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/nli_process/inference.html#inference_run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.nli_process.inference.inference_run" title="Link to this definition">¶</a></dt>
+<dd><p>Performs inference on batches of text pairs using the NLI pipeline and yields the results as Pandas Series.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>iterator</strong> (<em>Iterator</em><em>[</em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em>) – An iterator where each element is a list of text pairs.</p></li>
+<li><p><strong>max_length</strong> (<em>int</em><em>, </em><em>optional</em>) – Maximum token length for each text input. Defaults to 512.</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of samples per batch for inference. Defaults to 32.</p></li>
+<li><p><strong>enable_quantization</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to enable model quantization for faster inference. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Yields<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Iterator[pd.Series]</em> – An iterator yielding Pandas Series containing inference results for each batch.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterator</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code>]</span></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">topic_modelling_package.nli_process.inference</span> <span class="kn">import</span> <span class="n">inference_udf</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">texts</span> <span class="o">=</span> <span class="p">[[</span><span class="s2">&quot;I love this product&lt;/s&gt;&lt;/s&gt;positive.&quot;</span><span class="p">,</span> <span class="s2">&quot;This is bad&lt;/s&gt;&lt;/s&gt;negative.&quot;</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">inference_udf</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">texts</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+<span class="go">0    [{&#39;label&#39;: &#39;entailment&#39;, &#39;score&#39;: 0.9}, {&#39;label&#39;: &#39;contradiction&#39;, &#39;score&#39;: 0.1}]</span>
+<span class="go">1    [{&#39;label&#39;: &#39;entailment&#39;, &#39;score&#39;: 0.7}, {&#39;label&#39;: &#39;contradiction&#39;, &#39;score&#39;: 0.3}]</span>
+<span class="go">dtype: object</span>
+</pre></div>
+</div>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="topic_modelling_package.nli_process.inference.inference_summary">
-<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.nli_process.inference.</span></span><span class="sig-name descname"><span class="pre">inference_summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">texts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inference_result</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.8</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/nli_process/inference.html#inference_summary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.nli_process.inference.inference_summary" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.nli_process.inference.</span></span><span class="sig-name descname"><span class="pre">inference_summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">texts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inference_result</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.8</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/nli_process/inference.html#inference_summary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.nli_process.inference.inference_summary" title="Link to this definition">¶</a></dt>
 <dd><p>Summarizes inference results by aggregating scores and binary flags based on a threshold.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -287,41 +515,73 @@
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="topic_modelling_package.nli_process.inference.inference_udf">
-<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.nli_process.inference.</span></span><span class="sig-name descname"><span class="pre">inference_udf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iterator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">512</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_quantization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/nli_process/inference.html#inference_udf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.nli_process.inference.inference_udf" title="Permalink to this definition">¶</a></dt>
-<dd><p>Performs inference on batches of text pairs using the NLI pipeline and yields the results as Pandas Series.</p>
+<dt class="sig sig-object py" id="topic_modelling_package.nli_process.inference.processing_nested_columns">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.nli_process.inference.</span></span><span class="sig-name descname"><span class="pre">processing_nested_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spark_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['ENTITY_ID',</span> <span class="pre">'CALL_ID',</span> <span class="pre">'VERSION_ID',</span> <span class="pre">'DATE',</span> <span class="pre">'CALL_NAME',</span> <span class="pre">'COMPANY_NAME',</span> <span class="pre">'LEN_FILT_MD',</span> <span class="pre">'LEN_FILT_QA',</span> <span class="pre">'FILT_MD',</span> <span class="pre">'FILT_QA',</span> <span class="pre">'SENT_LABELS_FILT_MD',</span> <span class="pre">'SENT_LABELS_FILT_QA']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.8</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/nli_process/inference.html#processing_nested_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.nli_process.inference.processing_nested_columns" title="Link to this definition">¶</a></dt>
+<dd><p>Processes nested sentiment score columns in a Spark DataFrame and extracts relevant statistics.</p>
+<dl class="simple">
+<dt>This function performs the following operations:</dt><dd><ol class="arabic simple">
+<li><p>Generates UDFs for each sentiment section (‘FILT_MD’, ‘FILT_QA’) based on the provided threshold.</p></li>
+<li><p>Applies these UDFs to extract sentiment information.</p></li>
+<li><p>Extracts individual sentiment statistics from the resulting nested columns.</p></li>
+<li><p>Renames columns to remove periods.</p></li>
+<li><p>Selects and reorders the final set of columns based on predefined fixed columns and extracted sentiment statistics.</p></li>
+</ol>
+</dd>
+</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>iterator</strong> (<em>Iterator</em><em>[</em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em>) – An iterator where each element is a list of text pairs.</p></li>
-<li><p><strong>max_length</strong> (<em>int</em><em>, </em><em>optional</em>) – Maximum token length for each text input. Defaults to 512.</p></li>
-<li><p><strong>batch_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of samples per batch for inference. Defaults to 32.</p></li>
-<li><p><strong>enable_quantization</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to enable model quantization for faster inference. Defaults to False.</p></li>
+<li><p><strong>spark_df</strong> (<em>DataFrame</em>) – The input Spark DataFrame containing nested sentiment score columns (e.g., ‘MD_FINAL_SCORE’, ‘QA_FINAL_SCORE’).</p></li>
+<li><p><strong>fixed_columns</strong> (<em>List</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – <dl class="simple">
+<dt>A list of columns to retain in the final DataFrame. Defaults to [</dt><dd><p>‘ENTITY_ID’, ‘CALL_ID’, ‘VERSION_ID’, ‘DATE’,
+‘CALL_NAME’, ‘COMPANY_NAME’, ‘LEN_FILT_MD’,
+‘LEN_FILT_QA’, ‘FILT_MD’, ‘FILT_QA’,
+‘SENT_LABELS_FILT_MD’, ‘SENT_LABELS_FILT_QA’</p>
+</dd>
+</dl>
+<p>].</p>
+</p></li>
+<li><p><strong>threshold</strong> (<em>float</em><em>, </em><em>optional</em>) – The threshold value above which a sentiment score is considered positive. Defaults to 0.8.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Yields<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>Iterator[pd.Series]</em> – An iterator yielding Pandas Series containing inference results for each batch.</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The processed Spark DataFrame with extracted sentiment statistics as individual columns, and with only the specified fixed columns and sentiment statistics retained.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterator</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code>]</span></p>
+<dd class="field-odd"><p>DataFrame</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Exception</strong> – If there are issues during UDF application, column extraction, or DataFrame transformations.</p>
 </dd>
 </dl>
 <p class="rubric">Example</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">topic_modelling_package.nli_process.inference</span> <span class="kn">import</span> <span class="n">inference_udf</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">texts</span> <span class="o">=</span> <span class="p">[[</span><span class="s2">&quot;I love this product&lt;/s&gt;&lt;/s&gt;positive.&quot;</span><span class="p">,</span> <span class="s2">&quot;This is bad&lt;/s&gt;&lt;/s&gt;negative.&quot;</span><span class="p">]]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">inference_udf</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">texts</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
-<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
-<span class="go">0    [{&#39;label&#39;: &#39;entailment&#39;, &#39;score&#39;: 0.9}, {&#39;label&#39;: &#39;contradiction&#39;, &#39;score&#39;: 0.1}]</span>
-<span class="go">1    [{&#39;label&#39;: &#39;entailment&#39;, &#39;score&#39;: 0.7}, {&#39;label&#39;: &#39;contradiction&#39;, &#39;score&#39;: 0.3}]</span>
-<span class="go">dtype: object</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">SparkSession</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spark</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
+<span class="gp">... </span>    <span class="p">{</span>
+<span class="gp">... </span>        <span class="s1">&#39;ENTITY_ID&#39;</span><span class="p">:</span> <span class="s1">&#39;E1&#39;</span><span class="p">,</span> <span class="s1">&#39;CALL_ID&#39;</span><span class="p">:</span> <span class="s1">&#39;C1&#39;</span><span class="p">,</span> <span class="s1">&#39;VERSION_ID&#39;</span><span class="p">:</span> <span class="s1">&#39;V1&#39;</span><span class="p">,</span> <span class="s1">&#39;DATE&#39;</span><span class="p">:</span> <span class="s1">&#39;2021-01-01&#39;</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="s1">&#39;CALL_NAME&#39;</span><span class="p">:</span> <span class="s1">&#39;Call1&#39;</span><span class="p">,</span> <span class="s1">&#39;COMPANY_NAME&#39;</span><span class="p">:</span> <span class="s1">&#39;CompanyA&#39;</span><span class="p">,</span> <span class="s1">&#39;LEN_FILT_MD&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="s1">&#39;LEN_FILT_QA&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="s1">&#39;FILT_MD&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;filter1&#39;</span><span class="p">,</span> <span class="s1">&#39;filter2&#39;</span><span class="p">],</span> <span class="s1">&#39;FILT_QA&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;filter3&#39;</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s1">&#39;SENT_LABELS_FILT_MD&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="s1">&#39;SENT_LABELS_FILT_QA&#39;</span><span class="p">:</span> <span class="p">[[</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">]],</span>
+<span class="gp">... </span>        <span class="s1">&#39;MD_FINAL_SCORE&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;happy&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.85</span><span class="p">],</span> <span class="s1">&#39;sad&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">]},</span>
+<span class="gp">... </span>        <span class="s1">&#39;QA_FINAL_SCORE&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;joyful&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.95</span><span class="p">],</span> <span class="s1">&#39;angry&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">]}</span>
+<span class="gp">... </span>    <span class="p">}</span>
+<span class="gp">... </span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spark_df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">processed_df</span> <span class="o">=</span> <span class="n">processing_nested_columns</span><span class="p">(</span><span class="n">spark_df</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">processed_df</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">truncate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="go">+---------+-------+----------+----------+----------+-------------+----------+----------+--------+--------+-----------------------+-----------------------+-------------------------+----------------------+------------------------+------------------------+-------------------------+--------------------------+</span>
+<span class="go">|ENTITY_ID|CALL_ID|VERSION_ID|DATE      |CALL_NAME |COMPANY_NAME |LEN_FILT_MD|LEN_FILT_QA|FILT_MD |FILT_QA |SENT_LABELS_FILT_MD    |SENT_LABELS_FILT_QA    |happy_TOTAL_FILT_MD      |sad_TOTAL_FILT_MD    |happy_REL_FILT_MD       |sad_REL_FILT_MD       |happy_SCORE_FILT_MD     |sad_SCORE_FILT_MD         |</span>
+<span class="go">+---------+-------+----------+----------+----------+-------------+----------+----------+--------+--------+-----------------------+-----------------------+-------------------------+----------------------+------------------------+------------------------+-------------------------+--------------------------+</span>
+<span class="go">|E1       |C1     |V1        |2021-01-01|Call1     |CompanyA     |10        |8         |filter1 |filter3 |[1, 0, 1]              |[1, 0]                 |[1.0, 0.0, 1.0]          |[0.0, 0.0, 0.0]      |0.6666666666666666       |0.0                    |[0.9, 0.7, 0.85]        |[0.2, 0.1, 0.05]           |</span>
+<span class="go">+---------+-------+----------+----------+----------+-------------+----------+----------+--------+--------+-----------------------+-----------------------+-------------------------+----------------------+------------------------+------------------------+-------------------------+--------------------------+</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<span class="target" id="module-topic_modelling_package.nli_process.scoring"></span><dl class="py function">
+<dl class="py function" id="module-topic_modelling_package.nli_process.scoring">
 <dt class="sig sig-object py" id="topic_modelling_package.nli_process.scoring.add_extracted_scores_columns">
-<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.nli_process.scoring.</span></span><span class="sig-name descname"><span class="pre">add_extracted_scores_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patterns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_suffix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'TOTAL'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_suffix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'EXTRACT'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/nli_process/scoring.html#add_extracted_scores_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.nli_process.scoring.add_extracted_scores_columns" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.nli_process.scoring.</span></span><span class="sig-name descname"><span class="pre">add_extracted_scores_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patterns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_suffix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'TOTAL'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_suffix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'EXTRACT'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/nli_process/scoring.html#add_extracted_scores_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.nli_process.scoring.add_extracted_scores_columns" title="Link to this definition">¶</a></dt>
 <dd><p>Extracts matched sentences from specified columns based on patterns and adds new columns with a new suffix.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -353,7 +613,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="topic_modelling_package.nli_process.scoring.compute_section_metrics">
-<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.nli_process.scoring.</span></span><span class="sig-name descname"><span class="pre">compute_section_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">section</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">section_len</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/nli_process/scoring.html#compute_section_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.nli_process.scoring.compute_section_metrics" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.nli_process.scoring.</span></span><span class="sig-name descname"><span class="pre">compute_section_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">section</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">section_len</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/nli_process/scoring.html#compute_section_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.nli_process.scoring.compute_section_metrics" title="Link to this definition">¶</a></dt>
 <dd><p>Computes metrics for a given section based on scores and a threshold.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -393,7 +653,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="topic_modelling_package.nli_process.scoring.extract_matched_sentences">
-<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.nli_process.scoring.</span></span><span class="sig-name descname"><span class="pre">extract_matched_sentences</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sentences</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matches</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/nli_process/scoring.html#extract_matched_sentences"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.nli_process.scoring.extract_matched_sentences" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.nli_process.scoring.</span></span><span class="sig-name descname"><span class="pre">extract_matched_sentences</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sentences</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matches</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/nli_process/scoring.html#extract_matched_sentences"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.nli_process.scoring.extract_matched_sentences" title="Link to this definition">¶</a></dt>
 <dd><p>Extracts sentences that have a corresponding match flag set to 1.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -418,9 +678,9 @@
 </div>
 </dd></dl>
 
-<span class="target" id="module-topic_modelling_package.nli_process.transformation"></span><dl class="py function">
+<dl class="py function" id="module-topic_modelling_package.nli_process.transformation">
 <dt class="sig sig-object py" id="topic_modelling_package.nli_process.transformation.apply_extract_udf_sections">
-<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.nli_process.transformation.</span></span><span class="sig-name descname"><span class="pre">apply_extract_udf_sections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extract_udf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patterns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['MD',</span> <span class="pre">'QA']</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/nli_process/transformation.html#apply_extract_udf_sections"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.nli_process.transformation.apply_extract_udf_sections" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.nli_process.transformation.</span></span><span class="sig-name descname"><span class="pre">apply_extract_udf_sections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extract_udf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patterns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['MD',</span> <span class="pre">'QA']</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/nli_process/transformation.html#apply_extract_udf_sections"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.nli_process.transformation.apply_extract_udf_sections" title="Link to this definition">¶</a></dt>
 <dd><p>Applies a specified UDF to DataFrame columns matching predefined patterns based on provided suffixes.</p>
 <p>This function performs the following operations for each pattern in the provided list:
 1. Identifies all columns in the DataFrame that end with “_TOTAL_FILT_{pattern}”.
@@ -445,26 +705,26 @@
 </dd>
 </dl>
 <p class="rubric">Example</p>
-<p><a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a>python
-from pyspark.sql.types import StringType
-from pyspark.sql.functions import udf</p>
-<p># Define the extract UDF
-def extract_function(base, total_filt):</p>
-<blockquote>
-<div><p># Example implementation of the UDF
-return f”{base}_{total_filt}”</p>
-</div></blockquote>
-<p>extract_udf = udf(extract_function, StringType())</p>
-<p># Define patterns
-patterns = [‘MD’, ‘QA’]</p>
-<p># Apply the function
-processed_df = apply_extract_udf_sections(currdf_spark, extract_udf, patterns)
-<a href="#id5"><span class="problematic" id="id6">``</span></a><a href="#id7"><span class="problematic" id="id8">`</span></a></p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="kn">import</span> <span class="n">StringType</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="kn">import</span> <span class="n">udf</span>
+</pre></div>
+</div>
+<p>… # Define the extract UDF
+&gt;&gt;&gt; def extract_function(base, total_filt):
+… # Example implementation of the UDF
+… return f”{base}_{total_filt}”</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">extract_udf</span> <span class="o">=</span> <span class="n">udf</span><span class="p">(</span><span class="n">extract_function</span><span class="p">,</span> <span class="n">StringType</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>… # Define patterns
+&gt;&gt;&gt; patterns = [‘MD’, ‘QA’]</p>
+<p>… # Apply the function
+&gt;&gt;&gt; processed_df = apply_extract_udf_sections(currdf_spark, extract_udf, patterns)</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="topic_modelling_package.nli_process.transformation.convert_column_types">
-<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.nli_process.transformation.</span></span><span class="sig-name descname"><span class="pre">convert_column_types</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float_type_cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">array_type_cols</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/nli_process/transformation.html#convert_column_types"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.nli_process.transformation.convert_column_types" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.nli_process.transformation.</span></span><span class="sig-name descname"><span class="pre">convert_column_types</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float_type_cols</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">array_type_cols</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/nli_process/transformation.html#convert_column_types"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.nli_process.transformation.convert_column_types" title="Link to this definition">¶</a></dt>
 <dd><p>Converts specified columns in a Spark DataFrame to float and array types.</p>
 <p>Currently supports converting columns to ‘double’ and ‘array&lt;double&gt;’ types.
 TODO: Add support for more types and highly customized type conversions.</p>
@@ -487,16 +747,21 @@ TODO: Add support for more types and highly customized type conversions.</p>
 </dd>
 </dl>
 <p class="rubric">Example</p>
-<p><code class="docutils literal notranslate"><span class="pre">`python</span>
-<span class="pre">float_cols</span> <span class="pre">=</span> <span class="pre">['col1',</span> <span class="pre">'col2']</span>
-<span class="pre">array_cols</span> <span class="pre">=</span> <span class="pre">['col3',</span> <span class="pre">'col4']</span>
-<span class="pre">converted_df</span> <span class="pre">=</span> <span class="pre">convert_column_types(df_spark,</span> <span class="pre">float_cols,</span> <span class="pre">array_cols)</span>
-<span class="pre">`</span></code></p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">float_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;col1&#39;</span><span class="p">,</span> <span class="s1">&#39;col2&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">array_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;col3&#39;</span><span class="p">,</span> <span class="s1">&#39;col4&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">converted_df</span> <span class="o">=</span> <span class="n">convert_column_types</span><span class="p">(</span><span class="n">df_spark</span><span class="p">,</span> <span class="n">float_cols</span><span class="p">,</span> <span class="n">array_cols</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="topic_modelling_package.nli_process.transformation.literal_eval_safe">
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.nli_process.transformation.</span></span><span class="sig-name descname"><span class="pre">literal_eval_safe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/nli_process/transformation.html#literal_eval_safe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.nli_process.transformation.literal_eval_safe" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="topic_modelling_package.nli_process.transformation.process_nested_columns">
-<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.nli_process.transformation.</span></span><span class="sig-name descname"><span class="pre">process_nested_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nested_columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_columns</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/nli_process/transformation.html#process_nested_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.nli_process.transformation.process_nested_columns" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.nli_process.transformation.</span></span><span class="sig-name descname"><span class="pre">process_nested_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nested_columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_columns</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/nli_process/transformation.html#process_nested_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.nli_process.transformation.process_nested_columns" title="Link to this definition">¶</a></dt>
 <dd><p>Processes a Spark DataFrame by extracting nested column keys, renaming columns, and selecting specific columns.</p>
 <p>This function performs the following operations:
 1. Extracts keys from specified nested columns and creates new columns for each key.
@@ -522,19 +787,17 @@ TODO: Add support for more types and highly customized type conversions.</p>
 </dd>
 </dl>
 <p class="rubric">Example</p>
-<p><a href="#id9"><span class="problematic" id="id10">``</span></a><a href="#id11"><span class="problematic" id="id12">`</span></a>python
-fixed_cols = [‘ENTITY_ID’, ‘CALL_ID’, ‘VERSION_ID’, ‘DATE’, ‘CALL_NAME’,</p>
-<blockquote>
-<div><p>‘COMPANY_NAME’, ‘LEN_FILT_MD’, ‘LEN_FILT_QA’, ‘FILT_MD’, ‘FILT_QA’]</p>
-</div></blockquote>
-<p>nested_cols = [‘MD_FINAL_SCORE_EXTRACTED’, ‘QA_FINAL_SCORE_EXTRACTED’]</p>
-<p>processed_df = process_nested_columns(currdf_spark, nested_cols, fixed_cols)
-<a href="#id13"><span class="problematic" id="id14">``</span></a><a href="#id15"><span class="problematic" id="id16">`</span></a></p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fixed_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ENTITY_ID&#39;</span><span class="p">,</span> <span class="s1">&#39;CALL_ID&#39;</span><span class="p">,</span> <span class="s1">&#39;VERSION_ID&#39;</span><span class="p">,</span> <span class="s1">&#39;DATE&#39;</span><span class="p">,</span> <span class="s1">&#39;CALL_NAME&#39;</span><span class="p">,</span>
+<span class="gp">... </span>          <span class="s1">&#39;COMPANY_NAME&#39;</span><span class="p">,</span> <span class="s1">&#39;LEN_FILT_MD&#39;</span><span class="p">,</span> <span class="s1">&#39;LEN_FILT_QA&#39;</span><span class="p">,</span> <span class="s1">&#39;FILT_MD&#39;</span><span class="p">,</span> <span class="s1">&#39;FILT_QA&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nested_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;MD_FINAL_SCORE_EXTRACTED&#39;</span><span class="p">,</span> <span class="s1">&#39;QA_FINAL_SCORE_EXTRACTED&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">processed_df</span> <span class="o">=</span> <span class="n">process_nested_columns</span><span class="p">(</span><span class="n">currdf_spark</span><span class="p">,</span> <span class="n">nested_cols</span><span class="p">,</span> <span class="n">fixed_cols</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="topic_modelling_package.nli_process.transformation.rename_columns_by_label_matching">
-<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.nli_process.transformation.</span></span><span class="sig-name descname"><span class="pre">rename_columns_by_label_matching</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels_mapping</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/nli_process/transformation.html#rename_columns_by_label_matching"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.nli_process.transformation.rename_columns_by_label_matching" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">topic_modelling_package.nli_process.transformation.</span></span><span class="sig-name descname"><span class="pre">rename_columns_by_label_matching</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels_mapping</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/topic_modelling_package/nli_process/transformation.html#rename_columns_by_label_matching"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#topic_modelling_package.nli_process.transformation.rename_columns_by_label_matching" title="Link to this definition">¶</a></dt>
 <dd><p>Renames columns in a Spark DataFrame based on a provided mapping.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -558,15 +821,13 @@ If a column name contains an original label, it will be replaced with the new la
 </dd>
 </dl>
 <p class="rubric">Example</p>
-<p><a href="#id17"><span class="problematic" id="id18">``</span></a><a href="#id19"><span class="problematic" id="id20">`</span></a>python
-labels_mapping = {</p>
-<blockquote>
-<div><p>“old_label1”: “new_label1”,
-“old_label2”: “new_label2”</p>
-</div></blockquote>
-<p>}
-renamed_df = rename_columns_by_label_matching(df_spark, labels_mapping)
-<a href="#id21"><span class="problematic" id="id22">``</span></a><a href="#id23"><span class="problematic" id="id24">`</span></a></p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">labels_mapping</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>   <span class="s2">&quot;old_label1&quot;</span><span class="p">:</span> <span class="s2">&quot;new_label1&quot;</span><span class="p">,</span>
+<span class="gp">... </span>   <span class="s2">&quot;old_label2&quot;</span><span class="p">:</span> <span class="s2">&quot;new_label2&quot;</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">renamed_df</span> <span class="o">=</span> <span class="n">rename_columns_by_label_matching</span><span class="p">(</span><span class="n">df_spark</span><span class="p">,</span> <span class="n">labels_mapping</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </section>
@@ -627,13 +888,21 @@ renamed_df = rename_columns_by_label_matching(df_spark, labels_mapping)
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">NLI Inferenece</a><ul>
+<li><a class="reference internal" href="#topic_modelling_package.nli_process.data_prep.add_non_entailment_rows"><code class="docutils literal notranslate"><span class="pre">add_non_entailment_rows()</span></code></a></li>
+<li><a class="reference internal" href="#topic_modelling_package.nli_process.data_prep.create_text_pairs"><code class="docutils literal notranslate"><span class="pre">create_text_pairs()</span></code></a></li>
+<li><a class="reference internal" href="#topic_modelling_package.nli_process.data_prep.generate_label_columns"><code class="docutils literal notranslate"><span class="pre">generate_label_columns()</span></code></a></li>
+<li><a class="reference internal" href="#topic_modelling_package.nli_process.data_prep.parse_json_list"><code class="docutils literal notranslate"><span class="pre">parse_json_list()</span></code></a></li>
+<li><a class="reference internal" href="#topic_modelling_package.nli_process.inference.extract_inf"><code class="docutils literal notranslate"><span class="pre">extract_inf()</span></code></a></li>
+<li><a class="reference internal" href="#topic_modelling_package.nli_process.inference.get_section_extract_udf"><code class="docutils literal notranslate"><span class="pre">get_section_extract_udf()</span></code></a></li>
+<li><a class="reference internal" href="#topic_modelling_package.nli_process.inference.inference_run"><code class="docutils literal notranslate"><span class="pre">inference_run()</span></code></a></li>
 <li><a class="reference internal" href="#topic_modelling_package.nli_process.inference.inference_summary"><code class="docutils literal notranslate"><span class="pre">inference_summary()</span></code></a></li>
-<li><a class="reference internal" href="#topic_modelling_package.nli_process.inference.inference_udf"><code class="docutils literal notranslate"><span class="pre">inference_udf()</span></code></a></li>
+<li><a class="reference internal" href="#topic_modelling_package.nli_process.inference.processing_nested_columns"><code class="docutils literal notranslate"><span class="pre">processing_nested_columns()</span></code></a></li>
 <li><a class="reference internal" href="#topic_modelling_package.nli_process.scoring.add_extracted_scores_columns"><code class="docutils literal notranslate"><span class="pre">add_extracted_scores_columns()</span></code></a></li>
 <li><a class="reference internal" href="#topic_modelling_package.nli_process.scoring.compute_section_metrics"><code class="docutils literal notranslate"><span class="pre">compute_section_metrics()</span></code></a></li>
 <li><a class="reference internal" href="#topic_modelling_package.nli_process.scoring.extract_matched_sentences"><code class="docutils literal notranslate"><span class="pre">extract_matched_sentences()</span></code></a></li>
 <li><a class="reference internal" href="#topic_modelling_package.nli_process.transformation.apply_extract_udf_sections"><code class="docutils literal notranslate"><span class="pre">apply_extract_udf_sections()</span></code></a></li>
 <li><a class="reference internal" href="#topic_modelling_package.nli_process.transformation.convert_column_types"><code class="docutils literal notranslate"><span class="pre">convert_column_types()</span></code></a></li>
+<li><a class="reference internal" href="#topic_modelling_package.nli_process.transformation.literal_eval_safe"><code class="docutils literal notranslate"><span class="pre">literal_eval_safe()</span></code></a></li>
 <li><a class="reference internal" href="#topic_modelling_package.nli_process.transformation.process_nested_columns"><code class="docutils literal notranslate"><span class="pre">process_nested_columns()</span></code></a></li>
 <li><a class="reference internal" href="#topic_modelling_package.nli_process.transformation.rename_columns_by_label_matching"><code class="docutils literal notranslate"><span class="pre">rename_columns_by_label_matching()</span></code></a></li>
 </ul>
@@ -647,9 +916,9 @@ renamed_df = rename_columns_by_label_matching(df_spark, labels_mapping)
       
     </aside>
   </div>
-</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=b3ba4146"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+</div><script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
     </body>
 </html>
