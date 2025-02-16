@@ -3,7 +3,7 @@
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from loguru import logger
+#from loguru import logger
 import ast
 import gc
 
@@ -44,7 +44,7 @@ seed['seed'] = True
 #     Returns:
 #         pd.DataFrame: Processed DataFrame.
 #     """
-#     logger.info("Processing dataframe.")
+#     print("Processing dataframe.")
 #     currdf['CALL_ID'] = currdf['CALL_ID'].apply(lambda x: str(x))
 #     currdf["FILT_DATA"] = currdf.apply(lambda row: ast.literal_eval(row['FILT_MD']) + ast.literal_eval(row['FILT_QA']), axis=1)
 #     currdf = (
@@ -55,7 +55,7 @@ seed['seed'] = True
     
 #     # Apply tokenization and lemmatization
 #     currdf['FILT_DATA'] = currdf['FILT_DATA'].apply(lambda x: word_tokenize(x, text_processor))
-#     logger.info("Dataframe processing completed.")
+#     print("Dataframe processing completed.")
 #     return currdf
 
 # def run_pipeline2(config: Config) -> None:
@@ -70,7 +70,7 @@ seed['seed'] = True
 #         config (Config): Configuration object containing all necessary settings.
 #     """
 #     
-#     logger.info("Starting Pipeline 2: Embedding Generation and Visualization")
+#     print("Starting Pipeline 2: Embedding Generation and Visualization")
     
 #     # Initialize SpaCy model
 #     nlp = initialize_spacy_model(config)
@@ -81,7 +81,7 @@ seed['seed'] = True
     
 #     minDateNewQuery = format_date(data_start_date)
 #     maxDateNewQuery = format_date(data_end_date)
-#     logger.info(f"Querying data from {minDateNewQuery} to {maxDateNewQuery}")
+#     print("Querying data from {minDateNewQuery} to {maxDateNewQuery}")
     
 #     tsQuery = (
 #         f"SELECT FILT_DATA, ENTITY_ID, UPLOAD_DT_UTC, VERSION_ID, EVENT_DATETIME_UTC "
@@ -113,21 +113,21 @@ seed['seed'] = True
 #         max_month=maxDateNewQuery[5:7]
 #     )
 #     model = Word2Vec.load(str(model_save_path))
-#     logger.info(f"Loaded Word2Vec model from {model_save_path}")
+#     print("Loaded Word2Vec model from {model_save_path}")
     
 #     # Embed seed words
 #     seed['embed'] = seed['match'].apply(lambda x: embed_text(word_tokenize(x, nlp), model))
 #     seed = seed[seed['embed'].notna()]
 #     seed['seed'] = True
-#     logger.info(f"Number of seed embeddings: {len(seed)}")
+#     print("Number of seed embeddings: {len(seed)}")
     
 #     # Generate UMAP visualization if sufficient seeds
 #     if len(seed.index) >= 8:
 #         umap_save_path = Path(config.visualization.umap_save_path).with_suffix('.html')
 #         umap_viz(seed, marker_size=8, save_to=str(umap_save_path))
-#         logger.info(f"UMAP visualization saved to {umap_save_path}")
+#         print("UMAP visualization saved to {umap_save_path}")
     
-#     logger.info("Pipeline 2 completed successfully.")
+#     print("Pipeline 2 completed successfully.")
 
 # if __name__ == "__main__":
 #     config = get_config()

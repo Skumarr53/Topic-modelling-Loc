@@ -5,7 +5,7 @@ import re
 from typing import List, Dict, Any, Callable
 
 from pyspark.sql import DataFrame, functions as F, types as T
-from loguru import logger
+#from loguru import logger
 
 from pyspark.sql.functions import udf, col
 from pyspark.sql.types import  FloatType, ArrayType, MapType, DoubleType
@@ -61,26 +61,26 @@ def apply_extract_udf_sections(
             replace_suffix = f"_EXTRACT_FILT_{pattern}"
             base_column = f"FILT_{pattern}"
 
-            logger.info(f"Processing pattern: {pattern}")
+            print("Processing pattern: {pattern}")
 
             # Find all columns matching the current pattern
             matched_columns = [c for c in df.columns if regex_pattern.match(c)]
-            logger.debug(f"Matched columns for pattern '{pattern}': {matched_columns}")
+            print("Matched columns for pattern '{pattern}': {matched_columns}")
 
             for col_name in matched_columns:
                 # Generate the new column name by replacing the suffix
                 new_col_name = col_name.replace(f"_TOTAL_FILT_{pattern}", replace_suffix)
-                logger.debug(f"Creating new column '{new_col_name}' from '{col_name}' using base column '{base_column}'")
+                print("Creating new column '{new_col_name}' from '{col_name}' using base column '{base_column}'")
 
                 # Apply the UDF to create the new column
                 df = df.withColumn(new_col_name, extract_udf(F.col(base_column), F.col(col_name)))
-                logger.info(f"Added new column '{new_col_name}' to DataFrame.")
+                print("Added new column '{new_col_name}' to DataFrame.")
 
-        logger.info("Scores extracted successfully.")
+        print("Scores extracted successfully.")
         return df
 
     except Exception as e:
-        logger.error(f"Error in apply_extract_udf_sections: {e}")
+        print("Error in apply_extract_udf_sections: {e}")
         raise e
 
 
@@ -128,13 +128,13 @@ def rename_columns_by_label_matching(
         # Rename columns if any new names are generated
         for old_col, new_col in new_column_names.items():
             df = df.withColumnRenamed(old_col, new_col)
-            logger.debug(f"Renamed column '{old_col}' to '{new_col}'")
+            print("Renamed column '{old_col}' to '{new_col}'")
 
-        logger.info("Columns renamed successfully.")
+        print("Columns renamed successfully.")
         return df
 
     except Exception as e:
-        logger.error(f"Failed to rename columns: {e}")
+        print("Failed to rename columns: {e}")
         raise e
 
 
@@ -181,23 +181,23 @@ def convert_column_types(
         for col_name in float_type_cols:
             if col_name in df.columns:
                 df = df.withColumn(col_name, float_convert_udf(F.col(col_name)))
-                logger.debug(f"Converted column '{col_name}' to double type.")
+                print("Converted column '{col_name}' to double type.")
             else:
-                logger.warning(f"Column '{col_name}' not found in DataFrame. Skipping conversion.")
+                print("Column '{col_name}' not found in DataFrame. Skipping conversion.")
 
         # Convert array type columns
         for col_name in array_type_cols:
             if col_name in df.columns:
                 df = df.withColumn(col_name, array_convert_udf(F.col(col_name)))
-                logger.debug(f"Converted column '{col_name}' to array<double> type.")
+                print("Converted column '{col_name}' to array<double> type.")
             else:
-                logger.warning(f"Column '{col_name}' not found in DataFrame. Skipping conversion.")
+                print("Column '{col_name}' not found in DataFrame. Skipping conversion.")
 
-        logger.info("Column types converted successfully.")
+        print("Column types converted successfully.")
         return df
 
     except Exception as e:
-        logger.error(f"Failed to convert column types: {e}")
+        print("Failed to convert column types: {e}")
         raise e
 
 def process_nested_columns(
@@ -234,12 +234,12 @@ def process_nested_columns(
     try:
         # Step 1: Extract keys from nested columns and create new columns
         for nested_col in nested_columns:
-            logger.info(f"Processing nested column: {nested_col}")
+            print("Processing nested column: {nested_col}")
 
             # Extract the keys from the first row to determine the new column names
             first_row = df.select(nested_col).first()
             if first_row is None or first_row[nested_col] is None:
-                logger.warning(f"No data found in column '{nested_col}'. Skipping extraction.")
+                print("No data found in column '{nested_col}'. Skipping extraction.")
                 continue
 
             # Determine if the nested column is a MapType or StructType
@@ -250,10 +250,10 @@ def process_nested_columns(
                 try:
                     extracted_keys = first_row[nested_col].asDict().keys()
                 except AttributeError:
-                    logger.error(f"Unsupported nested column type for '{nested_col}'. Skipping extraction.")
+                    print("Unsupported nested column type for '{nested_col}'. Skipping extraction.")
                     continue
 
-            logger.debug(f"Extracted keys from '{nested_col}': {list(extracted_keys)}")
+            print("Extracted keys from '{nested_col}': {list(extracted_keys)}")
 
             # Create a new column for each key
             for key in extracted_keys:
@@ -261,11 +261,11 @@ def process_nested_columns(
                 clean_key = key.replace('.', '')
                 new_col_name = f"{clean_key}"
                 df = df.withColumn(new_col_name, F.col(nested_col).getItem(key))
-                logger.debug(f"Added new column '{new_col_name}' from '{nested_col}'")
+                print("Added new column '{new_col_name}' from '{nested_col}'")
 
         # Step 2: Drop the original nested columns
         df = df.drop(*nested_columns)
-        logger.info(f"Dropped nested columns: {nested_columns}")
+        print("Dropped nested columns: {nested_columns}")
 
         # Step 3: Rename all columns by removing dots
         new_column_names = [c.replace('.', '') for c in df.columns]
@@ -274,9 +274,9 @@ def process_nested_columns(
         for old_col, new_col in rename_mapping.items():
             if old_col != new_col:
                 df = df.withColumnRenamed(old_col, new_col)
-                logger.debug(f"Renamed column '{old_col}' to '{new_col}'")
+                print("Renamed column '{old_col}' to '{new_col}'")
 
-        logger.info("Renamed all columns by removing dots.")
+        print("Renamed all columns by removing dots.")
 
         # Step 4: Prepare the list of columns to select
         # Clean fixed_columns by removing dots, if any
@@ -291,14 +291,14 @@ def process_nested_columns(
 
         missing_columns = set(fixed_columns_clean) - set(existing_columns)
         if missing_columns:
-            logger.warning(f"The following fixed columns are missing and will be skipped: {missing_columns}")
+            print("The following fixed columns are missing and will be skipped: {missing_columns}")
 
         # Select the specified columns
         df_selected = df.select(*columns_to_select)
-        logger.info("Selected the specified subset of columns.")
+        print("Selected the specified subset of columns.")
 
         return df_selected
 
     except Exception as e:
-        logger.error(f"Failed to process DataFrame: {e}")
+        print("Failed to process DataFrame: {e}")
         raise e

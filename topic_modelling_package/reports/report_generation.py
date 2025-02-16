@@ -3,7 +3,7 @@ import ast
 from typing import Dict, Any, List, Tuple, Optional
 import pandas as pd
 import spacy
-from loguru import logger
+#from loguru import logger
 import dask.dataframe as dd
 from dask.diagnostics import ProgressBar
 
@@ -85,7 +85,7 @@ def create_topic_dict(
             f"{len(negative_matches)} negative matches."
         )
 
-    logger.info("Created topic dictionaries successfully.")
+    print("Created topic dictionaries successfully.")
     return word_set_dict, negate_dict
 
 
@@ -138,12 +138,12 @@ def replace_separator_in_dict_words(
             if len(parts) == required_splits:
                 transformed_word = separator.join(parts)
                 transformed_dict[key].append(transformed_word)
-                logger.debug(f"Transformed '{word}' to '{transformed_word}' in category '{key}'.")
+                print("Transformed '{word}' to '{transformed_word}' in category '{key}'.")
             else:
                 transformed_dict[key].append(word)
-                logger.debug(f"No transformation for '{word}' in category '{key}'.")
+                print("No transformation for '{word}' in category '{key}'.")
     
-    logger.info("Replaced separators in dictionary words successfully.")
+    print("Replaced separators in dictionary words successfully.")
     return transformed_dict
 
 
@@ -225,7 +225,7 @@ def generate_topic_report(
         for lab in labels
     ]
 
-    logger.info("Applying initial match count transformations.")
+    print("Applying initial match count transformations.")
     df = df_apply_transformations(df, lab_sec_dict1)
 
     with ProgressBar():
@@ -241,15 +241,15 @@ def generate_topic_report(
                 if transformation_func:
                     lab_sec_dict2.append(transformation_func(topic, label, label_column))
                 else:
-                    logger.warning(f"Statistic '{stat}' not found in STATISTICS_MAP.")
+                    print("Statistic '{stat}' not found in STATISTICS_MAP.")
             if lab_sec_dict2:
-                logger.info(f"Applying transformations for topic '{topic}' and label '{label}'.")
+                print("Applying transformations for topic '{topic}' and label '{label}'.")
                 df = df_apply_transformations(df, lab_sec_dict2)
 
     # Drop intermediate match columns
     intermediate_cols = [f"{label_column}_{label}" for label in labels]
     df.drop(columns=intermediate_cols, inplace=True, errors='ignore')
-    logger.info(f"Dropped intermediate match columns: {intermediate_cols}")
+    print("Dropped intermediate match columns: {intermediate_cols}")
 
     return df
 
@@ -303,12 +303,12 @@ def generate_top_matches_report(
     required_columns = meta_cols + [sort_by, f"{topic}_STATS_{label}", f"{topic}_TOTAL_{label}"]
     missing_columns = set(required_columns) - set(df.columns)
     if missing_columns:
-        logger.warning(f"The following required columns are missing in the DataFrame: {missing_columns}")
+        print("The following required columns are missing in the DataFrame: {missing_columns}")
 
     # Filter the DataFrame to include only the required columns that exist
     existing_columns = [col for col in required_columns if col in df.columns]
     if not existing_columns:
-        logger.error("No required columns found in DataFrame. Cannot generate report.")
+        print("No required columns found in DataFrame. Cannot generate report.")
         return pd.DataFrame()  # Return empty DataFrame
 
     # Sort the DataFrame based on the 'sort_by' column in descending order
@@ -326,5 +326,5 @@ def generate_top_matches_report(
     # Drop rows with NaN in the 'sort_by' column
     report_df = report_df.dropna(subset=[sort_by])
 
-    logger.info(f"Generated top {top_n} matches report for topic '{topic}' and label '{label}'.")
+    print("Generated top {top_n} matches report for topic '{topic}' and label '{label}'.")
     return report_df

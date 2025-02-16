@@ -4,7 +4,7 @@ from typing import Iterator, List, Tuple, Dict, Any
 
 from functools import partial
 import pandas as pd
-from loguru import logger
+#from loguru import logger
 
 from pyspark.sql.functions import udf, col
 from pyspark.sql.types import ArrayType, StringType, FloatType, IntegerType, StructType, StructField, TimestampType, MapType
@@ -54,12 +54,12 @@ def inference_summary(
     
     for text_pair, inference in zip(texts, inference_result):
         if not text_pair:
-            logger.warning("Empty text pair encountered. Skipping.")
+            print("Empty text pair encountered. Skipping.")
             continue
         try:
             text1, text2_label = text_pair['text'], text_pair['topic']
         except ValueError as e:
-            logger.error(f"Error splitting text pair '{text_pair}': {e}")
+            print("Error splitting text pair '{text_pair}': {e}")
             continue
         
         for s in inference:
@@ -73,7 +73,7 @@ def inference_summary(
                     f"Flag: {total_flag} (Threshold: {threshold})"
                 )
     
-    logger.info("Inference summary completed.")
+    print("Inference summary completed.")
     return total_dict, score_dict
 
 
@@ -107,12 +107,12 @@ def inference_run(
     """
     
     for batch_num, batch in enumerate(iterator, start=1):
-        logger.info(f"Processing inference batch {batch_num} with {len(batch)} rows.")
+        print("Processing inference batch {batch_num} with {len(batch)} rows.")
         try:
             # Flatten the list of text pairs in the batch
             batch = batch.tolist()
             flat_text_pairs = [dict(text=pair['text'], text_pair=pair['topic']) for sublist in batch for pair in sublist]
-            logger.debug(f"Batch {batch_num}: Total text pairs to infer: {len(flat_text_pairs)}")
+            print("Batch {batch_num}: Total text pairs to infer: {len(flat_text_pairs)}")
             
             if flat_text_pairs:
                 # Perform inference in batch
@@ -124,10 +124,10 @@ def inference_run(
                     truncation=True,
                     max_length=max_length
                 )
-                logger.debug(f"Batch {batch_num}: Inference completed with {len(results)} results.")
+                print("Batch {batch_num}: Inference completed with {len(results)} results.")
             else:
                 results = []
-                logger.warning(f"Batch {batch_num}: No text pairs to infer.")
+                print("Batch {batch_num}: No text pairs to infer.")
             
             # Split results back to original rows
             split_results = []
@@ -138,14 +138,14 @@ def inference_run(
                     pair_length = len(pairs)
                     split_results.append(results[idx:idx + pair_length])
                     idx += pair_length
-                    logger.debug(f"Batch {batch_num}: Split {pair_length} results for current row.")
+                    print("Batch {batch_num}: Split {pair_length} results for current row.")
                 else:
                     split_results.append([])
-                    logger.debug(f"Batch {batch_num}: No pairs in current row. Appended empty list.")
+                    print("Batch {batch_num}: No pairs in current row. Appended empty list.")
             
             yield pd.Series(split_results)
         except Exception as e:
-            logger.error(f"Error in inference batch {batch_num}: {e}")
+            print("Error in inference batch {batch_num}: {e}")
             # Yield empty results for this batch to continue processing
             yield pd.Series([[] for _ in batch])
 

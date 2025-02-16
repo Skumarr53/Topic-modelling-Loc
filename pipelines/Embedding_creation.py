@@ -6,7 +6,7 @@ from centralized_nlp_package.configs.queries import  queries
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from dask.distributed import Client
-from loguru import logger
+#from loguru import logger
 from pathlib import Path
 import ast
 import gc
@@ -50,11 +50,11 @@ def run_pipeline1() -> None:
         config (Config): Configuration object containing all necessary settings.
     """
     
-    logger.info("Starting Pipeline 1: Model Inputs Preparation")
+    print("Starting Pipeline 1: Model Inputs Preparation")
     
     # Initialize Dask client
     client = Client(n_workers=config.dask.n_workers)
-    logger.info(f"Dask client initialized with {config.dask.n_workers} workers.")
+    print("Dask client initialized with {config.dask.n_workers} workers.")
     
     # Retrieve data from Snowflake
     data_end_date = datetime.now()
@@ -62,7 +62,7 @@ def run_pipeline1() -> None:
     
     minDateNewQuery = format_date(data_start_date)
     maxDateNewQuery = format_date(data_end_date)
-    logger.info(f"Querying data from {minDateNewQuery} to {maxDateNewQuery}")
+    print("Querying data from {minDateNewQuery} to {maxDateNewQuery}")
     
     tsQuery = (
         f"SELECT FILT_DATA, ENTITY_ID, UPLOAD_DT_UTC, VERSION_ID, EVENT_DATETIME_UTC "
@@ -77,7 +77,7 @@ def run_pipeline1() -> None:
     
     currdf['FILT_DATA'] = currdf['FILT_DATA'].apply(ast.literal_eval)
     feed = list(itertools.chain.from_iterable(currdf['FILT_DATA'].tolist()))
-    logger.info(f"Number of sentences across all documents: {len(feed)}")
+    print("Number of sentences across all documents: {len(feed)}")
     
     gc.collect()
     
@@ -108,7 +108,7 @@ def run_pipeline1() -> None:
     
     save_model(model, str(model_save_path))
     
-    logger.info(f"Word2Vec model saved to {model_save_path}")
+    print("Word2Vec model saved to {model_save_path}")
     
     client.close()
-    logger.info("Dask client closed. Pipeline 1 completed successfully.")
+    print("Dask client closed. Pipeline 1 completed successfully.")

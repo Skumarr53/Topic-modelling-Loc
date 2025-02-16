@@ -4,7 +4,7 @@ import json
 from pyexpat.errors import messages
 from typing import List, Tuple, Union, Callable, Any
 from pyspark.sql import DataFrame
-from loguru import logger
+#from loguru import logger
 
 
 def parse_json_list(json_str: str) -> List[Any]:
@@ -26,16 +26,16 @@ def parse_json_list(json_str: str) -> List[Any]:
     try:
         parsed_list = json.loads(json_str)
         if isinstance(parsed_list, list):
-            logger.debug(f"Successfully parsed JSON string into list: {parsed_list}")
+            print("Successfully parsed JSON string into list: {parsed_list}")
             return parsed_list
         else:
-            logger.error(f"JSON parsed but is not a list: {parsed_list}")
+            print("JSON parsed but is not a list: {parsed_list}")
             return []
     except json.JSONDecodeError as e:
-        logger.error(f"JSON parsing error: {e} for input: {json_str}")
+        print("JSON parsing error: {e} for input: {json_str}")
         return []
     except Exception as e:
-        logger.error(f"Unexpected error during JSON parsing: {e} for input: {json_str}")
+        print("Unexpected error during JSON parsing: {e} for input: {json_str}")
         return []
 
 
@@ -59,8 +59,8 @@ def create_text_pairs(filters: List[str], labels: List[str]) -> List[str]:
         for label in labels:
             pair_dict = {"text": filter_item, "topic": label}
             text_pairs.append(pair_dict)
-            logger.debug(f"Created text pair: {pair_dict}")
-    logger.info(f"Generated {len(text_pairs)} text pairs from filters and labels.")
+            print("Created text pair: {pair_dict}")
+    print("Generated {len(text_pairs)} text pairs from filters and labels.")
     return text_pairs
 
 
@@ -99,8 +99,8 @@ def generate_label_columns(
                 # Base column
                 column_name = f"{label}_{metric}_{sec_filter}"
                 dynamic_columns.append(column_name)
-                logger.debug(f"Generated column name: {column_name}")
-    logger.info(f"Generated {len(dynamic_columns)} label columns.")
+                print("Generated column name: {column_name}")
+    print("Generated {len(dynamic_columns)} label columns.")
     return dynamic_columns
 
 def add_non_entailment_rows(df, shuffle = True):

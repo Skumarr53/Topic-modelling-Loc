@@ -12,7 +12,7 @@ from centralized_nlp_package.text_processing import (
     tokenize_and_lemmatize_text
 )
 from centralized_nlp_package.data_processing import df_apply_transformations
-from loguru import logger
+#from loguru import logger
 
 import re
 
@@ -63,7 +63,7 @@ def transform_match_keywords_df(match_keywords_df: pd.DataFrame) -> pd.DataFrame
     """
     
     # 1. Validate required columns
-    logger.info("Starting transformation of match_keywords_df.")
+    print("Starting transformation of match_keywords_df.")
     required_columns = ["Subtopic", "Refined Keywords", "Negation"]
     for col in required_columns:
         if col not in match_keywords_df.columns:
@@ -163,7 +163,7 @@ def create_match_patterns(matches: List[str], nlp: spacy.Language) -> Dict[str, 
 
     phrases = [phrase.lower() for phrase in matches if len(phrase.split(" ")) > 2]
 
-    logger.debug(f"Generated match patterns: { {'original': matches, 'unigrams': unigrams, 'bigrams': bigrams, 'phrases': phrases} }")
+    print("Generated match patterns: { {'original': matches, 'unigrams': unigrams, 'bigrams': bigrams, 'phrases': phrases} }")
     return {'original': matches, 'unigrams': unigrams, 'bigrams': bigrams, 'phrases': phrases}
 
 
@@ -237,7 +237,7 @@ def count_matches_in_texts(
         for label, match_set in match_sets.items(): 
             if suppress and label in suppress:
                 if any(item in text_lower for item in suppress[label]):
-                    logger.debug(f"Suppressing label '{label}' for text: {text}")
+                    print("Suppressing label '{label}' for text: {text}")
                     continue
 
             for word in unigrams:
@@ -254,7 +254,7 @@ def count_matches_in_texts(
                 for phrase in match_set.get('phrases', []):
                     if phrase in text_lower:
                         counted[label] += 1
-                        logger.debug(f"Phrase '{phrase}' found in text: {text}")
+                        print("Phrase '{phrase}' found in text: {text}")
 
         for label in match_sets.keys():
             total_counts[label].append(counted[label])
@@ -267,7 +267,7 @@ def count_matches_in_texts(
         for label in match_sets.keys()
     }
 
-    logger.info("Completed counting matches in texts.")
+    print("Completed counting matches in texts.")
     return result
 
 #  match_count_lowStat_singleSent
@@ -459,7 +459,7 @@ def merge_count_dicts(count_list: List[Dict[str, Any]]) -> Dict[str, int]:
     """
     try:
         if not count_list:
-            logger.warning("Empty count list provided. Returning empty dictionary.")
+            print("Empty count list provided. Returning empty dictionary.")
             return {}
         
         merged = Counter()
@@ -467,11 +467,11 @@ def merge_count_dicts(count_list: List[Dict[str, Any]]) -> Dict[str, int]:
             merged.update(count_dict)
         
         if not merged:
-            logger.warning("No matches found in count list. Returning default {'NO_MATCH': 1}.")
+            print("No matches found in count list. Returning default {'NO_MATCH': 1}.")
             return {'NO_MATCH': 1}
         
-        logger.debug(f"Merged count dictionary: {dict(merged)}")
+        print("Merged count dictionary: {dict(merged)}")
         return dict(merged)
     except Exception as e:
-        logger.error(f"Failed to merge count dictionaries: {e}")
+        print("Failed to merge count dictionaries: {e}")
         return {'ERROR': 1}

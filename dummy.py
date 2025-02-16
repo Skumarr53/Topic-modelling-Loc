@@ -4,10 +4,10 @@ import plotly.express as px
 import pandas as pd
 from typing import Optional
 import numpy as np
-from loguru import logger
+#from loguru import logger
 from gensim.models import Word2Vec
 import numpy as np
-from loguru import logger
+#from loguru import logger
 from centralized_nlp_package.text_processing.text_preprocessing import tokenize_text
 from centralized_nlp_package.text_processing.ngram_utils import find_ngrams
 from centralized_nlp_package.embedding.embedding_utils import average_token_embeddings
@@ -81,7 +81,7 @@ def find_nearest_words_with_embeddings(words: pd.DataFrame, model: Word2Vec, num
     Returns:
         pd.DataFrame: DataFrame containing labels, embeddings, matched words, and similarity scores.
     """
-    logger.info("Finding nearest neighbors for each topic.")
+    print("Finding nearest neighbors for each topic.")
     alist = {'label': [], 'embed': [], 'match': [], 'sim': []}
     for topic in set(words['label']):
         topic_embed = [[word[0], model.wv[word[0]], word[1]] for word in model.wv.most_similar_cosmul(
@@ -185,7 +185,7 @@ def umap_viz(df: pd.DataFrame, marker_size: Optional[int] = None, save_to: Optio
         marker_size (Optional[int], optional): Size of the markers in the plot. Defaults to None.
         save_to (Optional[str], optional): Path to save the HTML visualization. Defaults to None.
     """
-    logger.info("Generating UMAP visualization.")
+    print("Generating UMAP visualization.")
     mapper = umap.UMAP().fit_transform(np.stack(df['embed']))
     df['x'] = mapper[:, 0]
     df['y'] = mapper[:, 1]
@@ -199,6 +199,6 @@ def umap_viz(df: pd.DataFrame, marker_size: Optional[int] = None, save_to: Optio
         fig.update_traces(marker_size=marker_size)
     if save_to:
         fig.write_html(save_to)
-        logger.info(f"UMAP visualization saved to {save_to}")
+        print("UMAP visualization saved to {save_to}")
     fig.show()
-    logger.info("UMAP visualization generated successfully.")
+    print("UMAP visualization generated successfully.")

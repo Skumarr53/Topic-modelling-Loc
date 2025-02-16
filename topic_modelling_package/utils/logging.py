@@ -1,6 +1,6 @@
 # topic_modelling_package/utils/logging.py
 
-from loguru import logger
+#from loguru import logger
 from pathlib import Path
 import os, sys
 
@@ -42,4 +42,4 @@ def setup_logging(env: str  = "dev"):
         
     # # File Handler with Rotation and Retention
     # logger.add(log_file_path, level=log_level, format="{time} | {level:10} | {message}", rotation="10 MB", retention="7 days", compression="zip")
-    logger.info("Logging setup completed.")
+    print("Logging setup completed.")

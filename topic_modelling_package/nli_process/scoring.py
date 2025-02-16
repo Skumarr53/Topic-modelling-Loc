@@ -5,7 +5,7 @@ import json
 
 from pyspark.sql import DataFrame, functions as F, types as T
 from pyspark.sql.types import ArrayType, StringType
-from loguru import logger
+#from loguru import logger
 
 # from centralized_nlp_package.data_processing import create_spark_udf
 
@@ -28,15 +28,15 @@ def extract_matched_sentences(sentences: List[str], matches: List[int]) -> List[
         ['Sentence one.', 'Sentence three.']
     """
     if not sentences or not matches:
-        logger.warning("Empty sentences or matches list provided.")
+        print("Empty sentences or matches list provided.")
         return []
 
     if len(sentences) != len(matches):
-        logger.error("Length mismatch between sentences and matches.")
+        print("Length mismatch between sentences and matches.")
         raise ValueError("The length of sentences and matches must be equal.")
 
     matched_sentences = [sentence for sentence, match in zip(sentences, matches) if match == 1]
-    logger.debug(f"Extracted {len(matched_sentences)} matched sentences out of {len(sentences)}.")
+    print("Extracted {len(matched_sentences)} matched sentences out of {len(sentences)}.")
     return matched_sentences
 
 
@@ -103,7 +103,7 @@ def compute_section_metrics(
             )
 
     metrics = {**count_col, **rel_col, **score_col, **total_col}
-    logger.debug(f"Computed metrics for section '{section}': {metrics}")
+    print("Computed metrics for section '{section}': {metrics}")
     return metrics
 
 
@@ -137,20 +137,20 @@ def add_extracted_scores_columns(
     try:
         # Compile regex patterns
         compiled_patterns = [re.compile(pattern) for pattern in patterns]
-        logger.debug(f"Compiled patterns: {compiled_patterns}")
+        print("Compiled patterns: {compiled_patterns}")
 
         # Define the UDF
         extract_udf = F.udf(extract_matched_sentences, ArrayType(StringType()))
         
         # Identify matched columns based on patterns
         matched_columns = [col for col in df.columns if any(pattern.match(col) for pattern in compiled_patterns)]
-        logger.info(f"Matched columns for extraction: {matched_columns}")
+        print("Matched columns for extraction: {matched_columns}")
 
         for col_name in matched_columns:
             # Determine the new column name by replacing the original suffix with the new suffix
             if original_suffix in col_name:
                 new_col_name = col_name.replace(original_suffix, new_suffix)
-                logger.debug(f"Creating new column '{new_col_name}' from '{col_name}'.")
+                print("Creating new column '{new_col_name}' from '{col_name}'.")
 
                 # Apply the UDF to create the new column
                 if 'MD' == col_name: section = 'FILT_MD'
@@ -159,12 +159,12 @@ def add_extracted_scores_columns(
                     raise ValueError("column name matching predefined sections")
 
                 df = df.withColumn(new_col_name, extract_udf(F.col(section), F.col(col_name)))
-                logger.debug(f"Added column '{new_col_name}' to DataFrame.")
+                print("Added column '{new_col_name}' to DataFrame.")
             else:
-                logger.warning(f"Original suffix '{original_suffix}' not found in column '{col_name}'. Skipping replacement.")
+                print("Original suffix '{original_suffix}' not found in column '{col_name}'. Skipping replacement.")
 
-        logger.info("Scores extracted and new columns added successfully.")
+        print("Scores extracted and new columns added successfully.")
         return df
     except Exception as e:
-        logger.error(f"Failed to extract scores: {e}")
+        print("Failed to extract scores: {e}")
         raise e
