@@ -130,5 +130,5 @@ seed['seed'] = True
 #     print("Pipeline 2 completed successfully.")
 
 # if __name__ == "__main__":
-#     config = get_config()
+#     #config = get_config()
 #     run_pipeline2(config)
