@@ -268,16 +268,16 @@
     <span class="k">try</span><span class="p">:</span>
         <span class="n">parsed_list</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_str</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parsed_list</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Successfully parsed JSON string into list: </span><span class="si">{</span><span class="n">parsed_list</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;Successfully parsed JSON string into list: </span><span class="si">{</span><span class="n">parsed_list</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">parsed_list</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;JSON parsed but is not a list: </span><span class="si">{</span><span class="n">parsed_list</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;JSON parsed but is not a list: </span><span class="si">{</span><span class="n">parsed_list</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="p">[]</span>
     <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;JSON parsing error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2"> for input: </span><span class="si">{</span><span class="n">json_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;JSON parsing error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2"> for input: </span><span class="si">{</span><span class="n">json_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[]</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unexpected error during JSON parsing: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2"> for input: </span><span class="si">{</span><span class="n">json_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;Unexpected error during JSON parsing: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2"> for input: </span><span class="si">{</span><span class="n">json_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[]</span></div>
 
 
@@ -304,8 +304,8 @@
         <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
             <span class="n">combined_text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filter_item</span><span class="si">}</span><span class="s2">&lt;/s&gt;&lt;/s&gt;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="n">text_pairs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">combined_text</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Created text pair: </span><span class="si">{</span><span class="n">combined_text</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generated </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">text_pairs</span><span class="p">)</span><span class="si">}</span><span class="s2"> text pairs from filters and labels.&quot;</span><span class="p">)</span>
+            <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;Created text pair: </span><span class="si">{</span><span class="n">combined_text</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">print(</span><span class="n">text_pairs</span><span class="p">)</span><span class="si">}</span><span class="s2"> text pairs from filters and labels.&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">text_pairs</span></div>
 
 
@@ -347,8 +347,8 @@
                 <span class="c1"># Base column</span>
                 <span class="n">column_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">metric</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">sec_filter</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="n">dynamic_columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">column_name</span><span class="p">)</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generated column name: </span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generated </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dynamic_columns</span><span class="p">)</span><span class="si">}</span><span class="s2"> label columns.&quot;</span><span class="p">)</span>
+                <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;Generated column name: </span><span class="si">{</span><span class="n">column_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">print(</span><span class="n">dynamic_columns</span><span class="p">)</span><span class="si">}</span><span class="s2"> label columns.&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">dynamic_columns</span></div>
 
 

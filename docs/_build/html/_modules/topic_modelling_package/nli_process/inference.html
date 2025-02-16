@@ -296,12 +296,12 @@
     
     <span class="k">for</span> <span class="n">text_pair</span><span class="p">,</span> <span class="n">inference</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">texts</span><span class="p">,</span> <span class="n">inference_result</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">text_pair</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Empty text pair encountered. Skipping.&quot;</span><span class="p">)</span>
+            <span class="n">print(</span><span class="s2">&quot;Empty text pair encountered. Skipping.&quot;</span><span class="p">)</span>
             <span class="k">continue</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">text1</span><span class="p">,</span> <span class="n">text2_label</span> <span class="o">=</span> <span class="n">text_pair</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;&lt;/s&gt;&lt;/s&gt;&#39;</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error splitting text pair &#39;</span><span class="si">{</span><span class="n">text_pair</span><span class="si">}</span><span class="s2">&#39;: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;Error splitting text pair &#39;</span><span class="si">{</span><span class="n">text_pair</span><span class="si">}</span><span class="s2">&#39;: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">continue</span>
         
         <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">inference</span><span class="p">:</span>
@@ -310,12 +310,12 @@
                 <span class="n">total_flag</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">score</span> <span class="o">&gt;</span> <span class="n">threshold</span> <span class="k">else</span> <span class="mi">0</span>
                 <span class="n">total_dict</span><span class="p">[</span><span class="n">text2_label</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">total_flag</span><span class="p">)</span>
                 <span class="n">score_dict</span><span class="p">[</span><span class="n">text2_label</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="n">print(</span>
                     <span class="sa">f</span><span class="s2">&quot;Label: </span><span class="si">{</span><span class="n">text2_label</span><span class="si">}</span><span class="s2">, Score: </span><span class="si">{</span><span class="n">score</span><span class="si">}</span><span class="s2">, &quot;</span>
                     <span class="sa">f</span><span class="s2">&quot;Flag: </span><span class="si">{</span><span class="n">total_flag</span><span class="si">}</span><span class="s2"> (Threshold: </span><span class="si">{</span><span class="n">threshold</span><span class="si">}</span><span class="s2">)&quot;</span>
                 <span class="p">)</span>
     
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Inference summary completed.&quot;</span><span class="p">)</span>
+    <span class="n">print(</span><span class="s2">&quot;Inference summary completed.&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">total_dict</span><span class="p">,</span> <span class="n">score_dict</span></div>
 
 
@@ -352,12 +352,12 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     
     <span class="k">for</span> <span class="n">batch_num</span><span class="p">,</span> <span class="n">batch</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">iterator</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing inference batch </span><span class="si">{</span><span class="n">batch_num</span><span class="si">}</span><span class="s2"> with </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span><span class="si">}</span><span class="s2"> rows.&quot;</span><span class="p">)</span>
+        <span class="n">print(</span><span class="n">batch</span><span class="p">)</span><span class="si">}</span><span class="s2"> rows.&quot;</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="c1"># Flatten the list of text pairs in the batch</span>
             <span class="n">batch</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
             <span class="n">flat_text_pairs</span> <span class="o">=</span> <span class="p">[</span><span class="n">pair</span> <span class="k">for</span> <span class="n">sublist</span> <span class="ow">in</span> <span class="n">batch</span> <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">sublist</span><span class="p">]</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Batch </span><span class="si">{</span><span class="n">batch_num</span><span class="si">}</span><span class="s2">: Total text pairs to infer: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">flat_text_pairs</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">print(</span><span class="n">flat_text_pairs</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             
             <span class="k">if</span> <span class="n">flat_text_pairs</span><span class="p">:</span>
                 <span class="c1"># Perform inference in batch</span>
@@ -369,10 +369,10 @@
                     <span class="n">truncation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                     <span class="n">max_length</span><span class="o">=</span><span class="n">max_length</span>
                 <span class="p">)</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Batch </span><span class="si">{</span><span class="n">batch_num</span><span class="si">}</span><span class="s2">: Inference completed with </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span><span class="si">}</span><span class="s2"> results.&quot;</span><span class="p">)</span>
+                <span class="n">print(</span><span class="n">results</span><span class="p">)</span><span class="si">}</span><span class="s2"> results.&quot;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Batch </span><span class="si">{</span><span class="n">batch_num</span><span class="si">}</span><span class="s2">: No text pairs to infer.&quot;</span><span class="p">)</span>
+                <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;Batch </span><span class="si">{</span><span class="n">batch_num</span><span class="si">}</span><span class="s2">: No text pairs to infer.&quot;</span><span class="p">)</span>
             
             <span class="c1"># Split results back to original rows</span>
             <span class="n">split_results</span> <span class="o">=</span> <span class="p">[]</span>
@@ -383,14 +383,14 @@
                     <span class="n">pair_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pairs</span><span class="p">)</span>
                     <span class="n">split_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="n">idx</span><span class="p">:</span><span class="n">idx</span> <span class="o">+</span> <span class="n">pair_length</span><span class="p">])</span>
                     <span class="n">idx</span> <span class="o">+=</span> <span class="n">pair_length</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Batch </span><span class="si">{</span><span class="n">batch_num</span><span class="si">}</span><span class="s2">: Split </span><span class="si">{</span><span class="n">pair_length</span><span class="si">}</span><span class="s2"> results for current row.&quot;</span><span class="p">)</span>
+                    <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;Batch </span><span class="si">{</span><span class="n">batch_num</span><span class="si">}</span><span class="s2">: Split </span><span class="si">{</span><span class="n">pair_length</span><span class="si">}</span><span class="s2"> results for current row.&quot;</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">split_results</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Batch </span><span class="si">{</span><span class="n">batch_num</span><span class="si">}</span><span class="s2">: No pairs in current row. Appended empty list.&quot;</span><span class="p">)</span>
+                    <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;Batch </span><span class="si">{</span><span class="n">batch_num</span><span class="si">}</span><span class="s2">: No pairs in current row. Appended empty list.&quot;</span><span class="p">)</span>
             
             <span class="k">yield</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">split_results</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error in inference batch </span><span class="si">{</span><span class="n">batch_num</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;Error in inference batch </span><span class="si">{</span><span class="n">batch_num</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="c1"># Yield empty results for this batch to continue processing</span>
             <span class="k">yield</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([[]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">batch</span><span class="p">])</span></div>
 

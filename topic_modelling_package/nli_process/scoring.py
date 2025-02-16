@@ -87,7 +87,7 @@ def compute_section_metrics(
             count_col[f'{label}_COUNT_{section}'] = float(sum(score_binary))
             rel_col[f'{label}_REL_{section}'] = sum(score_binary) / section_len
             score_col[f'{label}_SCORE_{section}'] = [round(score, 4) for score in scores]
-            logger.debug(
+            print(
                 f"Label: {label}, Scores: {scores}, Binary Flags: {score_binary}, "
                 f"Count: {count_col[f'{label}_COUNT_{section}']}, "
                 f"Relation: {rel_col[f'{label}_REL_{section}']}"
@@ -97,7 +97,7 @@ def compute_section_metrics(
             rel_col[f'{label}_REL_{section}'] = 0.0
             total_col[f'{label}_TOTAL_{section}'] = []
             score_col[f'{label}_SCORE_{section}'] = []
-            logger.debug(
+            print(
                 f"Label: {label}, Section length is zero. "
                 f"Set count and relation to 0, and scores to empty lists."
             )

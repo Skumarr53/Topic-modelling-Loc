@@ -79,7 +79,7 @@ def create_topic_dict(
         ][match_col].values.tolist()
         negate_dict[formatted_topic] = [word.lower() for word in negative_matches]
 
-        logger.debug(
+        print(
             f"Processed topic '{formatted_topic}': "
             f"{len(positive_matches)} positive matches, "
             f"{len(negative_matches)} negative matches."

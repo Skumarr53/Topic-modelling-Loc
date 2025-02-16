@@ -321,13 +321,13 @@
         <span class="p">][</span><span class="n">match_col</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
         <span class="n">negate_dict</span><span class="p">[</span><span class="n">formatted_topic</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">word</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">negative_matches</span><span class="p">]</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+        <span class="n">print(</span>
             <span class="sa">f</span><span class="s2">&quot;Processed topic &#39;</span><span class="si">{</span><span class="n">formatted_topic</span><span class="si">}</span><span class="s2">&#39;: &quot;</span>
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">positive_matches</span><span class="p">)</span><span class="si">}</span><span class="s2"> positive matches, &quot;</span>
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">negative_matches</span><span class="p">)</span><span class="si">}</span><span class="s2"> negative matches.&quot;</span>
         <span class="p">)</span>
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Created topic dictionaries successfully.&quot;</span><span class="p">)</span>
+    <span class="n">print(</span><span class="s2">&quot;Created topic dictionaries successfully.&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">word_set_dict</span><span class="p">,</span> <span class="n">negate_dict</span></div>
 
 
@@ -383,12 +383,12 @@
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">==</span> <span class="n">required_splits</span><span class="p">:</span>
                 <span class="n">transformed_word</span> <span class="o">=</span> <span class="n">separator</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
                 <span class="n">transformed_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">transformed_word</span><span class="p">)</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Transformed &#39;</span><span class="si">{</span><span class="n">word</span><span class="si">}</span><span class="s2">&#39; to &#39;</span><span class="si">{</span><span class="n">transformed_word</span><span class="si">}</span><span class="s2">&#39; in category &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
+                <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;Transformed &#39;</span><span class="si">{</span><span class="n">word</span><span class="si">}</span><span class="s2">&#39; to &#39;</span><span class="si">{</span><span class="n">transformed_word</span><span class="si">}</span><span class="s2">&#39; in category &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">transformed_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No transformation for &#39;</span><span class="si">{</span><span class="n">word</span><span class="si">}</span><span class="s2">&#39; in category &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
+                <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;No transformation for &#39;</span><span class="si">{</span><span class="n">word</span><span class="si">}</span><span class="s2">&#39; in category &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
     
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Replaced separators in dictionary words successfully.&quot;</span><span class="p">)</span>
+    <span class="n">print(</span><span class="s2">&quot;Replaced separators in dictionary words successfully.&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">transformed_dict</span></div>
 
 
@@ -473,7 +473,7 @@
         <span class="k">for</span> <span class="n">lab</span> <span class="ow">in</span> <span class="n">labels</span>
     <span class="p">]</span>
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Applying initial match count transformations.&quot;</span><span class="p">)</span>
+    <span class="n">print(</span><span class="s2">&quot;Applying initial match count transformations.&quot;</span><span class="p">)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df_apply_transformations</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">lab_sec_dict1</span><span class="p">)</span>
 
     <span class="k">with</span> <span class="n">ProgressBar</span><span class="p">():</span>
@@ -489,15 +489,15 @@
                 <span class="k">if</span> <span class="n">transformation_func</span><span class="p">:</span>
                     <span class="n">lab_sec_dict2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">transformation_func</span><span class="p">(</span><span class="n">topic</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">label_column</span><span class="p">))</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Statistic &#39;</span><span class="si">{</span><span class="n">stat</span><span class="si">}</span><span class="s2">&#39; not found in STATISTICS_MAP.&quot;</span><span class="p">)</span>
+                    <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;Statistic &#39;</span><span class="si">{</span><span class="n">stat</span><span class="si">}</span><span class="s2">&#39; not found in STATISTICS_MAP.&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">lab_sec_dict2</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Applying transformations for topic &#39;</span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2">&#39; and label &#39;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
+                <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;Applying transformations for topic &#39;</span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2">&#39; and label &#39;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
                 <span class="n">df</span> <span class="o">=</span> <span class="n">df_apply_transformations</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">lab_sec_dict2</span><span class="p">)</span>
 
     <span class="c1"># Drop intermediate match columns</span>
     <span class="n">intermediate_cols</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label_column</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">]</span>
     <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">intermediate_cols</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Dropped intermediate match columns: </span><span class="si">{</span><span class="n">intermediate_cols</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;Dropped intermediate match columns: </span><span class="si">{</span><span class="n">intermediate_cols</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">df</span></div>
 
@@ -554,12 +554,12 @@
     <span class="n">required_columns</span> <span class="o">=</span> <span class="n">meta_cols</span> <span class="o">+</span> <span class="p">[</span><span class="n">sort_by</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2">_STATS_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2">_TOTAL_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
     <span class="n">missing_columns</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">required_columns</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">missing_columns</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The following required columns are missing in the DataFrame: </span><span class="si">{</span><span class="n">missing_columns</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;The following required columns are missing in the DataFrame: </span><span class="si">{</span><span class="n">missing_columns</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="c1"># Filter the DataFrame to include only the required columns that exist</span>
     <span class="n">existing_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">required_columns</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">existing_columns</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No required columns found in DataFrame. Cannot generate report.&quot;</span><span class="p">)</span>
+        <span class="n">print(</span><span class="s2">&quot;No required columns found in DataFrame. Cannot generate report.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>  <span class="c1"># Return empty DataFrame</span>
 
     <span class="c1"># Sort the DataFrame based on the &#39;sort_by&#39; column in descending order</span>
@@ -577,7 +577,7 @@
     <span class="c1"># Drop rows with NaN in the &#39;sort_by&#39; column</span>
     <span class="n">report_df</span> <span class="o">=</span> <span class="n">report_df</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="n">sort_by</span><span class="p">])</span>
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generated top </span><span class="si">{</span><span class="n">top_n</span><span class="si">}</span><span class="s2"> matches report for topic &#39;</span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2">&#39; and label &#39;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
+    <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;Generated top </span><span class="si">{</span><span class="n">top_n</span><span class="si">}</span><span class="s2"> matches report for topic &#39;</span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s2">&#39; and label &#39;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">report_df</span></div>
 
 </pre></div>

@@ -303,26 +303,26 @@
             <span class="n">replace_suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;_EXTRACT_FILT_</span><span class="si">{</span><span class="n">pattern</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="n">base_column</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;FILT_</span><span class="si">{</span><span class="n">pattern</span><span class="si">}</span><span class="s2">&quot;</span>
 
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing pattern: </span><span class="si">{</span><span class="n">pattern</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;Processing pattern: </span><span class="si">{</span><span class="n">pattern</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
             <span class="c1"># Find all columns matching the current pattern</span>
             <span class="n">matched_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">regex_pattern</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">c</span><span class="p">)]</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Matched columns for pattern &#39;</span><span class="si">{</span><span class="n">pattern</span><span class="si">}</span><span class="s2">&#39;: </span><span class="si">{</span><span class="n">matched_columns</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;Matched columns for pattern &#39;</span><span class="si">{</span><span class="n">pattern</span><span class="si">}</span><span class="s2">&#39;: </span><span class="si">{</span><span class="n">matched_columns</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">col_name</span> <span class="ow">in</span> <span class="n">matched_columns</span><span class="p">:</span>
                 <span class="c1"># Generate the new column name by replacing the suffix</span>
                 <span class="n">new_col_name</span> <span class="o">=</span> <span class="n">col_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;_TOTAL_FILT_</span><span class="si">{</span><span class="n">pattern</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">replace_suffix</span><span class="p">)</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating new column &#39;</span><span class="si">{</span><span class="n">new_col_name</span><span class="si">}</span><span class="s2">&#39; from &#39;</span><span class="si">{</span><span class="n">col_name</span><span class="si">}</span><span class="s2">&#39; using base column &#39;</span><span class="si">{</span><span class="n">base_column</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+                <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;Creating new column &#39;</span><span class="si">{</span><span class="n">new_col_name</span><span class="si">}</span><span class="s2">&#39; from &#39;</span><span class="si">{</span><span class="n">col_name</span><span class="si">}</span><span class="s2">&#39; using base column &#39;</span><span class="si">{</span><span class="n">base_column</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
 
                 <span class="c1"># Apply the UDF to create the new column</span>
                 <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span><span class="n">new_col_name</span><span class="p">,</span> <span class="n">extract_udf</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">base_column</span><span class="p">),</span> <span class="n">F</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">col_name</span><span class="p">)))</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Added new column &#39;</span><span class="si">{</span><span class="n">new_col_name</span><span class="si">}</span><span class="s2">&#39; to DataFrame.&quot;</span><span class="p">)</span>
+                <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;Added new column &#39;</span><span class="si">{</span><span class="n">new_col_name</span><span class="si">}</span><span class="s2">&#39; to DataFrame.&quot;</span><span class="p">)</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Scores extracted successfully.&quot;</span><span class="p">)</span>
+        <span class="n">print(</span><span class="s2">&quot;Scores extracted successfully.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span>
 
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error in apply_extract_udf_sections: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;Error in apply_extract_udf_sections: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">raise</span> <span class="n">e</span></div>
 
 
@@ -373,13 +373,13 @@
         <span class="c1"># Rename columns if any new names are generated</span>
         <span class="k">for</span> <span class="n">old_col</span><span class="p">,</span> <span class="n">new_col</span> <span class="ow">in</span> <span class="n">new_column_names</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">withColumnRenamed</span><span class="p">(</span><span class="n">old_col</span><span class="p">,</span> <span class="n">new_col</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Renamed column &#39;</span><span class="si">{</span><span class="n">old_col</span><span class="si">}</span><span class="s2">&#39; to &#39;</span><span class="si">{</span><span class="n">new_col</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+            <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;Renamed column &#39;</span><span class="si">{</span><span class="n">old_col</span><span class="si">}</span><span class="s2">&#39; to &#39;</span><span class="si">{</span><span class="n">new_col</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Columns renamed successfully.&quot;</span><span class="p">)</span>
+        <span class="n">print(</span><span class="s2">&quot;Columns renamed successfully.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span>
 
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to rename columns: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;Failed to rename columns: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">raise</span> <span class="n">e</span></div>
 
 
@@ -432,23 +432,23 @@
         <span class="k">for</span> <span class="n">col_name</span> <span class="ow">in</span> <span class="n">float_type_cols</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">col_name</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
                 <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span><span class="n">col_name</span><span class="p">,</span> <span class="n">float_convert_udf</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">col_name</span><span class="p">)))</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Converted column &#39;</span><span class="si">{</span><span class="n">col_name</span><span class="si">}</span><span class="s2">&#39; to double type.&quot;</span><span class="p">)</span>
+                <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;Converted column &#39;</span><span class="si">{</span><span class="n">col_name</span><span class="si">}</span><span class="s2">&#39; to double type.&quot;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Column &#39;</span><span class="si">{</span><span class="n">col_name</span><span class="si">}</span><span class="s2">&#39; not found in DataFrame. Skipping conversion.&quot;</span><span class="p">)</span>
+                <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;Column &#39;</span><span class="si">{</span><span class="n">col_name</span><span class="si">}</span><span class="s2">&#39; not found in DataFrame. Skipping conversion.&quot;</span><span class="p">)</span>
 
         <span class="c1"># Convert array type columns</span>
         <span class="k">for</span> <span class="n">col_name</span> <span class="ow">in</span> <span class="n">array_type_cols</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">col_name</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
                 <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span><span class="n">col_name</span><span class="p">,</span> <span class="n">array_convert_udf</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">col_name</span><span class="p">)))</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Converted column &#39;</span><span class="si">{</span><span class="n">col_name</span><span class="si">}</span><span class="s2">&#39; to array&lt;double&gt; type.&quot;</span><span class="p">)</span>
+                <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;Converted column &#39;</span><span class="si">{</span><span class="n">col_name</span><span class="si">}</span><span class="s2">&#39; to array&lt;double&gt; type.&quot;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Column &#39;</span><span class="si">{</span><span class="n">col_name</span><span class="si">}</span><span class="s2">&#39; not found in DataFrame. Skipping conversion.&quot;</span><span class="p">)</span>
+                <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;Column &#39;</span><span class="si">{</span><span class="n">col_name</span><span class="si">}</span><span class="s2">&#39; not found in DataFrame. Skipping conversion.&quot;</span><span class="p">)</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Column types converted successfully.&quot;</span><span class="p">)</span>
+        <span class="n">print(</span><span class="s2">&quot;Column types converted successfully.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span>
 
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to convert column types: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;Failed to convert column types: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">raise</span> <span class="n">e</span></div>
 
 
@@ -488,12 +488,12 @@
     <span class="k">try</span><span class="p">:</span>
         <span class="c1"># Step 1: Extract keys from nested columns and create new columns</span>
         <span class="k">for</span> <span class="n">nested_col</span> <span class="ow">in</span> <span class="n">nested_columns</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing nested column: </span><span class="si">{</span><span class="n">nested_col</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;Processing nested column: </span><span class="si">{</span><span class="n">nested_col</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
             <span class="c1"># Extract the keys from the first row to determine the new column names</span>
             <span class="n">first_row</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">nested_col</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">first_row</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">first_row</span><span class="p">[</span><span class="n">nested_col</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No data found in column &#39;</span><span class="si">{</span><span class="n">nested_col</span><span class="si">}</span><span class="s2">&#39;. Skipping extraction.&quot;</span><span class="p">)</span>
+                <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;No data found in column &#39;</span><span class="si">{</span><span class="n">nested_col</span><span class="si">}</span><span class="s2">&#39;. Skipping extraction.&quot;</span><span class="p">)</span>
                 <span class="k">continue</span>
 
             <span class="c1"># Determine if the nested column is a MapType or StructType</span>
@@ -504,10 +504,10 @@
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">extracted_keys</span> <span class="o">=</span> <span class="n">first_row</span><span class="p">[</span><span class="n">nested_col</span><span class="p">]</span><span class="o">.</span><span class="n">asDict</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
                 <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported nested column type for &#39;</span><span class="si">{</span><span class="n">nested_col</span><span class="si">}</span><span class="s2">&#39;. Skipping extraction.&quot;</span><span class="p">)</span>
+                    <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;Unsupported nested column type for &#39;</span><span class="si">{</span><span class="n">nested_col</span><span class="si">}</span><span class="s2">&#39;. Skipping extraction.&quot;</span><span class="p">)</span>
                     <span class="k">continue</span>
 
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Extracted keys from &#39;</span><span class="si">{</span><span class="n">nested_col</span><span class="si">}</span><span class="s2">&#39;: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">extracted_keys</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">print(</span><span class="n">extracted_keys</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
             <span class="c1"># Create a new column for each key</span>
             <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">extracted_keys</span><span class="p">:</span>
@@ -515,11 +515,11 @@
                 <span class="n">clean_key</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
                 <span class="n">new_col_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">clean_key</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span><span class="n">new_col_name</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">nested_col</span><span class="p">)</span><span class="o">.</span><span class="n">getItem</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Added new column &#39;</span><span class="si">{</span><span class="n">new_col_name</span><span class="si">}</span><span class="s2">&#39; from &#39;</span><span class="si">{</span><span class="n">nested_col</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+                <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;Added new column &#39;</span><span class="si">{</span><span class="n">new_col_name</span><span class="si">}</span><span class="s2">&#39; from &#39;</span><span class="si">{</span><span class="n">nested_col</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
 
         <span class="c1"># Step 2: Drop the original nested columns</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="o">*</span><span class="n">nested_columns</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Dropped nested columns: </span><span class="si">{</span><span class="n">nested_columns</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;Dropped nested columns: </span><span class="si">{</span><span class="n">nested_columns</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="c1"># Step 3: Rename all columns by removing dots</span>
         <span class="n">new_column_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
@@ -528,9 +528,9 @@
         <span class="k">for</span> <span class="n">old_col</span><span class="p">,</span> <span class="n">new_col</span> <span class="ow">in</span> <span class="n">rename_mapping</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">old_col</span> <span class="o">!=</span> <span class="n">new_col</span><span class="p">:</span>
                 <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">withColumnRenamed</span><span class="p">(</span><span class="n">old_col</span><span class="p">,</span> <span class="n">new_col</span><span class="p">)</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Renamed column &#39;</span><span class="si">{</span><span class="n">old_col</span><span class="si">}</span><span class="s2">&#39; to &#39;</span><span class="si">{</span><span class="n">new_col</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+                <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;Renamed column &#39;</span><span class="si">{</span><span class="n">old_col</span><span class="si">}</span><span class="s2">&#39; to &#39;</span><span class="si">{</span><span class="n">new_col</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Renamed all columns by removing dots.&quot;</span><span class="p">)</span>
+        <span class="n">print(</span><span class="s2">&quot;Renamed all columns by removing dots.&quot;</span><span class="p">)</span>
 
         <span class="c1"># Step 4: Prepare the list of columns to select</span>
         <span class="c1"># Clean fixed_columns by removing dots, if any</span>
@@ -545,16 +545,16 @@
 
         <span class="n">missing_columns</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">fixed_columns_clean</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">existing_columns</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">missing_columns</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The following fixed columns are missing and will be skipped: </span><span class="si">{</span><span class="n">missing_columns</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;The following fixed columns are missing and will be skipped: </span><span class="si">{</span><span class="n">missing_columns</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="c1"># Select the specified columns</span>
         <span class="n">df_selected</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="o">*</span><span class="n">columns_to_select</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Selected the specified subset of columns.&quot;</span><span class="p">)</span>
+        <span class="n">print(</span><span class="s2">&quot;Selected the specified subset of columns.&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">df_selected</span>
 
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to process DataFrame: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">print(</span><span class="sa">f</span><span class="s2">&quot;Failed to process DataFrame: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">raise</span> <span class="n">e</span></div>
 
 </pre></div>

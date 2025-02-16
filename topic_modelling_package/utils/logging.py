@@ -14,7 +14,7 @@ def setup_logging(env: str  = "dev"):
         log_level (str): Logging level. Defaults to "INFO".
     """
     # Remove any existing handlers (useful when setting up logging multiple times in tests or notebooks)
-    logger.remove()
+    print()
 
     if env == "prod":
         log_level = "ERROR"        
@@ -26,7 +26,7 @@ def setup_logging(env: str  = "dev"):
     # os.makedirs(log_directory, exist_ok=True)
     
     # Console Handler
-    logger.add(
+    print(
         sys.stdout,
         level=log_level,
         format=(
@@ -41,5 +41,5 @@ def setup_logging(env: str  = "dev"):
     )
         
     # # File Handler with Rotation and Retention
-    # logger.add(log_file_path, level=log_level, format="{time} | {level:10} | {message}", rotation="10 MB", retention="7 days", compression="zip")
+    # print(log_file_path, level=log_level, format="{time} | {level:10} | {message}", rotation="10 MB", retention="7 days", compression="zip")
     print("Logging setup completed.")

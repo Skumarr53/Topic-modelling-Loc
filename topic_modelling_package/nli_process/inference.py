@@ -68,7 +68,7 @@ def inference_summary(
                 total_flag = 1 if score > threshold else 0
                 total_dict[text2_label].append(total_flag)
                 score_dict[text2_label].append(score)
-                logger.debug(
+                print(
                     f"Label: {text2_label}, Score: {score}, "
                     f"Flag: {total_flag} (Threshold: {threshold})"
                 )
