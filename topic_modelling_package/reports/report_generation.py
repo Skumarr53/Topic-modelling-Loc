@@ -260,7 +260,7 @@ def generate_top_matches_report(
     label: str,
     sort_by: str,
     top_n: int = 100,
-    meta_cols: Optional[List[str]] = None
+    meta_cols: List[str] = ['ENTITY_ID', 'CALL_NAME', 'EVENT_DATETIME_UTC', 'COMPANY_NAME']
 ) -> pd.DataFrame:
     """
     Generates a report based on top matches for a given topic.
@@ -297,8 +297,6 @@ def generate_top_matches_report(
         0          1     Call1           2021-01-01     CompanyA   0.95                     5                     5
         1          2     Call2           2021-01-02     CompanyB   0.85                     3                     3
     """
-    if meta_cols is None:
-        meta_cols = ['ENTITY_ID', 'CALL_NAME', 'EVENT_DATETIME_UTC', 'COMPANY_NAME']
 
     required_columns = meta_cols + [sort_by, f"{topic}_STATS_{label}", f"{topic}_TOTAL_{label}"]
     missing_columns = set(required_columns) - set(df.columns)
