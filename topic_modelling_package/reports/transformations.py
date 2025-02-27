@@ -163,7 +163,7 @@ def extract_transformation(topic: str, label: str, label_column: str) -> Transfo
     return (
         f"{topic}_EXTRACT_{label}",
         [label, f"{topic}_TOTAL_{label}"],
-        lambda x: " ".join([y for y, z in zip(x['label'], x[f"{topic}_TOTAL_{label}"]) if z > 0]),
+        lambda x: " ".join([y for y, z in zip(x[label], x[f"{topic}_TOTAL_{label}"]) if z > 0]),
     )
 
 def sentiment_transformation(topic: str, label: str, label_column: str) -> Transformation:
