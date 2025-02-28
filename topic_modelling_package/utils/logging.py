@@ -17,7 +17,7 @@ def setup_logging(env: str  = "dev"):
     logger.remove()
 
     if env == "prod":
-        log_level = "ERROR"        
+        log_level = "INFO"        
     else:
         log_level = "DEBUG"
 

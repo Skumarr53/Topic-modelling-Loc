@@ -6,7 +6,8 @@ import spacy
 from loguru import logger
 import dask.dataframe as dd
 from dask.diagnostics import ProgressBar
-
+import multiprocessing as mp
+from functools import partial
 from topic_modelling_package.processing.match_operations import create_match_patterns, count_matches_in_single_sentence
 from centralized_nlp_package.data_processing import df_apply_transformations
 from topic_modelling_package.reports import STATISTICS_MAP
@@ -153,6 +154,7 @@ def generate_topic_report(
     negate_dict: Dict[str, List[str]],
     nlp: spacy.Language,
     stats_list: List[str],
+    phrases: bool = False,
     dask_partitions: int = 4,
     label_column: str = "matches",
 ) -> pd.DataFrame:
@@ -214,26 +216,23 @@ def generate_topic_report(
     if unsupported_stats:
         raise ValueError(f"Unsupported statistics requested: {unsupported_stats}")
     
-
-    ## convert to dataframe to Dask dataframe
-    df = dd.from_pandas(df, npartitions = dask_partitions)
+    count_matches_in_single_sentence_par = partial(count_matches_in_single_sentence, 
+                                                   match_sets = word_set_dict, 
+                                                   nlp = nlp, phrases = phrases, 
+                                                   suppress=negate_dict)
 
     # Initial transformations: match counts
     labels = ["FILT_MD", "FILT_QA"]
-    lab_sec_dict1 = [
-        (f"{label_column}_{lab}", lab, lambda x: count_matches_in_single_sentence(x, word_set_dict, nlp, suppress=negate_dict))
-        for lab in labels
-    ]
 
     logger.info("Applying initial match count transformations.")
-    df = df_apply_transformations(df, lab_sec_dict1)
 
-    with ProgressBar():
-        df = df.compute()
+    with mp.Pool(min(mp.cpu_count(), dask_partitions)) as pool:
+        for lab in labels:
+            df[f"{label_column}_{lab}"] = pool.map(count_matches_in_single_sentence_par, df[lab])
 
     # Iterate over labels and topics to apply selected statistics
     for label in labels:
-        df['matches_' + label] = df['matches_' + label].apply(ast.literal_eval)
+        # df['matches_' + label] = df['matches_' + label].apply(ast.literal_eval)
         for topic in word_set_dict.keys():
             lab_sec_dict2 = []
             for stat in stats_list:
