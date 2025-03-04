@@ -6,7 +6,8 @@ from .match_operations import (
     transform_match_keywords_df,
     count_matches_in_single_sentence,
     calculate_binary_match_flags,
-    merge_count_dicts
+    merge_count_dicts,
+    transform_datm_keywords_df
 )
 
 __all__ = [
@@ -16,4 +17,5 @@ __all__ = [
     'count_matches_in_single_sentence',
     'calculate_binary_match_flags',
     'merge_count_dicts',
+    'transform_datm_keywords_df'
 ]
