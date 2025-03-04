@@ -101,6 +101,28 @@ def transform_match_keywords_df(match_keywords_df: pd.DataFrame) -> pd.DataFrame
     
     return df_output
 
+def transform_datm_keywords_df(datm_keywords_df: pd.DataFrame) -> pd.DataFrame:
+
+    transformations2 =  [
+        ("TOP60_KEYWORDS_COSINE", "TOP60_KEYWORDS_COSINE", ast.literal_eval),
+        ("KEYWORDS", "KEYWORDS", ast.literal_eval),
+        ("TOP60_KEYWORDS_COSINE", "TOP60_KEYWORDS_COSINE", lambda x: [(item['word'], item['score']) for item in x]),
+        ("TOPIC_ID", "TOPIC_ID", int)
+        ]
+
+    datm_keywords_df = df_apply_transformations(datm_keywords_df, transformations2)
+
+    datm_keywords_df = datm_keywords_df.sort_values(by=['TOPIC_ID'])
+    datm_keywords_df.reset_index(drop=True, inplace=True)
+
+    transformations3 = ["NeGATION", "NEGATION", lambda x: ast.literal_eval(x) if pd.notna(x) else x]
+
+    labeled_m1_df = df_apply_transformations(labeled_m1_df, transformations3)
+
+    datm_keywords_df = datm_keywords_df[datm_keywords_df['INCLUDED'] == 1]
+
+    return datm_keywords_df
+
 
 def create_match_patterns(matches: List[str], nlp: spacy.Language) -> Dict[str, Any]:
     """
