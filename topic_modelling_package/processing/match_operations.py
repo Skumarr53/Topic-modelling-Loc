@@ -115,7 +115,7 @@ def transform_datm_keywords_df(datm_keywords_df: pd.DataFrame) -> pd.DataFrame:
     datm_keywords_df = datm_keywords_df.sort_values(by=['TOPIC_ID'])
     datm_keywords_df.reset_index(drop=True, inplace=True)
 
-    transformations3 = ["NeGATION", "NEGATION", lambda x: ast.literal_eval(x) if pd.notna(x) else x]
+    transformations3 = ["NEGATION", "NEGATION", lambda x: ast.literal_eval(x) if pd.notna(x) else x]
 
     datm_keywords_df = df_apply_transformations(datm_keywords_df, transformations3)
 
