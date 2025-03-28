@@ -146,9 +146,8 @@ def inference_run(
             yield pd.Series(split_results)
         except Exception as e:
             logger.error(f"Error in inference batch {batch_num}: {e}")
-            # Yield empty results for this batch to continue processing
-            yield pd.Series([[] for _ in batch])
-
+            raise Exception(f"Error in inference batch {batch_num}: {e}")
+        
 def extract_inf(row, section_len, section, threshold):
     """
     Extracts sentiment information from a row of scores based on a specified threshold.
